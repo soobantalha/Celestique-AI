@@ -1,3 +1,129 @@
+// Add this to the top of your app.js file
+// Initialize EmailJS with your Public Key
+(function() {
+  emailjs.init("bOlKnGmxZdWtgo00b"); // Replace with your EmailJS public key
+})();
+
+// Add this function to handle the welcome modal and email sending
+function initWelcomeModal() {
+  const welcomeModal = document.getElementById('welcome-modal');
+  const userForm = document.getElementById('user-form');
+  const userNameInput = document.getElementById('user-name');
+  const userEmailInput = document.getElementById('user-email');
+  
+  // Check if user has already submitted name
+  const userName = localStorage.getItem('celestiqueUserName');
+  
+  if (userName) {
+    // User already submitted name, hide modal
+    welcomeModal.classList.add('hidden');
+    showPersonalizedWelcome(userName);
+  } else {
+    // Show modal for new users
+    welcomeModal.classList.remove('hidden');
+  }
+  
+  // Handle form submission
+  userForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const userName = userNameInput.value.trim();
+    const userEmail = userEmailInput.value.trim();
+    
+    if (!userName) return;
+    
+    // Save to localStorage
+    localStorage.setItem('celestiqueUserName', userName);
+    if (userEmail) {
+      localStorage.setItem('celestiqueUserEmail', userEmail);
+    }
+    
+    // Send email notification
+    try {
+      await sendUserNotification(userName, userEmail);
+    } catch (error) {
+      console.error('Failed to send email:', error);
+    }
+    
+    // Hide modal
+    welcomeModal.classList.add('hidden');
+    
+    // Show personalized welcome
+    showPersonalizedWelcome(userName);
+  });
+}
+
+// Function to send email notification
+async function sendUserNotification(userName, userEmail) {
+  const templateParams = {
+    to_name: 'Sooban Talha',
+    from_name: userName,
+    user_email: userEmail || 'Not provided',
+    message: `New user registration: ${userName} has joined Célestique AI!`,
+    reply_to: userEmail || 'no-reply@celestiqueai.com'
+  };
+  
+  try {
+    await emailjs.send('service_4cw0qrk', 'template_wdom6g5', templateParams);
+    console.log('Email sent successfully!');
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    throw error;
+  }
+}
+
+// Function to show personalized welcome message
+function showPersonalizedWelcome(userName) {
+  const welcomeMessage = `
+    <div class="personalized-welcome">
+      <h3>🌟 Welcome back, ${userName}!</h3>
+      <p>We're delighted to have you back at Célestique AI. What culinary masterpiece shall we create today?</p>
+      
+      <div class="example-prompts">
+        <h4>Try asking me:</h4>
+        <div class="prompt-suggestions">
+          <button class="suggestion-btn" onclick="userInput.value='chocolate lava cake'; sendMessage();">🍫 Chocolate Lava Cake</button>
+          <button class="suggestion-btn" onclick="userInput.value='seafood pasta'; sendMessage();">🦐 Seafood Pasta</button>
+          <button class="suggestion-btn" onclick="userInput.value='healthy salad'; sendMessage();">🥗 Healthy Salad</button>
+          <button class="suggestion-btn" onclick="userInput.value='homemade pizza'; sendMessage();">🍕 Homemade Pizza</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Add welcome message to chat
+  addMessage(welcomeMessage);
+}
+
+// Add this CSS for the personalized welcome
+const welcomeStyles = `
+  .personalized-welcome {
+    background: linear-gradient(135deg, rgba(110, 69, 226, 0.1), rgba(255, 107, 107, 0.1));
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    margin: 10px 0;
+  }
+  
+  .personalized-welcome h3 {
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-family: 'Cinzel', serif;
+  }
+`;
+
+// Add styles to document
+const styleSheet = document.createElement('style');
+styleSheet.textContent = welcomeStyles;
+document.head.appendChild(styleSheet);
+
+// Update your DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+  initLuxuryEffects();
+  initWelcomeModal(); // Add this line
+  
+  // ... rest of your existing code
+});
 // Guaranteed working recipe generator
 module.exports = async (req, res) => {
   // Handle CORS
@@ -66,8 +192,8 @@ async function generateRecipeWithAI(userInput) {
   try {
     // Try multiple models in sequence
     const models = [
-      'deepseek/deepseek-chat-v3.1:free',
       'x-ai/grok-4-fast:free',
+      'deepseek/deepseek-chat-v3.1:free',
       'deepseek/deepseek-r1-0528:free'
     ];
 
@@ -215,3 +341,42 @@ function generateFallbackRecipe(input) {
     powered_by: 'Célestique AI Fallback'
   };
 }
+// Add this code to your existing app.js file
+
+// Mobile-specific improvements
+function initMobileOptimizations() {
+  // Check if mobile device
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  if (isMobile) {
+    // Add mobile class to body for CSS targeting
+    document.body.classList.add('mobile-device');
+    
+    // Improve touch experience
+    document.querySelectorAll('button').forEach(btn => {
+      btn.style.minHeight = '44px';
+    });
+    
+    // Prevent zoom on input focus
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        document.body.style.zoom = '100%';
+      });
+    });
+    
+    // Adjust chat messages padding for mobile
+    const chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+      chatMessages.style.paddingBottom = '80px';
+    }
+  }
+}
+
+// Call this function in your DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', () => {
+  initLuxuryEffects();
+  initMobileOptimizations(); // Add this line
+  
+  // ... rest of your existing code
+});
