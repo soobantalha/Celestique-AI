@@ -74,8 +74,8 @@ async function sendMessage() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
     try {
-        // Call our backend API
-        const response = await fetch('/api/recipe', {
+        // Call our backend API with full URL for Vercel
+        const response = await fetch('https://celestiqueai.vercel.app/api/recipe', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -83,14 +83,19 @@ async function sendMessage() {
             body: JSON.stringify({ message: message })
         });
         
+        console.log('API Response status:', response.status);
+        
         // Remove loading indicator
         chatMessages.removeChild(loadingDiv);
         
         if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API Error:', errorText);
+            throw new Error(`API error: ${response.status} - ${errorText}`);
         }
         
         const data = await response.json();
+        console.log('API Response data:', data);
         
         if (data.error) {
             addMessage(`Error: ${data.error}`, 'bot');
@@ -100,6 +105,7 @@ async function sendMessage() {
         // Display the recipe
         displayRecipe(data);
     } catch (error) {
+        console.error('Fetch error:', error);
         // Remove loading indicator
         if (chatMessages.contains(loadingDiv)) {
             chatMessages.removeChild(loadingDiv);
