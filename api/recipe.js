@@ -117,7 +117,7 @@ async function tryModel(model, prompt) {
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     const recipe = JSON.parse(jsonMatch[0]);
-    recipe.powered_by = model;
+    recipe.powered_by = 'Célestique AI';
     recipe.generated_at = new Date().toISOString();
     return recipe;
   }
