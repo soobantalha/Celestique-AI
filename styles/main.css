@@ -673,3 +673,254 @@ footer {
     0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
 }
+/* Add these styles at the end of your main.css file */
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  /* Header adjustments */
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .logo {
+    justify-content: center;
+  }
+  
+  .company-badge {
+    order: 3;
+    margin-top: 10px;
+  }
+  
+  nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  /* Hero section adjustments */
+  .hero {
+    padding: 60px 0;
+  }
+  
+  .hero h2 {
+    font-size: 32px;
+  }
+  
+  .hero p {
+    font-size: 16px;
+    padding: 0 15px;
+  }
+  
+  /* Chat container adjustments */
+  .chat-container {
+    margin: 20px auto;
+    border-radius: 10px;
+  }
+  
+  .chat-header {
+    padding: 15px;
+  }
+  
+  .chat-header h2 {
+    font-size: 20px;
+  }
+  
+  .chat-messages {
+    height: 50vh;
+    padding: 15px;
+  }
+  
+  .message {
+    max-width: 90%;
+    padding: 12px 15px;
+  }
+  
+  .chat-input {
+    padding: 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .chat-input input {
+    width: 100%;
+    margin: 0;
+  }
+  
+  .chat-input button {
+    width: 100%;
+    margin: 0;
+  }
+  
+  /* Recipe card adjustments */
+  .recipe-card {
+    padding: 20px;
+  }
+  
+  .recipe-title {
+    font-size: 24px;
+  }
+  
+  .recipe-meta {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .recipe-stats {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .stat-item {
+    padding: 10px;
+  }
+  
+  /* Features section adjustments */
+  .features h2 {
+    font-size: 32px;
+    margin-bottom: 40px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .feature-card {
+    padding: 20px;
+  }
+  
+  /* Footer adjustments */
+  .footer-links {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  /* Mobile-specific fixes for chat */
+  .chat-messages {
+    padding-bottom: 80px; /* Space for input */
+  }
+  
+  .chat-input {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    z-index: 1000;
+  }
+  
+  /* Improve touch targets */
+  button, .suggestion-btn {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  input, textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Very small devices */
+@media (max-width: 480px) {
+  .hero h2 {
+    font-size: 28px;
+  }
+  
+  .logo h1 {
+    font-size: 28px;
+  }
+  
+  .recipe-title {
+    font-size: 22px;
+  }
+  
+  .recipe-section h4 {
+    font-size: 18px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+  }
+  
+  /* Adjust message font sizes */
+  .message p {
+    font-size: 14px;
+  }
+  
+  .ingredients-list li, 
+  .instructions-list li, 
+  .tips-list li {
+    font-size: 14px;
+  }
+}
+
+/* Fix for mobile viewport height issue */
+@media (max-width: 768px) {
+  body, html {
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  .chat-messages {
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent horizontal scrolling */
+.container {
+  overflow-x: hidden;
+}
+
+/* Improve loading animation on mobile */
+@media (max-width: 768px) {
+  .luxury-loader {
+    justify-content: center;
+  }
+  
+  .ai-thinking {
+    padding: 15px;
+  }
+  
+  .thinking-text {
+    font-size: 14px;
+  }
+}
+
+/* Recipe card mobile optimizations */
+@media (max-width: 768px) {
+  .ingredients-list li, 
+  .instructions-list li, 
+  .tips-list li {
+    padding-left: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .instructions-list li:before {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+}
+
+/* Welcome message adjustments */
+@media (max-width: 768px) {
+  .welcome-message {
+    padding: 20px;
+    margin: 15px 0;
+  }
+  
+  .prompt-suggestions {
+    grid-template-columns: 1fr;
+  }
+  
+  .suggestion-btn {
+    font-size: 14px;
+    padding: 12px;
+  }
+}
