@@ -1,4 +1,4 @@
-// Enhanced recipe generator using DeepSeek AI via OpenRouter
+// Guaranteed working recipe generator
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,176 +21,197 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Call DeepSeek AI via OpenRouter
-    const recipe = await generateRecipeWithDeepSeek(message);
+    // Try to generate recipe with AI
+    let recipe;
+    try {
+      recipe = await generateRecipeWithAI(message);
+    } catch (aiError) {
+      console.error('AI generation failed, using fallback:', aiError);
+      recipe = generateFallbackRecipe(message);
+    }
+
     res.status(200).json(recipe);
 
   } catch (error) {
-    console.error('Error:', error);
-    
-    // Use fallback recipe instead of error response
+    console.error('Unexpected error:', error);
+    // Use fallback recipe
     const fallbackRecipe = generateFallbackRecipe(message);
     res.status(200).json(fallbackRecipe);
   }
 };
 
-// Generate recipe using DeepSeek AI
-async function generateRecipeWithDeepSeek(userInput) {
+// Generate recipe using AI
+async function generateRecipeWithAI(userInput) {
   // Check if API key is available
   if (!process.env.OPENROUTER_API_KEY) {
-    console.error('OpenRouter API key is not set');
-    throw new Error('API service is temporarily unavailable. Using fallback recipe.');
+    throw new Error('API key not configured');
   }
 
-  // Construct the enhanced prompt for recipe generation
-  const prompt = `Create a gourmet recipe based on: "${userInput}"
-
-Respond with ONLY a valid JSON object in this exact structure:
-
-{
-  "name": "Recipe name",
-  "cuisine": "Cuisine type",
-  "difficulty": "Easy/Medium/Hard",
-  "prep_time": "X minutes",
-  "cook_time": "X minutes", 
-  "serves": "X people",
-  "ingredients": [
-    "precise measurement ingredient 1",
-    "precise measurement ingredient 2"
-  ],
-  "instructions": [
-    "Detailed step 1 with technique",
-    "Detailed step 2 with technique"
-  ],
-  "chef_tips": [
-    "Professional tip 1",
-    "Professional tip 2"
-  ],
-  "score": 90
-}
-
-Make it restaurant-quality with precise measurements and professional techniques.`;
+  // Simple prompt that works reliably
+  const prompt = `Create a recipe for: ${userInput}. 
+  Respond with JSON in this format: 
+  {
+    "name": "Recipe name",
+    "cuisine": "Cuisine type",
+    "difficulty": "Easy/Medium/Hard",
+    "prep_time": "X minutes",
+    "cook_time": "X minutes",
+    "serves": "X people",
+    "ingredients": ["ingredient 1", "ingredient 2"],
+    "instructions": ["step 1", "step 2"],
+    "chef_tips": ["tip 1", "tip 2"],
+    "score": 85
+  }`;
 
   try {
-    console.log('Making API call to DeepSeek...');
+    // Try multiple models in sequence
+    const models = [
+      'deepseek/deepseek-chat-v3.1:free',
+      'x-ai/grok-4-fast:free',
+      'deepseek/deepseek-r1-0528:free'
+    ];
 
-    // Call OpenRouter API with DeepSeek model
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://celestiqueai.vercel.app',
-        'X-Title': 'Célestique AI Recipe Generator'
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a master chef. Always respond with valid JSON only, no additional text.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.7
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenRouter API error:', response.status, errorText);
-      throw new Error(`API service temporarily unavailable`);
-    }
-
-    const data = await response.json();
-    console.log('DeepSeek API response received');
-
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid API response structure:', data);
-      throw new Error('Invalid API response');
-    }
-
-    const recipeText = data.choices[0].message.content.trim();
-    console.log('Raw AI response:', recipeText.substring(0, 200) + '...');
-
-    // Clean the response and extract JSON
-    let jsonString = recipeText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-
-    // Find JSON object in the response
-    const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      jsonString = jsonMatch[0];
-    }
-
-    try {
-      const parsedRecipe = JSON.parse(jsonString);
-
-      // Validate the required fields
-      if (!parsedRecipe.name || !parsedRecipe.ingredients || !parsedRecipe.instructions) {
-        throw new Error('Missing required recipe fields');
+    for (const model of models) {
+      try {
+        const recipe = await tryModel(model, prompt);
+        if (recipe) return recipe;
+      } catch (error) {
+        console.log(`Model ${model} failed, trying next`);
       }
-
-      // Add metadata
-      parsedRecipe.generated_at = new Date().toISOString();
-      parsedRecipe.powered_by = 'DeepSeek AI';
-
-      console.log('Successfully parsed recipe:', parsedRecipe.name);
-      return parsedRecipe;
-
-    } catch (parseError) {
-      console.error('JSON parse error:', parseError);
-      throw new Error('Failed to parse AI response');
     }
+
+    throw new Error('All models failed');
 
   } catch (error) {
-    console.error('DeepSeek API error:', error);
+    console.error('AI generation error:', error);
     throw error;
   }
 }
 
+// Try a specific model
+async function tryModel(model, prompt) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer': 'https://celestiqueai.vercel.app',
+      'X-Title': 'Célestique AI'
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2000,
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Model ${model} failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0].message.content;
+  
+  // Extract JSON from response
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    const recipe = JSON.parse(jsonMatch[0]);
+    recipe.powered_by = model;
+    recipe.generated_at = new Date().toISOString();
+    return recipe;
+  }
+
+  throw new Error('No JSON found in response');
+}
+
 // Enhanced fallback recipe generator
 function generateFallbackRecipe(input) {
-  const fallbackRecipes = [
-    {
-      "name": "Truffle Infused Wild Mushroom Risotto",
-      "cuisine": "Italian",
-      "difficulty": "Intermediate",
-      "prep_time": "45 minutes",
-      "cook_time": "25 minutes",
-      "serves": "4 people",
-      "ingredients": [
-        "1 cup Arborio rice", "4 cups vegetable broth", "1 cup mixed wild mushrooms",
-        "2 tbsp black truffle oil", "1 shallot, finely chopped", "1/2 cup dry white wine",
-        "1/4 cup grated Parmesan cheese", "2 tbsp butter", "1 tbsp fresh thyme leaves",
-        "Salt and white pepper to taste", "Fresh truffle shavings for garnish"
+  const recipes = {
+    'pasta': {
+      name: 'Gourmet Pasta Carbonara',
+      cuisine: 'Italian',
+      difficulty: 'Medium',
+      prep_time: '15 minutes',
+      cook_time: '15 minutes',
+      serves: '4 people',
+      ingredients: [
+        '400g spaghetti',
+        '200g pancetta or guanciale, diced',
+        '4 large eggs',
+        '100g Pecorino Romano, grated',
+        'Black pepper, freshly cracked',
+        'Salt to taste'
       ],
-      "instructions": [
-        "Heat the truffle oil in a large pan over medium heat. Add shallots and sauté until translucent.",
-        "Add wild mushrooms and cook until they release their moisture and become golden.",
-        "Stir in Arborio rice, coating it with the oil and toasting for 2 minutes.",
-        "Pour in white wine and cook until mostly absorbed, stirring constantly.",
-        "Add warm broth one ladle at a time, allowing each addition to be absorbed before adding the next.",
-        "Continue this process until rice is creamy yet al dente (about 18-20 minutes).",
-        "Remove from heat and stir in butter, Parmesan, and thyme. Season to taste.",
-        "Serve immediately garnished with fresh truffle shavings and a drizzle of truffle oil."
+      instructions: [
+        'Bring a large pot of salted water to boil and cook spaghetti until al dente',
+        'Meanwhile, cook pancetta in a large pan until crispy',
+        'Whisk eggs with Pecorino Romano and black pepper',
+        'Drain pasta, reserving 1 cup cooking water',
+        'Add hot pasta to pancetta pan, remove from heat',
+        'Quickly stir in egg mixture, adding pasta water as needed',
+        'Serve immediately with extra cheese and pepper'
       ],
-      "chef_tips": [
-        "Use a wide, shallow pan for even cooking of the risotto.",
-        "Keep broth at a steady simmer to maintain cooking temperature.",
-        "Stir constantly to develop the creamy starch texture.",
-        "For extra richness, finish with a tablespoon of mascarpone."
+      chef_tips: [
+        'Remove pan from heat before adding eggs to prevent scrambling',
+        'Use freshly grated cheese for best flavor'
       ],
-      "nutritional_notes": "Rich in carbohydrates with moderate protein content",
-      "wine_pairing": "Chardonnay or Pinot Noir",
-      "score": 92,
-      "powered_by": "Célestique AI Fallback"
+      score: 88,
+      powered_by: 'Célestique AI Fallback'
+    },
+    'chicken': {
+      name: 'Herb-Roasted Chicken',
+      cuisine: 'International',
+      difficulty: 'Easy',
+      prep_time: '10 minutes',
+      cook_time: '45 minutes',
+      serves: '4 people',
+      ingredients: [
+        '1 whole chicken (1.5kg)',
+        '2 tbsp olive oil',
+        '1 lemon, halved',
+        '4 garlic cloves, crushed',
+        '1 tbsp fresh rosemary, chopped',
+        '1 tbsp fresh thyme, chopped',
+        'Salt and pepper to taste'
+      ],
+      instructions: [
+        'Preheat oven to 200°C (400°F)',
+        'Pat chicken dry and rub with olive oil',
+        'Season inside and out with salt, pepper, and herbs',
+        'Place lemon halves and garlic inside cavity',
+        'Roast for 45-60 minutes until golden and juices run clear',
+        'Let rest for 10 minutes before carving'
+      ],
+      chef_tips: [
+        'Let chicken come to room temperature before roasting',
+        'Use a meat thermometer to ensure perfect doneness'
+      ],
+      score: 85,
+      powered_by: 'Célestique AI Fallback'
     }
-  ];
-  
-  // Select a random fallback recipe
-  return fallbackRecipes[Math.floor(Math.random() * fallbackRecipes.length)];
+  };
+
+  // Find the best matching recipe
+  const lowerInput = input.toLowerCase();
+  for (const [key, recipe] of Object.entries(recipes)) {
+    if (lowerInput.includes(key)) {
+      return recipe;
+    }
+  }
+
+  // Default fallback
+  return {
+    name: 'Gourmet ' + input,
+    cuisine: 'International',
+    difficulty: 'Medium',
+    prep_time: '30 minutes',
+    cook_time: '30 minutes',
+    serves: '4 people',
+    ingredients: ['Check back soon for this recipe!'],
+    instructions: ['Our AI chef is perfecting this recipe for you.'],
+    chef_tips: ['Try asking for a different recipe in the meantime'],
+    score: 0,
+    powered_by: 'Célestique AI Fallback'
+  };
 }
