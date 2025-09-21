@@ -70,7 +70,7 @@ async function generateRecipeWithDeepSeek(message) {
         'X-Title': 'Célestique AI Recipe Generator'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat',
+        model: 'deepseek/deepseek-chat-v3.1:free',
         messages: [
           {
             role: 'user',
