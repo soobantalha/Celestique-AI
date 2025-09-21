@@ -1,4 +1,3 @@
-
 // Guaranteed working recipe generator
 module.exports = async (req, res) => {
   // Handle CORS
@@ -58,7 +57,7 @@ async function generateRecipeWithAI(userInput) {
     "prep_time": "X minutes",
     "cook_time": "X minutes",
     "serves": "X people",
-    "ingredients": ["ingredient 1", "ingredient 2"],
+    "ingredients": ["ingredient 1", "instruction 2"],
     "instructions": ["step 1", "step 2"],
     "chef_tips": ["tip 1", "tip 2"],
     "score": 85
@@ -216,42 +215,3 @@ function generateFallbackRecipe(input) {
     powered_by: 'Célestique AI Fallback'
   };
 }
-// Add this code to your existing app.js file
-
-// Mobile-specific improvements
-function initMobileOptimizations() {
-  // Check if mobile device
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  
-  if (isMobile) {
-    // Add mobile class to body for CSS targeting
-    document.body.classList.add('mobile-device');
-    
-    // Improve touch experience
-    document.querySelectorAll('button').forEach(btn => {
-      btn.style.minHeight = '44px';
-    });
-    
-    // Prevent zoom on input focus
-    const inputs = document.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      input.addEventListener('focus', () => {
-        document.body.style.zoom = '100%';
-      });
-    });
-    
-    // Adjust chat messages padding for mobile
-    const chatMessages = document.getElementById('chat-messages');
-    if (chatMessages) {
-      chatMessages.style.paddingBottom = '80px';
-    }
-  }
-}
-
-// Call this function in your DOMContentLoaded event listener
-document.addEventListener('DOMContentLoaded', () => {
-  initLuxuryEffects();
-  initMobileOptimizations(); // Add this line
-  
-  // ... rest of your existing code
-});
