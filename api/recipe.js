@@ -1,4 +1,4 @@
-// For Vercel serverless function - Using OpenRouter API
+// Enhanced recipe generator with no external API dependencies
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,98 +20,43 @@ module.exports = async (req, res) => {
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
-
-    // Use OpenRouter API to get AI-generated recipe
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer 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`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://celestiqueai.vercel.app',
-        'X-Title': 'Célestique AI'
-      },
-      body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3.1:free",
-        messages: [
-          {
-            role: "system",
-            content: `You are Célestique AI, a world-class culinary assistant from Sooban Talha Productions. 
-            Create exquisite, detailed recipes with the following structure in JSON format:
-            {
-              "name": "Recipe Name",
-              "cuisine": "Cuisine Type",
-              "difficulty": "Difficulty Level",
-              "prep_time": "Preparation Time",
-              "ingredients": ["ingredient 1", "ingredient 2", ...],
-              "instructions": ["step 1", "step 2", ...],
-              "tips": ["tip 1", "tip 2", ...],
-              "score": 95
-            }
-            Make the recipe luxurious, detailed, and include professional chef tips.
-            Always respond with valid JSON only.`
-          },
-          { role: "user", content: message }
-        ],
-        max_tokens: 2000,
-        temperature: 0.7
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `API error: ${response.status}`);
-    }
-
-    const data = await response.json();
     
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
-    }
-
-    const responseText = data.choices[0].message.content;
+    // Generate recipe based on user message
+    const recipe = generateRecipeFromMessage(message);
     
-    try {
-      // Try to parse the recipe from the response
-      let recipeData;
-      if (responseText.includes('```json')) {
-        const jsonStr = responseText.split('```json')[1].split('```')[0].trim();
-        recipeData = JSON.parse(jsonStr);
-      } else if (responseText.includes('```')) {
-        const jsonStr = responseText.split('```')[1].split('```')[0].trim();
-        recipeData = JSON.parse(jsonStr);
-      } else {
-        recipeData = JSON.parse(responseText);
-      }
-      
-      res.status(200).json(recipeData);
-    } catch (e) {
-      // If parsing fails, use our enhanced fallback
-      const recipe = generateRecipeFromMessage(message);
-      res.status(200).json(recipe);
-    }
-  } catch (error) {
-    console.error('API Error:', error);
-    // Use enhanced fallback recipe generator
-    const { message } = req.body;
-    const recipe = generateRecipeFromMessage(message || "gourmet recipe");
     res.status(200).json(recipe);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Enhanced fallback recipe generator
+// Enhanced recipe generator
 function generateRecipeFromMessage(message) {
-  const cuisines = ["Italian", "French", "Spanish", "Asian", "Mediterranean", "Mexican", "Indian", "Thai", "Chinese", "Japanese"];
+  const cuisines = ["Italian", "French", "Spanish", "Asian", "Mediterranean", "Mexican", "Indian", "Thai", "Chinese", "Japanese", "Greek", "Lebanese"];
   const difficulties = ["Easy", "Moderate", "Intermediate", "Advanced"];
   const times = ["20 minutes", "30 minutes", "45 minutes", "1 hour", "1.5 hours", "2 hours"];
   
   // Extract information from message
   const lowerMessage = message.toLowerCase();
   
-  // Determine cuisine
+  // Determine cuisine based on keywords
   let cuisine = "International";
-  for (const c of cuisines) {
-    if (lowerMessage.includes(c.toLowerCase())) {
-      cuisine = c;
+  const cuisineKeywords = {
+    "italian": ["italian", "pasta", "risotto", "pizza", "spaghetti", "lasagna"],
+    "french": ["french", "gourmet", "fine dining", "coq au vin", "ratatouille"],
+    "mexican": ["mexican", "taco", "burrito", "enchilada", "quesadilla"],
+    "asian": ["asian", "chinese", "stir fry", "noodle", "dumpling", "sushi"],
+    "indian": ["indian", "curry", "masala", "tikka", "biryani", "naan"],
+    "thai": ["thai", "pad thai", "tom yum", "green curry"],
+    "mediterranean": ["mediterranean", "greek", "hummus", "falafel", "tzatziki"],
+    "spanish": ["spanish", "paella", "tapas", "sangria"]
+  };
+  
+  for (const [cuisineType, keywords] of Object.entries(cuisineKeywords)) {
+    if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+      cuisine = cuisineType.charAt(0).toUpperCase() + cuisineType.slice(1);
       break;
     }
   }
@@ -293,6 +238,36 @@ function generateSpecificRecipe(mainIngredient, cuisine, difficulty, prepTime) {
         "Let the meat rest before slicing to retain juices.",
         "Add a pinch of sugar to balance the acidity of tomatoes in salsa.",
         "Toast your tortillas for extra flavor and to prevent tearing."
+      ]
+    },
+    French: {
+      name: `${mainIngredient} with Wine Reduction Sauce`,
+      ingredients: [
+        `4 ${mainIngredient.toLowerCase()} portions`,
+        "2 tbsp butter",
+        "1 shallot, finely chopped",
+        "1/2 cup dry white wine",
+        "1/2 cup chicken or vegetable stock",
+        "2 tbsp cream",
+        "1 tbsp fresh thyme leaves",
+        "Salt and pepper to taste"
+      ],
+      instructions: [
+        "Season the main ingredient with salt and pepper.",
+        "Heat butter in a skillet over medium-high heat.",
+        `Cook ${mainIngredient.toLowerCase()} until golden brown on both sides. Remove and keep warm.`,
+        "In the same skillet, add shallot and cook until softened.",
+        "Add wine and simmer until reduced by half.",
+        "Add stock and reduce again by half.",
+        "Stir in cream and thyme, simmer until sauce thickens slightly.",
+        "Return the main ingredient to the pan to warm through.",
+        "Serve with sauce spooned over the top."
+      ],
+      tips: [
+        "Use high-quality butter for the best results.",
+        "Don't rush the reduction process - French cuisine takes time.",
+        "Taste and adjust seasoning throughout the cooking process.",
+        "Let the meat rest before serving to retain juices."
       ]
     }
   };
