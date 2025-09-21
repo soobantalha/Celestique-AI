@@ -1,5 +1,4 @@
-
-        /* Dynamic Dark Theme CSS */
+/* Dynamic Dark Theme CSS */
         :root {
             --primary: #6e45e2;
             --secondary: #00e0ff;
@@ -631,4 +630,3 @@
             opacity: 0.1;
             pointer-events: none;
         }
-    
