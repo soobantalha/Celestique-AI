@@ -230,6 +230,28 @@ function addMessage(text, sender) {
 
 // Display recipe in a formatted way
 function displayRecipe(recipe) {
+    // Check if recipe is a string (API might have returned raw text)
+    if (typeof recipe === 'string') {
+        try {
+            // Try to parse as JSON
+            recipe = JSON.parse(recipe);
+        } catch (e) {
+            // If it's not JSON, just show the text
+            addMessage(recipe, 'bot');
+            return;
+        }
+    }
+    
+    // Check if the recipe has the expected structure
+    if (!recipe.name || !recipe.ingredients) {
+        // If not, it might be an error message or malformed response
+        addMessage("Sorry, I couldn't generate a proper recipe. Please try again.", 'bot');
+        if (typeof recipe === 'object') {
+            console.error('Malformed recipe object:', recipe);
+        }
+        return;
+    }
+    
     const recipeDiv = document.createElement('div');
     recipeDiv.className = 'message bot-message';
     
@@ -238,36 +260,36 @@ function displayRecipe(recipe) {
             <div class="recipe-header">
                 <h3 class="recipe-title">${recipe.name}</h3>
                 <div class="recipe-meta">
-                    <span>${recipe.cuisine}</span>
-                    <span>${recipe.difficulty}</span>
-                    <span>${recipe.prep_time}</span>
+                    <span>${recipe.cuisine || 'International'}</span>
+                    <span>${recipe.difficulty || 'Moderate'}</span>
+                    <span>${recipe.prep_time || '30 minutes'}</span>
                 </div>
             </div>
             
             <div class="recipe-section">
                 <h4>Ingredients</h4>
                 <ul class="ingredients-list">
-                    ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                    ${(recipe.ingredients || []).map(ing => `<li>${ing}</li>`).join('')}
                 </ul>
             </div>
             
             <div class="recipe-section">
                 <h4>Instructions</h4>
                 <ol class="instructions-list">
-                    ${recipe.instructions.map(step => `<li>${step}</li>`).join('')}
+                    ${(recipe.instructions || []).map(step => `<li>${step}</li>`).join('')}
                 </ol>
             </div>
             
             <div class="recipe-section">
                 <h4>Chef's Tips</h4>
                 <ul class="tips-list">
-                    ${recipe.tips.map(tip => `<li>${tip}</li>`).join('')}
+                    ${(recipe.tips || []).map(tip => `<li>${tip}</li>`).join('')}
                 </ul>
             </div>
             
             <div class="recipe-stats">
                 <div class="stat-item">
-                    <div class="stat-value">${recipe.score}/100</div>
+                    <div class="stat-value">${recipe.score || '90'}/100</div>
                     <div class="stat-label">Recipe Score</div>
                 </div>
                 <div class="stat-item">
