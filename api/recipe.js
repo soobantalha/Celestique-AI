@@ -43,12 +43,12 @@ async function generateRecipeWithDeepSeek(userInput) {
   }
 
   // Construct the enhanced prompt for recipe generation
-  const prompt = `As Célestique AI, a world-renowned culinary expert, create a sophisticated gourmet recipe based on: "${userInput}"
+  const prompt = `Create a gourmet recipe based on: "${userInput}"
 
 Respond with ONLY a valid JSON object in this exact structure:
 
 {
-  "name": "Elegant recipe name",
+  "name": "Recipe name",
   "cuisine": "Cuisine type",
   "difficulty": "Easy/Medium/Hard",
   "prep_time": "X minutes",
@@ -66,8 +66,6 @@ Respond with ONLY a valid JSON object in this exact structure:
     "Professional tip 1",
     "Professional tip 2"
   ],
-  "nutritional_notes": "Brief nutritional information",
-  "wine_pairing": "Suggested wine pairing",
   "score": 90
 }
 
@@ -82,24 +80,23 @@ Make it restaurant-quality with precise measurements and professional techniques
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': process.env.VERCEL_URL || 'https://celestiqueai.vercel.app',
+        'HTTP-Referer': 'https://celestiqueai.vercel.app',
         'X-Title': 'Célestique AI Recipe Generator'
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1:free',
+        model: 'deepseek/deepseek-chat',
         messages: [
           {
             role: 'system',
-            content: 'You are Célestique AI, a master chef. Always respond with valid JSON only, no additional text.'
+            content: 'You are a master chef. Always respond with valid JSON only, no additional text.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 3000,
-        temperature: 0.8,
-        top_p: 0.9
+        max_tokens: 2000,
+        temperature: 0.7
       })
     });
 
@@ -157,5 +154,43 @@ Make it restaurant-quality with precise measurements and professional techniques
 
 // Enhanced fallback recipe generator
 function generateFallbackRecipe(input) {
-  // ... (keep your existing fallback function as is)
+  const fallbackRecipes = [
+    {
+      "name": "Truffle Infused Wild Mushroom Risotto",
+      "cuisine": "Italian",
+      "difficulty": "Intermediate",
+      "prep_time": "45 minutes",
+      "cook_time": "25 minutes",
+      "serves": "4 people",
+      "ingredients": [
+        "1 cup Arborio rice", "4 cups vegetable broth", "1 cup mixed wild mushrooms",
+        "2 tbsp black truffle oil", "1 shallot, finely chopped", "1/2 cup dry white wine",
+        "1/4 cup grated Parmesan cheese", "2 tbsp butter", "1 tbsp fresh thyme leaves",
+        "Salt and white pepper to taste", "Fresh truffle shavings for garnish"
+      ],
+      "instructions": [
+        "Heat the truffle oil in a large pan over medium heat. Add shallots and sauté until translucent.",
+        "Add wild mushrooms and cook until they release their moisture and become golden.",
+        "Stir in Arborio rice, coating it with the oil and toasting for 2 minutes.",
+        "Pour in white wine and cook until mostly absorbed, stirring constantly.",
+        "Add warm broth one ladle at a time, allowing each addition to be absorbed before adding the next.",
+        "Continue this process until rice is creamy yet al dente (about 18-20 minutes).",
+        "Remove from heat and stir in butter, Parmesan, and thyme. Season to taste.",
+        "Serve immediately garnished with fresh truffle shavings and a drizzle of truffle oil."
+      ],
+      "chef_tips": [
+        "Use a wide, shallow pan for even cooking of the risotto.",
+        "Keep broth at a steady simmer to maintain cooking temperature.",
+        "Stir constantly to develop the creamy starch texture.",
+        "For extra richness, finish with a tablespoon of mascarpone."
+      ],
+      "nutritional_notes": "Rich in carbohydrates with moderate protein content",
+      "wine_pairing": "Chardonnay or Pinot Noir",
+      "score": 92,
+      "powered_by": "Célestique AI Fallback"
+    }
+  ];
+  
+  // Select a random fallback recipe
+  return fallbackRecipes[Math.floor(Math.random() * fallbackRecipes.length)];
 }
