@@ -6,17 +6,649 @@
     <title>Célestique AI | Sooban Talha Productions</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --secondary: #00e0ff;
+            --accent: #ff2a6d;
+            --dark: #0a0a14;
+            --darker: #05050c;
+            --light: #f0f0f0;
+            --gold: #d4af37;
+            --platinum: #e5e4e2;
+            --gradient-start: #6e45e2;
+            --gradient-mid: #b354e9;
+            --gradient-end: #ff6b6b;
+            --luxury-bg: radial-gradient(circle at top right, rgba(110, 69, 226, 0.15), transparent 40%),
+                         radial-gradient(circle at bottom left, rgba(255, 107, 107, 0.15), transparent 40%),
+                         radial-gradient(ellipse at center, rgba(26, 26, 46, 0.8), rgba(10, 10, 20, 0.9));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Animated Gradient Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.5;
+            background: linear-gradient(270deg, #6e45e2, #b354e9, #ff6b6b, #4ecdc4, #6a11cb);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(10, 10, 20, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 224, 255, 0.3);
+        }
+
+        .logo-icon {
+            font-size: 36px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-subtext {
+            font-size: 12px;
+            color: var(--secondary);
+            letter-spacing: 2px;
+            margin-left: 5px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .company-badge {
+            background: linear-gradient(45deg, rgba(0, 224, 255, 0.2), rgba(255, 42, 109, 0.2));
+            border: 1px solid rgba(0, 224, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--secondary);
+            letter-spacing: 1.5px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--platinum);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 16px;
+        }
+
+        nav a:hover {
+            color: var(--secondary);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Chat Interface - Moved to Top */
+        .chat-container {
+            background: rgba(15, 15, 26, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 40px auto;
+            max-width: 1000px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 224, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-header {
+            background: linear-gradient(90deg, rgba(0, 224, 255, 0.1), rgba(255, 42, 109, 0.1));
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid rgba(0, 224, 255, 0.2);
+        }
+
+        .chat-header h2 {
+            font-size: 24px;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(10, 10, 20, 0.5);
+        }
+
+        .message {
+            margin-bottom: 20px;
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, rgba(110, 69, 226, 0.3), rgba(179, 84, 233, 0.3));
+            align-self: flex-end;
+            border-radius: 15px 15px 0 15px;
+            margin-left: auto;
+            border: 1px solid rgba(110, 69, 226, 0.2);
+        }
+
+        .bot-message {
+            background: rgba(26, 26, 46, 0.5);
+            border: 1px solid rgba(0, 224, 255, 0.2);
+            border-radius: 15px 15px 15px 0;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 20px;
+            background: rgba(15, 15, 26, 0.7);
+            border-top: 1px solid rgba(0, 224, 255, 0.2);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 224, 255, 0.3);
+            background: rgba(26, 26, 46, 0.7);
+            color: var(--light);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(0, 224, 255, 0.3);
+        }
+
+        .chat-input button {
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            color: var(--dark);
+            border: none;
+            border-radius: 8px;
+            padding: 15px 25px;
+            margin-left: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 224, 255, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 224, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(110, 69, 226, 0.1), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(255, 107, 107, 0.1), transparent 40%);
+            z-index: -1;
+        }
+
+        .hero h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 52px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+        }
+
+        .hero p {
+            font-size: 20px;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            color: var(--platinum);
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            color: var(--dark);
+            border: none;
+            padding: 18px 45px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0, 224, 255, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0, 224, 255, 0.4);
+        }
+
+        /* Welcome message */
+        .welcome-message {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 224, 255, 0.1);
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid rgba(0, 224, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-message h3 {
+            font-family: 'Cinzel', serif;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+        }
+
+        .features h2 {
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            font-size: 40px;
+            margin-bottom: 60px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(15, 15, 26, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(0, 224, 255, 0.2);
+            transition: transform 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-card h3 {
+            font-family: 'Cinzel', serif;
+            margin-bottom: 15px;
+            font-size: 22px;
+            color: var(--platinum);
+        }
+
+        .feature-card p {
+            color: var(--platinum);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(15, 15, 26, 0.8);
+            padding: 60px 0 30px;
+            text-align: center;
+            margin-top: 80px;
+            border-top: 1px solid rgba(0, 224, 255, 0.2);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: var(--platinum);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        .copyright {
+            color: var(--platinum);
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .company-tag {
+            margin-top: 10px;
+            color: var(--secondary);
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Luxury Particles */
+        .luxury-particle {
+            position: fixed;
+            background: rgba(0, 224, 255, 0.15);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h2 {
+                font-size: 36px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-messages {
+                height: 300px;
+            }
+            
+            .chat-header h2 {
+                font-size: 20px;
+            }
+        }
+
+        /* Futuristic Elements */
+        .cyber-glowing-text {
+            text-shadow: 0 0 10px var(--secondary), 0 0 20px var(--secondary), 0 0 30px var(--secondary);
+        }
+
+        .cyber-border {
+            position: relative;
+            border: 1px solid transparent;
+            background: linear-gradient(45deg, var(--secondary), var(--accent)) border-box;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) padding-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+        }
+
+        /* Dynamic Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: 
+                linear-gradient(rgba(0, 224, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 224, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        /* Holographic Effect */
+        .holographic {
+            background: linear-gradient(45deg, 
+                rgba(110, 69, 226, 0.1), 
+                rgba(0, 224, 255, 0.1), 
+                rgba(255, 42, 109, 0.1));
+            background-size: 200% 200%;
+            animation: holographicMove 5s ease infinite;
+        }
+
+        @keyframes holographicMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Cyber Input Effects */
+        .cyber-input {
+            background: rgba(10, 10, 20, 0.7);
+            border: 1px solid var(--secondary);
+            color: var(--light);
+            padding: 12px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .cyber-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--secondary);
+        }
+
+        /* Neon Button */
+        .neon-button {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-button:hover {
+            background: var(--secondary);
+            color: var(--dark);
+            box-shadow: 0 0 10px var(--secondary), 0 0 40px var(--secondary);
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-effect 3s infinite;
+            color: var(--accent);
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-effect 2s infinite;
+            color: var(--secondary);
+            z-index: -2;
+        }
+
+        @keyframes glitch-effect {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Matrix Rain Effect Container */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -4;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-   
     <div class="animated-bg"></div>
+    <div class="grid-bg"></div>
+    <div class="matrix-rain" id="matrixRain"></div>
+    
     <header>
         <div class="container header-content">
             <div class="logo">
                 <span class="logo-icon">🍽️</span>
                 <div>
-                    <h1>Célestique AI</h1>
+                    <h1 class="glitch" data-text="Célestique AI">Célestique AI</h1>
                     <div class="logo-subtext">BY SOOBAN TALHA PRODUCTIONS</div>
                 </div>
             </div>
@@ -32,17 +664,7 @@
     </header>
 
     <main class="container">
-        <section class="hero">
-            <h2>AI-Powered Culinary Excellence</h2>
-            <p>Experience the future of gourmet cooking with our AI-powered recipe assistant. Discover, create, and elevate your culinary journey.</p>
-            <button class="cta-button">Explore Recipes</button>
-        </section>
-
-        <div class="welcome-message fade-in">
-            <h3>Ready to Use - No Setup Required!</h3>
-            <p>Our AI chef is ready to assist you. Just type your recipe request below and get instant gourmet recipes!</p>
-        </div>
-
+        <!-- Chat Section Moved to Top -->
         <section id="chat" class="chat-container fade-in">
             <div class="chat-header">
                 <div class="feature-icon">
@@ -56,25 +678,36 @@
                 </div>
             </div>
             <div class="chat-input">
-                <input type="text" id="user-input" placeholder="What recipe would you like to explore today?">
-                <button id="send-message">Send</button>
+                <input type="text" id="user-input" placeholder="What recipe would you like to explore today?" class="cyber-input">
+                <button id="send-message" class="neon-button">Send</button>
             </div>
         </section>
+
+        <section class="hero">
+            <h2>AI-Powered Culinary Excellence</h2>
+            <p>Experience the future of gourmet cooking with our AI-powered recipe assistant. Discover, create, and elevate your culinary journey.</p>
+            <button class="cta-button">Explore Recipes</button>
+        </section>
+
+        <div class="welcome-message fade-in">
+            <h3>Ready to Use - No Setup Required!</h3>
+            <p>Our AI chef is ready to assist you. Just type your recipe request above and get instant gourmet recipes!</p>
+        </div>
 
         <section id="features" class="features">
             <h2>Exclusive Features</h2>
             <div class="features-grid">
-                <div class="feature-card fade-in">
+                <div class="feature-card fade-in holographic">
                     <div class="feature-icon">🎯</div>
                     <h3>Flavor Profile Analysis</h3>
                     <p>Our AI analyzes thousands of recipes to create the perfect balance of flavors for your palate.</p>
                 </div>
-                <div class="feature-card fade-in">
+                <div class="feature-card fade-in holographic">
                     <div class="feature-icon">📊</div>
                     <h3>Nutritional Intelligence</h3>
                     <p>Get detailed nutritional breakdowns and personalized recommendations based on your dietary needs.</p>
                 </div>
-                <div class="feature-card fade-in">
+                <div class="feature-card fade-in holographic">
                     <div class="feature-icon">⚡</div>
                     <h3>Smart Alternatives</h3>
                     <p>Discover ingredient substitutions based on allergies, preferences, or what's in your pantry.</p>
@@ -87,14 +720,115 @@
         <div class="container footer-content">
             <div class="footer-logo">Célestique AI</div>
             <div class="footer-links">
-                
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#contact">Contact</a>
             </div>
-            <p class="copyright"> Sooban Talha Productions</p>
+            <p class="copyright">© 2023 Sooban Talha Productions</p>
             <p class="company-tag">CRAFTING TOMORROW'S TECHNOLOGY TODAY</p>
         </div>
     </footer>
-    
 
-    <script src="scripts/app.js"></script>
+    <script>
+        // Create luxury floating particles
+        function createLuxuryParticles() {
+            const particlesContainer = document.createElement('div');
+            particlesContainer.style.position = 'fixed';
+            particlesContainer.style.top = '0';
+            particlesContainer.style.left = '0';
+            particlesContainer.style.width = '100%';
+            particlesContainer.style.height = '100%';
+            particlesContainer.style.pointerEvents = 'none';
+            particlesContainer.style.zIndex = '-1';
+            document.body.appendChild(particlesContainer);
+
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'luxury-particle';
+
+                // Random properties
+                const size = Math.random() * 10 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 10;
+                const duration = Math.random() * 10 + 10;
+
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: radial-gradient(circle, rgba(0, 224, 255, 0.6), rgba(255, 42, 109, 0.3));
+                    border-radius: 50%;
+                    left: ${posX}%;
+                    top: ${posY}%;
+                    animation: float ${duration}s infinite ease-in-out ${delay}s;
+                    filter: blur(1px);
+                `;
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize luxury effects
+        function initLuxuryEffects() {
+            createLuxuryParticles();
+
+            // Add luxury glow effect to buttons
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.filter = 'drop-shadow(0 0 20px rgba(0, 224, 255, 0.8))';
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    this.style.filter = 'none';
+                });
+            });
+        }
+
+        // Matrix rain effect
+        function initMatrixRain() {
+            const canvas = document.createElement('canvas');
+            const container = document.getElementById('matrixRain');
+            container.appendChild(canvas);
+            
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, w, h);
+            
+            const cols = Math.floor(w / 20) + 1;
+            const ypos = Array(cols).fill(0);
+            
+            function matrix() {
+                ctx.fillStyle = '#0001';
+                ctx.fillRect(0, 0, w, h);
+                
+                ctx.fillStyle = '#0f8';
+                ctx.font = '15pt monospace';
+                
+                ypos.forEach((y, ind) => {
+                    const text = String.fromCharCode(Math.random() * 128);
+                    const x = ind * 20;
+                    ctx.fillText(text, x, y);
+                    
+                    if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
+                    else ypos[ind] = y + 20;
+                });
+            }
+            
+            setInterval(matrix, 50);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initLuxuryEffects();
+            initMatrixRain();
+        });
+    </script>
 </body>
 </html>
