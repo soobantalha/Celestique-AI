@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const welcomeMessage = `
             <div class="welcome-message">
                 <h3>🌟 Welcome to Célestique AI</h3>
-                <p>I'm your personal AI chef, powered by <strong>DeepSeek AI</strong>. Simply tell me what you'd like to cook, and I'll create a gourmet recipe just for you!</p>
+                <p>I'm your personal AI chef, powered by <strong>Sooban Talha Productions </strong>. Simply tell me what you'd like to cook, and I'll create a gourmet recipe just for you!</p>
 
                 <div class="example-prompts">
                     <h4>Try asking me:</h4>
