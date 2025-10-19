@@ -12,156 +12,353 @@
     <div class="matrix-background"></div>
     <div class="particle-container" id="particles"></div>
     
-    <header>
-        <div class="container header-content">
-            <div class="logo">
-                <div class="logo-icon">
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container glass-card">
+            <div class="auth-header">
+                <div class="auth-logo">
                     <i class="fas fa-utensils"></i>
+                    <h2>Célestique AI</h2>
                 </div>
-                <div class="logo-text">
-                    <h1 class="glitch-text" data-text="Célestique AI">Célestique AI</h1>
-                    <div class="logo-subtext">BY SOOBAN TALHA PRODUCTIONS</div>
-                </div>
+                <p>Welcome to your AI culinary assistant</p>
             </div>
-            
-            <div class="header-stats">
-                <div class="stat-item">
-                    <span class="stat-value" id="recipes-generated">12,847</span>
-                    <span class="stat-label">RECIPES GENERATED</span>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="signup">Sign Up</button>
+            </div>
+
+            <form class="auth-form active" id="loginForm">
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
                 </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="active-chefs">1.2K</span>
-                    <span class="stat-label">ACTIVE CHEFS</span>
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
                 </div>
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to Dashboard
+                </button>
+            </form>
+
+            <form class="auth-form" id="signupForm">
+                <div class="input-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" required placeholder="Enter your full name">
+                </div>
+                <div class="input-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required placeholder="Enter your email">
+                </div>
+                <div class="input-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required placeholder="Create a password">
+                </div>
+                <div class="input-group">
+                    <label for="signupPreferences">Cooking Preferences</label>
+                    <select id="signupPreferences" multiple>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="gluten-free">Gluten-Free</option>
+                        <option value="keto">Keto</option>
+                        <option value="mediterranean">Mediterranean</option>
+                        <option value="asian">Asian Cuisine</option>
+                        <option value="italian">Italian</option>
+                        <option value="mexican">Mexican</option>
+                    </select>
+                    <small>Hold Ctrl to select multiple</small>
+                </div>
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="container">
-        <!-- Recipe Generator Interface -->
-        <section class="chat-container glass-card">
-            <div class="chat-header">
-                <div class="ai-chef-avatar">
-                    <i class="fas fa-robot"></i>
-                    <div class="status-indicator"></div>
+    <!-- Main App (Hidden until authenticated) -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- Header -->
+        <header>
+            <div class="container header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1 class="glitch-text" data-text="Célestique AI">Célestique AI</h1>
+                        <div class="logo-subtext">BY SOOBAN TALHA PRODUCTIONS</div>
+                    </div>
                 </div>
-                <div class="chat-info">
-                    <h2>Chef Célestique</h2>
-                    <p>AI Gourmet Recipe Assistant</p>
-                </div>
-                <div class="recipe-stats">
-                    <div class="quick-stat">
-                        <span class="stat-number">5.0</span>
-                        <div class="stars">★★★★★</div>
+                
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <button class="user-btn" id="userMenuBtn">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <span class="user-name" id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="#profile" class="dropdown-item">
+                                <i class="fas fa-user"></i>My Profile
+                            </a>
+                            <a href="#history" class="dropdown-item">
+                                <i class="fas fa-history"></i>Recipe History
+                            </a>
+                            <a href="#preferences" class="dropdown-item">
+                                <i class="fas fa-sliders-h"></i>Preferences
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i>Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot-message">
-                    <div class="message-avatar">
-                        <i class="fas fa-robot"></i>
+        <!-- Main Content -->
+        <main class="container">
+            <!-- Dashboard Stats -->
+            <section class="dashboard-stats">
+                <div class="stat-card glass-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-utensils"></i>
                     </div>
-                    <div class="message-content">
-                        <p>Greetings! I'm Célestique AI, your gourmet recipe assistant powered by <strong>Sooban Talha Productions</strong>. What culinary masterpiece would you like to create today?</p>
-                        <div class="message-time">Just now</div>
+                    <div class="stat-info">
+                        <h3 id="userRecipesCount">0</h3>
+                        <p>Recipes Generated</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Quick Recipe Suggestions -->
-            <div class="quick-suggestions">
-                <h3>Popular Requests:</h3>
-                <div class="suggestion-chips">
-                    <button class="suggestion-chip" data-recipe="chocolate lava cake">
-                        <i class="fas fa-cookie"></i> Chocolate Lava Cake
-                    </button>
-                    <button class="suggestion-chip" data-recipe="chicken alfredo pasta">
-                        <i class="fas fa-pasta"></i> Chicken Alfredo
-                    </button>
-                    <button class="suggestion-chip" data-recipe="vegetable stir fry">
-                        <i class="fas fa-carrot"></i> Vegetable Stir Fry
-                    </button>
-                    <button class="suggestion-chip" data-recipe="beef burger">
-                        <i class="fas fa-hamburger"></i> Gourmet Burger
-                    </button>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="userFavoritesCount">0</h3>
+                        <p>Favorites</p>
+                    </div>
                 </div>
-            </div>
-
-            <div class="chat-input-container">
-                <div class="input-wrapper">
-                    <input type="text" id="user-input" placeholder="Describe your dream recipe (e.g., 'spicy Thai curry with coconut milk')" class="cyber-input">
-                    <button id="send-message" class="neon-button">
-                        <i class="fas fa-paper-plane"></i>
-                        Generate Recipe
-                    </button>
-                </div>
-                <div class="input-hints">
-                    <span>💡 Tip: Be specific! Include ingredients, cuisine, or dietary needs</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recipe Display Area -->
-        <section class="recipe-display" id="recipe-display">
-            <div class="placeholder-message">
-                <i class="fas fa-utensils"></i>
-                <h3>Your AI-Generated Recipe Awaits</h3>
-                <p>Describe what you'd like to cook, and I'll create a detailed gourmet recipe with ingredients, instructions, and chef tips!</p>
-            </div>
-        </section>
-
-        <!-- Features Showcase -->
-        <section class="features-showcase">
-            <div class="features-grid">
-                <div class="feature-card glass-card">
-                    <div class="feature-icon">
+                <div class="stat-card glass-card">
+                    <div class="stat-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <h3>Instant Generation</h3>
-                    <p>Get complete recipes in seconds with detailed instructions and ingredient lists</p>
-                </div>
-                
-                <div class="feature-card glass-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-globe"></i>
+                    <div class="stat-info">
+                        <h3 id="userTimeSaved">0h</h3>
+                        <p>Time Saved</p>
                     </div>
-                    <h3>Global Cuisines</h3>
-                    <p>Italian, Asian, Mexican, Mediterranean - explore worldwide culinary traditions</p>
                 </div>
-                
-                <div class="feature-card glass-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-heart"></i>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-award"></i>
                     </div>
-                    <h3>Dietary Adaptations</h3>
-                    <p>Vegan, gluten-free, keto, or allergy-friendly - we customize to your needs</p>
-                </div>
-                
-                <div class="feature-card glass-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-line"></i>
+                    <div class="stat-info">
+                        <h3 id="userLevel">Beginner</h3>
+                        <p>Chef Level</p>
                     </div>
-                    <h3>Smart Scaling</h3>
-                    <p>Automatically adjust portions for 2 people or a dinner party of 20</p>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
 
-    <footer>
-        <div class="container footer-content">
-            <div class="footer-brand">
-                <div class="footer-logo">Célestique AI</div>
-                <p class="company-tagline">CRAFTING CULINARY EXCELLENCE THROUGH AI</p>
+            <!-- AI Models Selector -->
+            <section class="models-section">
+                <div class="section-header">
+                    <h2>Select AI Model</h2>
+                    <p>Choose your preferred AI chef for recipe generation</p>
+                </div>
+                <div class="models-grid">
+                    <div class="model-card glass-card active" data-model="deepseek">
+                        <div class="model-header">
+                            <div class="model-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="model-badge">Recommended</div>
+                        </div>
+                        <h3>DeepSeek Chef</h3>
+                        <p>Advanced reasoning for complex recipes and techniques</p>
+                        <div class="model-stats">
+                            <span class="stat-tag">Creative</span>
+                            <span class="stat-tag">Detailed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="model-card glass-card" data-model="gemini">
+                        <div class="model-header">
+                            <div class="model-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                        </div>
+                        <h3>Gemini Gourmet</h3>
+                        <p>Perfect for international cuisine and flavor pairing</p>
+                        <div class="model-stats">
+                            <span class="stat-tag">International</span>
+                            <span class="stat-tag">Flavor Focus</span>
+                        </div>
+                    </div>
+                    
+                    <div class="model-card glass-card" data-model="claude">
+                        <div class="model-header">
+                            <div class="model-icon">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                        </div>
+                        <h3>Claude Cuisine</h3>
+                        <p>Excellent for dietary restrictions and health-focused meals</p>
+                        <div class="model-stats">
+                            <span class="stat-tag">Health Focus</span>
+                            <span class="stat-tag">Dietary</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recipe Generator -->
+            <section class="chat-container glass-card">
+                <div class="chat-header">
+                    <div class="ai-chef-avatar">
+                        <i class="fas fa-robot" id="selectedModelIcon"></i>
+                        <div class="status-indicator"></div>
+                    </div>
+                    <div class="chat-info">
+                        <h2 id="selectedModelName">DeepSeek Chef</h2>
+                        <p>AI Gourmet Recipe Assistant</p>
+                    </div>
+                    <div class="recipe-stats">
+                        <div class="quick-stat">
+                            <span class="stat-number">5.0</span>
+                            <div class="stars">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Welcome back! I'm ready to help you create amazing recipes. What would you like to cook today?</p>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Recipe Suggestions -->
+                <div class="quick-suggestions">
+                    <h3>Quick Suggestions:</h3>
+                    <div class="suggestion-chips">
+                        <button class="suggestion-chip" data-recipe="chocolate lava cake">
+                            <i class="fas fa-cookie"></i> Chocolate Lava Cake
+                        </button>
+                        <button class="suggestion-chip" data-recipe="chicken alfredo pasta">
+                            <i class="fas fa-pasta"></i> Chicken Alfredo
+                        </button>
+                        <button class="suggestion-chip" data-recipe="vegetable stir fry">
+                            <i class="fas fa-carrot"></i> Vegetable Stir Fry
+                        </button>
+                        <button class="suggestion-chip" data-recipe="beef burger">
+                            <i class="fas fa-hamburger"></i> Gourmet Burger
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="input-wrapper">
+                        <input type="text" id="user-input" placeholder="Describe your dream recipe (e.g., 'spicy Thai curry with coconut milk')" class="cyber-input">
+                        <button id="send-message" class="neon-button">
+                            <i class="fas fa-paper-plane"></i>
+                            Generate Recipe
+                        </button>
+                    </div>
+                    <div class="input-hints">
+                        <span>💡 Tip: Be specific! Include ingredients, cuisine, or dietary needs</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recipe History -->
+            <section class="history-section" id="historySection">
+                <div class="section-header">
+                    <h2>Your Recipe History</h2>
+                    <p>Recently generated recipes</p>
+                </div>
+                <div class="history-grid" id="historyGrid">
+                    <div class="no-history">
+                        <i class="fas fa-utensils"></i>
+                        <h3>No recipes yet</h3>
+                        <p>Your generated recipes will appear here</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">Célestique AI</div>
+                    <p class="company-tagline">CRAFTING CULINARY EXCELLENCE THROUGH AI</p>
+                </div>
+                <div class="footer-info">
+                    <p class="copyright">&copy; 2024 Sooban Talha Productions. All rights reserved.</p>
+                    <p class="tech-stack">Powered by Advanced Neural Networks & Gourmet Expertise</p>
+                </div>
             </div>
-            <div class="footer-info">
-                <p class="copyright">&copy; 2024 Sooban Talha Productions. All rights reserved.</p>
-                <p class="tech-stack">Powered by Advanced Neural Networks & Gourmet Expertise</p>
+        </footer>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>User Profile</h3>
+                <button class="modal-close" id="closeProfileModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-avatar">
+                    <div class="user-avatar large" id="profileAvatar">U</div>
+                    <button class="avatar-edit-btn">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <form class="profile-form">
+                    <div class="input-group">
+                        <label for="profileName">Full Name</label>
+                        <input type="text" id="profileName" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="profilePreferences">Cooking Preferences</label>
+                        <select id="profilePreferences" multiple>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="gluten-free">Gluten-Free</option>
+                            <option value="keto">Keto</option>
+                            <option value="mediterranean">Mediterranean</option>
+                            <option value="asian">Asian Cuisine</option>
+                            <option value="italian">Italian</option>
+                            <option value="mexican">Mexican</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="save-btn">Save Changes</button>
+                        <button type="button" class="cancel-btn" id="cancelProfileEdit">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </footer>
+    </div>
 
+    <script src="scripts/auth.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>

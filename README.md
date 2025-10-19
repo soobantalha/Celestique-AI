@@ -1,23 +1,16 @@
-# Célestique AI
+# Célestique AI - Gourmet Recipe Generator
 
-An AI-powered culinary assistant that generates gourmet recipes using DeepSeek AI technology.
+A full-featured web application for generating AI-powered gourmet recipes with user authentication, multiple AI models, and recipe history.
 
 ## Features
-- AI-generated gourmet recipes
-- Multiple cuisine support
-- Professional chef tips
-- Responsive design
-- Luxury UI/UX
 
-## Technology Stack
-- Frontend: HTML, CSS, JavaScript
-- Backend: Vercel Serverless Functions
-- AI: DeepSeek API via OpenRouter
+- 🔐 **User Authentication** - Sign up, login, and profile management
+- 🤖 **Multiple AI Models** - DeepSeek, Gemini, and Claude integration
+- 📊 **User Dashboard** - Statistics and recipe history
+- 💾 **Local Storage** - Save recipes and user data locally
+- 🎨 **Futuristic UI** - Dark theme with glassmorphism effects
+- 📱 **Responsive Design** - Works on all devices
 
-## Setup
-1. Clone this repository
-2. Deploy to Vercel
-3. Add OPENROUTER_API_KEY environment variable
+## Setup Instructions
 
-## Development
-Created by Sooban Talha Productions
+### Step 1: Create Project Structure

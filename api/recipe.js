@@ -1,5 +1,4 @@
-
-// Recipe generator API endpoint
+// Enhanced recipe generator with user preferences and multiple AI models
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,7 +15,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { message } = req.body;
+    const { message, model = 'deepseek', userPreferences = [] } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
@@ -25,36 +24,39 @@ module.exports = async (req, res) => {
     // Try to generate recipe with AI
     let recipe;
     try {
-      recipe = await generateRecipeWithAI(message);
+      recipe = await generateRecipeWithAI(message, model, userPreferences);
     } catch (aiError) {
       console.error('AI generation failed, using fallback:', aiError);
-      recipe = generateFallbackRecipe(message);
+      recipe = generateFallbackRecipe(message, userPreferences);
     }
 
     res.status(200).json(recipe);
 
   } catch (error) {
     console.error('Unexpected error:', error);
-    // Use fallback recipe
-    const fallbackRecipe = generateFallbackRecipe(req.body?.message || 'recipe');
+    const fallbackRecipe = generateFallbackRecipe(req.body?.message || 'recipe', req.body?.userPreferences || []);
     res.status(200).json(fallbackRecipe);
   }
 };
 
-// Generate recipe using AI
-async function generateRecipeWithAI(userInput) {
-  // Check if API key is available
+// Enhanced AI recipe generation with user preferences
+async function generateRecipeWithAI(userInput, model, userPreferences) {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error('API key not configured');
   }
 
-  // Enhanced prompt for better recipe generation
+  // Build preference context
+  const preferenceContext = userPreferences.length > 0 
+    ? `User preferences: ${userPreferences.join(', ')}. Please consider these in the recipe.`
+    : '';
+
   const prompt = `Create a detailed gourmet recipe for: "${userInput}".
+  ${preferenceContext}
   
   Respond with JSON in this exact format:
   {
     "name": "Creative recipe name",
-    "cuisine": "Type of cuisine (e.g., Italian, Asian, Mediterranean)",
+    "cuisine": "Type of cuisine",
     "difficulty": "Easy/Medium/Hard",
     "prep_time": "X minutes",
     "cook_time": "X minutes", 
@@ -68,23 +70,47 @@ async function generateRecipeWithAI(userInput) {
   Make the recipe creative, detailed, and professional. Include exact measurements and clear instructions.`;
 
   try {
-    // Try multiple models in sequence
-    const models = [
-      'google/gemini-2.0-flash-exp:free',
-      'deepseek/deepseek-chat-v3.1:free',
-      'deepseek/deepseek-r1-0528:free'
-    ];
+    const models = {
+      deepseek: 'deepseek/deepseek-chat-v3.1:free',
+      gemini: 'google/gemini-2.0-flash-exp:free',
+      claude: 'anthropic/claude-3-haiku:free'
+    };
 
-    for (const model of models) {
-      try {
-        const recipe = await tryModel(model, prompt);
-        if (recipe) return recipe;
-      } catch (error) {
-        console.log(`Model ${model} failed, trying next`);
-      }
+    const selectedModel = models[model] || models.deepseek;
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://celestiqueai.vercel.app',
+        'X-Title': 'Célestique AI Recipe Generator'
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2000,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Model ${model} failed: ${response.status}`);
     }
 
-    throw new Error('All models failed');
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const recipe = JSON.parse(jsonMatch[0]);
+      recipe.powered_by = 'Célestique AI - Sooban Talha Productions';
+      recipe.generated_at = new Date().toISOString();
+      recipe.model = model;
+      return recipe;
+    }
+
+    throw new Error('No JSON found in response');
 
   } catch (error) {
     console.error('AI generation error:', error);
@@ -92,45 +118,8 @@ async function generateRecipeWithAI(userInput) {
   }
 }
 
-// Try a specific model
-async function tryModel(model, prompt) {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'HTTP-Referer': 'https://celestiqueai.vercel.app',
-      'X-Title': 'Célestique AI Recipe Generator'
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 2000,
-      temperature: 0.7
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(`Model ${model} failed: ${response.status}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content;
-  
-  // Extract JSON from response
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    const recipe = JSON.parse(jsonMatch[0]);
-    recipe.powered_by = 'Célestique AI - Sooban Talha Productions';
-    recipe.generated_at = new Date().toISOString();
-    return recipe;
-  }
-
-  throw new Error('No JSON found in response');
-}
-
-// Enhanced fallback recipe generator with more options
-function generateFallbackRecipe(input) {
+// Enhanced fallback recipe generator with user preferences
+function generateFallbackRecipe(input, userPreferences) {
   const recipes = {
     'chocolate': {
       name: 'Decadent Chocolate Lava Cake',
@@ -146,9 +135,7 @@ function generateFallbackRecipe(input) {
         '150g granulated sugar',
         '80g all-purpose flour',
         '1 tsp vanilla extract',
-        'Pinch of salt',
-        'Butter for ramekins',
-        'Cocoa powder for dusting'
+        'Pinch of salt'
       ],
       instructions: [
         'Preheat oven to 220°C (425°F). Butter 4 ramekins and dust with cocoa powder',
@@ -163,8 +150,7 @@ function generateFallbackRecipe(input) {
         'Serve immediately for best texture',
         'Use high-quality chocolate for superior flavor'
       ],
-      score: 92,
-      powered_by: 'Célestique AI - Sooban Talha Productions'
+      score: 92
     },
     'pasta': {
       name: 'Creamy Chicken Alfredo Pasta',
@@ -182,8 +168,7 @@ function generateFallbackRecipe(input) {
         '2 tbsp butter',
         '1 tbsp olive oil',
         'Salt and black pepper to taste',
-        'Fresh parsley, chopped',
-        'Nutmeg, freshly grated'
+        'Fresh parsley, chopped'
       ],
       instructions: [
         'Cook pasta in salted boiling water until al dente, reserve 1 cup pasta water',
@@ -191,91 +176,85 @@ function generateFallbackRecipe(input) {
         'In same pan, melt butter and sauté garlic until fragrant',
         'Pour in cream, bring to simmer, then stir in Parmesan until melted',
         'Add cooked pasta and chicken to sauce, toss to combine',
-        'Season with nutmeg, salt, and pepper. Garnish with parsley'
+        'Season with salt, and pepper. Garnish with parsley'
       ],
       chef_tips: [
         'Use freshly grated Parmesan for best melting',
         'Save pasta water to adjust sauce consistency',
         'Do not boil the cream sauce after adding cheese'
       ],
-      score: 88,
-      powered_by: 'Célestique AI - Sooban Talha Productions'
-    },
-    'stir fry': {
-      name: 'Asian Vegetable Stir Fry',
-      cuisine: 'Asian',
-      difficulty: 'Easy',
-      prep_time: '15 minutes',
-      cook_time: '10 minutes',
-      serves: '4 people',
-      ingredients: [
-        '2 cups mixed vegetables (bell peppers, broccoli, carrots, snow peas)',
-        '1 onion, sliced',
-        '3 cloves garlic, minced',
-        '1 tbsp ginger, grated',
-        '3 tbsp soy sauce',
-        '1 tbsp oyster sauce',
-        '1 tsp sesame oil',
-        '2 tbsp vegetable oil',
-        '1 tsp cornstarch',
-        '2 tbsp water',
-        'Sesame seeds for garnish'
-      ],
-      instructions: [
-        'Cut vegetables into uniform pieces for even cooking',
-        'Mix soy sauce, oyster sauce, and sesame oil in small bowl',
-        'Heat wok with vegetable oil until smoking hot',
-        'Stir-fry garlic and ginger for 30 seconds until fragrant',
-        'Add vegetables and stir-fry for 4-5 minutes until crisp-tender',
-        'Pour sauce over vegetables, toss to coat',
-        'Mix cornstarch with water, add to wok to thicken sauce',
-        'Garnish with sesame seeds and serve immediately'
-      ],
-      chef_tips: [
-        'Keep wok very hot for proper stir-frying',
-        'Cut vegetables uniformly for even cooking',
-        'Have all ingredients prepped before starting'
-      ],
-      score: 85,
-      powered_by: 'Célestique AI - Sooban Talha Productions'
+      score: 88
     }
   };
 
-  // Find the best matching recipe
+  // Adjust recipe based on user preferences
+  const adjustRecipeForPreferences = (recipe, preferences) => {
+    if (preferences.includes('vegetarian') && recipe.name.toLowerCase().includes('chicken')) {
+      recipe.name = recipe.name.replace('Chicken', 'Mushroom');
+      recipe.ingredients = recipe.ingredients.filter(ing => !ing.toLowerCase().includes('chicken'));
+      recipe.ingredients.push('400g mixed mushrooms, sliced');
+      recipe.chef_tips.push('For richer flavor, use a mix of wild mushrooms');
+    }
+    
+    if (preferences.includes('vegan')) {
+      recipe.ingredients = recipe.ingredients.map(ing => 
+        ing.replace('heavy cream', 'coconut cream')
+           .replace('Parmesan cheese', 'nutritional yeast')
+           .replace('butter', 'vegan butter')
+           .replace('eggs', 'flax eggs (2 tbsp ground flax + 6 tbsp water)')
+      );
+    }
+    
+    return recipe;
+  };
+
+  // Find matching recipe
   const lowerInput = input.toLowerCase();
-  for (const [key, recipe] of Object.entries(recipes)) {
+  let recipe = null;
+
+  for (const [key, recipeData] of Object.entries(recipes)) {
     if (lowerInput.includes(key)) {
-      return recipe;
+      recipe = { ...recipeData };
+      break;
     }
   }
 
-  // Default creative fallback
-  return {
-    name: 'Gourmet ' + input.charAt(0).toUpperCase() + input.slice(1),
-    cuisine: 'International',
-    difficulty: 'Medium',
-    prep_time: '25 minutes',
-    cook_time: '30 minutes',
-    serves: '4 people',
-    ingredients: [
-      'Fresh ingredients based on your request',
-      'Herbs and spices for flavor',
-      'Quality proteins and vegetables',
-      'Specialty ingredients for authenticity'
-    ],
-    instructions: [
-      'Prepare all ingredients according to standard culinary practices',
-      'Follow traditional cooking methods for best results',
-      'Adjust seasoning to taste before serving',
-      'Garnish beautifully for presentation'
-    ],
-    chef_tips: [
-      'Use the freshest ingredients available',
-      'Taste and adjust seasoning throughout cooking',
-      'Let the main ingredients shine without overpowering'
-    ],
-    score: 87,
-    powered_by: 'Célestique AI - Sooban Talha Productions',
-    generated_at: new Date().toISOString()
-  };
+  // Create custom recipe if no match found
+  if (!recipe) {
+    recipe = {
+      name: 'Gourmet ' + input.charAt(0).toUpperCase() + input.slice(1),
+      cuisine: 'International',
+      difficulty: 'Medium',
+      prep_time: '25 minutes',
+      cook_time: '30 minutes',
+      serves: '4 people',
+      ingredients: [
+        'Fresh ingredients based on your request',
+        'Herbs and spices for flavor',
+        'Quality proteins and vegetables',
+        'Specialty ingredients for authenticity'
+      ],
+      instructions: [
+        'Prepare all ingredients according to standard culinary practices',
+        'Follow traditional cooking methods for best results',
+        'Adjust seasoning to taste before serving',
+        'Garnish beautifully for presentation'
+      ],
+      chef_tips: [
+        'Use the freshest ingredients available',
+        'Taste and adjust seasoning throughout cooking',
+        'Let the main ingredients shine without overpowering'
+      ],
+      score: 87
+    };
+  }
+
+  // Apply user preferences
+  recipe = adjustRecipeForPreferences(recipe, userPreferences);
+  
+  recipe.powered_by = 'Célestique AI - Sooban Talha Productions';
+  recipe.generated_at = new Date().toISOString();
+  recipe.model = 'fallback';
+
+  return recipe;
 }
