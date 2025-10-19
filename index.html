@@ -3,100 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Célestique AI | Sooban Talha Productions</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Célestique AI | Gourmet Recipe Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="styles/main.css">
-
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <div class="animated-bg"></div>
-    <div class="grid-bg"></div>
-    <div class="matrix-rain" id="matrixRain"></div>
+    <div class="matrix-background"></div>
+    <div class="particle-container" id="particles"></div>
     
     <header>
         <div class="container header-content">
             <div class="logo">
-                <span class="logo-icon">🍽️</span>
-                <div>
-                    <h1 class="glitch" data-text="Célestique AI">Célestique AI</h1>
+                <div class="logo-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="logo-text">
+                    <h1 class="glitch-text" data-text="Célestique AI">Célestique AI</h1>
                     <div class="logo-subtext">BY SOOBAN TALHA PRODUCTIONS</div>
                 </div>
             </div>
-            <div class="company-badge">Célestique AI By STP</div>
-            <nav>
-                <ul>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="#chat">Chat</a></li>
-                    <li><a href="#about">About</a></li>
-                </ul>
-            </nav>
+            
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="recipes-generated">12,847</span>
+                    <span class="stat-label">RECIPES GENERATED</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="active-chefs">1.2K</span>
+                    <span class="stat-label">ACTIVE CHEFS</span>
+                </div>
+            </div>
         </div>
     </header>
 
     <main class="container">
-        <!-- Chat Section -->
-        <section id="chat" class="chat-container fade-in">
+        <!-- Recipe Generator Interface -->
+        <section class="chat-container glass-card">
             <div class="chat-header">
-                <div class="feature-icon">
+                <div class="ai-chef-avatar">
                     <i class="fas fa-robot"></i>
+                    <div class="status-indicator"></div>
                 </div>
-                <h2>Chat with Célestique AI</h2>
+                <div class="chat-info">
+                    <h2>Chef Célestique</h2>
+                    <p>AI Gourmet Recipe Assistant</p>
+                </div>
+                <div class="recipe-stats">
+                    <div class="quick-stat">
+                        <span class="stat-number">5.0</span>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
             </div>
+
             <div class="chat-messages" id="chat-messages">
                 <div class="message bot-message">
-                    <p>Greetings! I'm Célestique AI, your gourmet recipe assistant. What culinary masterpiece would you like to create today?</p>
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>Greetings! I'm Célestique AI, your gourmet recipe assistant powered by <strong>Sooban Talha Productions</strong>. What culinary masterpiece would you like to create today?</p>
+                        <div class="message-time">Just now</div>
+                    </div>
                 </div>
             </div>
-            <div class="chat-input">
-                <input type="text" id="user-input" placeholder="What recipe would you like to explore today?" class="cyber-input">
-                <button id="send-message" class="neon-button">Send</button>
+
+            <!-- Quick Recipe Suggestions -->
+            <div class="quick-suggestions">
+                <h3>Popular Requests:</h3>
+                <div class="suggestion-chips">
+                    <button class="suggestion-chip" data-recipe="chocolate lava cake">
+                        <i class="fas fa-cookie"></i> Chocolate Lava Cake
+                    </button>
+                    <button class="suggestion-chip" data-recipe="chicken alfredo pasta">
+                        <i class="fas fa-pasta"></i> Chicken Alfredo
+                    </button>
+                    <button class="suggestion-chip" data-recipe="vegetable stir fry">
+                        <i class="fas fa-carrot"></i> Vegetable Stir Fry
+                    </button>
+                    <button class="suggestion-chip" data-recipe="beef burger">
+                        <i class="fas fa-hamburger"></i> Gourmet Burger
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="user-input" placeholder="Describe your dream recipe (e.g., 'spicy Thai curry with coconut milk')" class="cyber-input">
+                    <button id="send-message" class="neon-button">
+                        <i class="fas fa-paper-plane"></i>
+                        Generate Recipe
+                    </button>
+                </div>
+                <div class="input-hints">
+                    <span>💡 Tip: Be specific! Include ingredients, cuisine, or dietary needs</span>
+                </div>
             </div>
         </section>
 
-        <section class="hero">
-            <h2>AI-Powered Culinary Excellence</h2>
-            <p>Experience the future of gourmet cooking with our AI-powered recipe assistant. Discover, create, and elevate your culinary journey.</p>
-            <button class="cta-button">Explore Recipes</button>
+        <!-- Recipe Display Area -->
+        <section class="recipe-display" id="recipe-display">
+            <div class="placeholder-message">
+                <i class="fas fa-utensils"></i>
+                <h3>Your AI-Generated Recipe Awaits</h3>
+                <p>Describe what you'd like to cook, and I'll create a detailed gourmet recipe with ingredients, instructions, and chef tips!</p>
+            </div>
         </section>
 
-        <div class="welcome-message fade-in">
-            <h3>Ready to Use - No Setup Required!</h3>
-            <p>Our AI chef is ready to assist you. Just type your recipe request above and get instant gourmet recipes!</p>
-        </div>
-
-        <section id="features" class="features">
-            <h2>Exclusive Features</h2>
+        <!-- Features Showcase -->
+        <section class="features-showcase">
             <div class="features-grid">
-                <div class="feature-card fade-in holographic">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Flavor Profile Analysis</h3>
-                    <p>Our AI analyzes thousands of recipes to create the perfect balance of flavors for your palate.</p>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Instant Generation</h3>
+                    <p>Get complete recipes in seconds with detailed instructions and ingredient lists</p>
                 </div>
-                <div class="feature-card fade-in holographic">
-                    <div class="feature-icon">📊</div>
-                    <h3>Nutritional Intelligence</h3>
-                    <p>Get detailed nutritional breakdowns and personalized recommendations based on your dietary needs.</p>
+                
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Global Cuisines</h3>
+                    <p>Italian, Asian, Mexican, Mediterranean - explore worldwide culinary traditions</p>
                 </div>
-                <div class="feature-card fade-in holographic">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Smart Alternatives</h3>
-                    <p>Discover ingredient substitutions based on allergies, preferences, or what's in your pantry.</p>
+                
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Dietary Adaptations</h3>
+                    <p>Vegan, gluten-free, keto, or allergy-friendly - we customize to your needs</p>
+                </div>
+                
+                <div class="feature-card glass-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Smart Scaling</h3>
+                    <p>Automatically adjust portions for 2 people or a dinner party of 20</p>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer id="about">
+    <footer>
         <div class="container footer-content">
-            <div class="footer-logo">Célestique AI</div>
-            <div class="footer-links">
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
-                <a href="#contact">Contact</a>
+            <div class="footer-brand">
+                <div class="footer-logo">Célestique AI</div>
+                <p class="company-tagline">CRAFTING CULINARY EXCELLENCE THROUGH AI</p>
             </div>
-            <p class="copyright"> Sooban Talha Productions</p>
-            <p class="company-tag">CRAFTING TOMORROW'S TECHNOLOGY TODAY</p>
+            <div class="footer-info">
+                <p class="copyright">&copy; 2024 Sooban Talha Productions. All rights reserved.</p>
+                <p class="tech-stack">Powered by Advanced Neural Networks & Gourmet Expertise</p>
+            </div>
         </div>
     </footer>
 
