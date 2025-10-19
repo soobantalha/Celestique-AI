@@ -66,7 +66,7 @@ async function generateRecipeWithAI(userInput) {
   try {
     // Try multiple models in sequence
     const models = [
-      'x-ai/grok-4-fast:free',
+      'google/gemini-2.0-flash-exp:free',
       'deepseek/deepseek-chat-v3.1:free',
       'deepseek/deepseek-r1-0528:free'
     ];
