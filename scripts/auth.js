@@ -1,4 +1,4 @@
-// Authentication System
+// Professional Authentication System
 class AuthSystem {
     constructor() {
         this.currentUser = null;
@@ -20,72 +20,46 @@ class AuthSystem {
     }
 
     setupEventListeners() {
-        // Auth tabs
-        document.querySelectorAll('.auth-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                this.switchAuthTab(e.target.dataset.tab);
+        // Form switching
+        document.querySelectorAll('.switch-form').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchForm(e.target.dataset.form);
             });
         });
 
         // Login form
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.querySelector('#loginForm form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleLogin();
         });
 
         // Signup form
-        document.getElementById('signupForm').addEventListener('submit', (e) => {
+        document.querySelector('#signupForm form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleSignup();
         });
 
-        // User menu
-        document.getElementById('userMenuBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleUserDropdown();
-        });
-
         // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
             this.handleLogout();
-        });
-
-        // Profile menu item
-        document.querySelector('.dropdown-item[href="#profile"]').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showProfileModal();
-        });
-
-        // Close profile modal
-        document.getElementById('closeProfileModal').addEventListener('click', () => {
-            this.hideProfileModal();
-        });
-
-        document.getElementById('cancelProfileEdit').addEventListener('click', () => {
-            this.hideProfileModal();
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
-            this.closeUserDropdown();
         });
     }
 
-    switchAuthTab(tab) {
-        // Update active tab
-        document.querySelectorAll('.auth-tab').forEach(t => {
-            t.classList.toggle('active', t.dataset.tab === tab);
+    switchForm(formType) {
+        // Hide all forms
+        document.querySelectorAll('.auth-form').forEach(form => {
+            form.classList.remove('active');
         });
 
-        // Show active form
-        document.querySelectorAll('.auth-form').forEach(form => {
-            form.classList.toggle('active', form.id === `${tab}Form`);
-        });
+        // Show target form
+        document.getElementById(formType + 'Form').classList.add('active');
     }
 
     handleLogin() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
+        const form = document.querySelector('#loginForm form');
+        const email = form.querySelector('input[type="email"]').value;
+        const password = form.querySelector('input[type="password"]').value;
 
         const user = this.users.find(u => u.email === email && u.password === password);
         
@@ -100,13 +74,17 @@ class AuthSystem {
     }
 
     handleSignup() {
-        const name = document.getElementById('signupName').value;
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        const preferences = Array.from(document.getElementById('signupPreferences').selectedOptions)
-            .map(option => option.value);
+        const form = document.querySelector('#signupForm form');
+        const name = form.querySelector('input[type="text"]').value;
+        const email = form.querySelector('input[type="email"]').value;
+        const password = form.querySelectorAll('input[type="password"]')[0].value;
+        const confirmPassword = form.querySelectorAll('input[type="password"]')[1].value;
 
-        // Check if user already exists
+        if (password !== confirmPassword) {
+            this.showNotification('Passwords do not match', 'error');
+            return;
+        }
+
         if (this.users.find(u => u.email === email)) {
             this.showNotification('User already exists with this email', 'error');
             return;
@@ -117,16 +95,16 @@ class AuthSystem {
             name,
             email,
             password,
-            preferences,
-            avatar: this.generateAvatar(name),
             joinDate: new Date().toISOString(),
+            preferences: {
+                defaultModel: 'deepseek',
+                theme: 'dark'
+            },
             stats: {
                 recipesGenerated: 0,
-                favorites: 0,
-                timeSaved: 0,
-                level: 'Beginner'
+                totalChats: 0
             },
-            recipeHistory: []
+            chatHistory: []
         };
 
         this.users.push(newUser);
@@ -147,72 +125,40 @@ class AuthSystem {
     }
 
     showAuth() {
-        document.getElementById('authModal').style.display = 'flex';
+        document.getElementById('authScreen').style.display = 'flex';
         document.getElementById('appContainer').style.display = 'none';
     }
 
     showApp() {
-        document.getElementById('authModal').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'flex';
         this.updateUserInterface();
     }
 
     updateUserInterface() {
         if (!this.currentUser) return;
 
-        // Update user info in header
-        document.getElementById('userName').textContent = this.currentUser.name;
-        document.getElementById('userAvatar').textContent = this.currentUser.name.charAt(0).toUpperCase();
+        // Update user info
+        document.getElementById('sidebarUserName').textContent = this.currentUser.name;
         
-        // Update dashboard stats
-        document.getElementById('userRecipesCount').textContent = this.currentUser.stats.recipesGenerated;
-        document.getElementById('userFavoritesCount').textContent = this.currentUser.stats.favorites;
-        document.getElementById('userTimeSaved').textContent = `${this.currentUser.stats.timeSaved}h`;
-        document.getElementById('userLevel').textContent = this.currentUser.stats.level;
-
-        // Update profile modal if open
-        this.updateProfileModal();
-    }
-
-    updateProfileModal() {
-        document.getElementById('profileName').value = this.currentUser.name;
-        document.getElementById('profileEmail').value = this.currentUser.email;
-        
-        const preferencesSelect = document.getElementById('profilePreferences');
-        Array.from(preferencesSelect.options).forEach(option => {
-            option.selected = this.currentUser.preferences.includes(option.value);
-        });
-        
-        document.getElementById('profileAvatar').textContent = this.currentUser.name.charAt(0).toUpperCase();
-    }
-
-    toggleUserDropdown() {
-        const dropdown = document.getElementById('userDropdown');
-        dropdown.classList.toggle('show');
-    }
-
-    closeUserDropdown() {
-        document.getElementById('userDropdown').classList.remove('show');
-    }
-
-    showProfileModal() {
-        this.updateProfileModal();
-        document.getElementById('profileModal').classList.add('show');
-    }
-
-    hideProfileModal() {
-        document.getElementById('profileModal').classList.remove('show');
+        // Update settings form
+        const defaultModelSelect = document.getElementById('defaultModelSelect');
+        if (defaultModelSelect) {
+            defaultModelSelect.value = this.currentUser.preferences.defaultModel;
+        }
     }
 
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
 
-    generateAvatar(name) {
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00d4ff&color=fff`;
-    }
-
     showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
         // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -222,6 +168,45 @@ class AuthSystem {
                 <span>${message}</span>
             </div>
         `;
+
+        // Add styles if not already added
+        if (!document.querySelector('#notification-styles')) {
+            const styles = document.createElement('style');
+            styles.id = 'notification-styles';
+            styles.textContent = `
+                .notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    color: var(--text-primary);
+                    z-index: 10000;
+                    animation: slideInRight 0.3s ease-out;
+                    backdrop-filter: blur(20px);
+                    max-width: 300px;
+                }
+                .notification-success { border-left: 4px solid var(--accent); }
+                .notification-error { border-left: 4px solid var(--error); }
+                .notification-info { border-left: 4px solid var(--primary); }
+                .notification-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(styles);
+        }
 
         document.body.appendChild(notification);
 
@@ -240,67 +225,9 @@ class AuthSystem {
         };
         return icons[type] || 'info-circle';
     }
-
-    // User data management methods
-    addRecipeToHistory(recipe) {
-        if (!this.currentUser) return;
-
-        const recipeHistoryItem = {
-            id: this.generateId(),
-            recipe,
-            generatedAt: new Date().toISOString(),
-            model: recipe.model || 'deepseek',
-            favorite: false
-        };
-
-        this.currentUser.recipeHistory.unshift(recipeHistoryItem);
-        this.currentUser.stats.recipesGenerated++;
-        
-        // Update time saved (estimate 30 minutes per recipe)
-        this.currentUser.stats.timeSaved += 0.5;
-        
-        // Update level based on recipes generated
-        this.updateUserLevel();
-        
-        this.saveUserData();
-        this.updateUserInterface();
-    }
-
-    updateUserLevel() {
-        const recipes = this.currentUser.stats.recipesGenerated;
-        if (recipes >= 50) this.currentUser.stats.level = 'Master Chef';
-        else if (recipes >= 25) this.currentUser.stats.level = 'Expert';
-        else if (recipes >= 10) this.currentUser.stats.level = 'Intermediate';
-        else this.currentUser.stats.level = 'Beginner';
-    }
-
-    saveUserData() {
-        const userIndex = this.users.findIndex(u => u.id === this.currentUser.id);
-        if (userIndex !== -1) {
-            this.users[userIndex] = this.currentUser;
-            localStorage.setItem('celestique_users', JSON.stringify(this.users));
-            localStorage.setItem('celestique_current_user', JSON.stringify(this.currentUser));
-        }
-    }
-
-    getRecipeHistory() {
-        return this.currentUser ? this.currentUser.recipeHistory : [];
-    }
-
-    toggleFavorite(recipeId) {
-        if (!this.currentUser) return;
-
-        const recipe = this.currentUser.recipeHistory.find(r => r.id === recipeId);
-        if (recipe) {
-            recipe.favorite = !recipe.favorite;
-            this.currentUser.stats.favorites += recipe.favorite ? 1 : -1;
-            this.saveUserData();
-            this.updateUserInterface();
-        }
-    }
 }
 
-// Initialize auth system when DOM is loaded
+// Initialize auth system
 document.addEventListener('DOMContentLoaded', () => {
     window.authSystem = new AuthSystem();
 });

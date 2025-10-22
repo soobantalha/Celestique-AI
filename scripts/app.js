@@ -1,133 +1,139 @@
-// Main Application Logic
+// Professional Chat Application
 class CelestiqueApp {
     constructor() {
         this.selectedModel = 'deepseek';
-        this.currentRecipe = null;
+        this.currentChat = [];
+        this.isGenerating = false;
         this.init();
     }
 
     init() {
         this.setupEventListeners();
-        this.initParticles();
-        this.loadRecipeHistory();
+        this.loadChatHistory();
+        this.updateModelDisplay();
     }
 
     setupEventListeners() {
-        // Model selection
-        document.querySelectorAll('.model-card').forEach(card => {
-            card.addEventListener('click', () => {
-                this.selectModel(card.dataset.model);
-            });
+        // New chat button
+        document.getElementById('newChatBtn').addEventListener('click', () => {
+            this.newChat();
         });
 
-        // Send message button
-        document.getElementById('send-message').addEventListener('click', () => {
+        // Send message
+        document.getElementById('sendButton').addEventListener('click', () => {
             this.sendMessage();
         });
 
-        // Enter key in input
-        document.getElementById('user-input').addEventListener('keypress', (e) => {
+        // Enter key in message input
+        document.getElementById('messageInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 this.sendMessage();
             }
         });
 
-        // Suggestion chips
-        document.querySelectorAll('.suggestion-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                const recipe = chip.getAttribute('data-recipe');
-                document.getElementById('user-input').value = recipe;
-                this.sendMessage();
+        // Auto-resize textarea
+        document.getElementById('messageInput').addEventListener('input', (e) => {
+            this.autoResizeTextarea(e.target);
+        });
+
+        // Model selector
+        document.getElementById('modelSelectorBtn').addEventListener('click', () => {
+            this.showModelModal();
+        });
+
+        document.getElementById('confirmModelSelect').addEventListener('click', () => {
+            this.confirmModelSelection();
+        });
+
+        document.getElementById('cancelModelSelect').addEventListener('click', () => {
+            this.hideModelModal();
+        });
+
+        // Model options
+        document.querySelectorAll('.model-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                this.selectModelOption(e.currentTarget.dataset.model);
             });
         });
 
-        // Profile form submission
-        document.querySelector('.profile-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.updateProfile();
+        // Settings
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            this.showSettingsModal();
+        });
+
+        document.getElementById('closeSettingsModal').addEventListener('click', () => {
+            this.hideSettingsModal();
+        });
+
+        document.getElementById('saveSettings').addEventListener('click', () => {
+            this.saveSettings();
+        });
+
+        // Clear chat
+        document.getElementById('clearChatBtn').addEventListener('click', () => {
+            this.clearChat();
+        });
+
+        // Quick suggestions
+        document.querySelectorAll('.suggestion-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const prompt = e.currentTarget.dataset.prompt;
+                document.getElementById('messageInput').value = prompt;
+                this.sendMessage();
+            });
         });
     }
 
-    selectModel(model) {
-        this.selectedModel = model;
-        
-        // Update UI
-        document.querySelectorAll('.model-card').forEach(card => {
-            card.classList.toggle('active', card.dataset.model === model);
-        });
-
-        // Update model info in chat header
-        const modelInfo = this.getModelInfo(model);
-        document.getElementById('selectedModelName').textContent = modelInfo.name;
-        document.getElementById('selectedModelIcon').className = modelInfo.icon;
-
-        this.showNotification(`Switched to ${modelInfo.name}`, 'info');
+    newChat() {
+        this.currentChat = [];
+        this.clearChatMessages();
+        this.showWelcomeMessage();
     }
 
-    getModelInfo(model) {
-        const models = {
-            deepseek: {
-                name: 'DeepSeek Chef',
-                icon: 'fas fa-robot',
-                description: 'Advanced reasoning for complex recipes'
-            },
-            gemini: {
-                name: 'Gemini Gourmet',
-                icon: 'fas fa-gem',
-                description: 'Perfect for international cuisine'
-            },
-            claude: {
-                name: 'Claude Cuisine',
-                icon: 'fas fa-cloud',
-                description: 'Health-focused and dietary recipes'
+    clearChat() {
+        if (this.currentChat.length > 0) {
+            if (confirm('Are you sure you want to clear this chat?')) {
+                this.newChat();
             }
-        };
-        return models[model] || models.deepseek;
+        }
     }
 
     async sendMessage() {
-        const message = document.getElementById('user-input').value.trim();
-        if (!message) return;
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
 
-        // Check if user is authenticated
-        if (!window.authSystem || !window.authSystem.currentUser) {
-            this.showNotification('Please log in to generate recipes', 'error');
-            return;
-        }
+        if (!message || this.isGenerating) return;
 
         // Add user message to chat
-        this.addMessage(message, true);
+        this.addMessage(message, 'user');
+        messageInput.value = '';
+        this.autoResizeTextarea(messageInput);
 
-        // Clear input
-        document.getElementById('user-input').value = '';
+        // Show typing indicator
+        this.showTypingIndicator();
 
-        // Show loading
-        this.showLoading();
+        this.isGenerating = true;
+        document.getElementById('sendButton').disabled = true;
 
         try {
-            const recipe = await this.generateRecipe(message, this.selectedModel);
-            
-            // Hide loading
-            this.hideLoading();
-
-            // Add recipe to chat and display it
-            this.displayRecipe(recipe);
-
-            // Save to user history
-            window.authSystem.addRecipeToHistory(recipe);
-
-            // Reload history
-            this.loadRecipeHistory();
-
+            const response = await this.generateRecipe(message);
+            this.hideTypingIndicator();
+            this.addMessage(response, 'bot');
         } catch (error) {
-            this.hideLoading();
-            this.handleError(error);
+            this.hideTypingIndicator();
+            this.addMessage('I apologize, but I encountered an error while generating your recipe. Please try again.', 'bot');
+            console.error('Error:', error);
         }
+
+        this.isGenerating = false;
+        document.getElementById('sendButton').disabled = false;
     }
 
-    async generateRecipe(message, model) {
-        console.log('Generating recipe with model:', model);
+    async generateRecipe(message) {
+        if (!window.authSystem || !window.authSystem.currentUser) {
+            throw new Error('User not authenticated');
+        }
 
         const response = await fetch('/api/recipe', {
             method: 'POST',
@@ -136,282 +142,271 @@ class CelestiqueApp {
             },
             body: JSON.stringify({ 
                 message,
-                model,
-                userPreferences: window.authSystem.currentUser.preferences
+                model: this.selectedModel,
+                userPreferences: []
             })
         });
 
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
+            throw new Error(`Server error: ${response.status}`);
         }
 
         const data = await response.json();
-        data.model = model; // Add model info to recipe
-        return data;
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        // Format the recipe response
+        return this.formatRecipeResponse(data);
     }
 
-    addMessage(content, isUser = false) {
-        const chatMessages = document.getElementById('chat-messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message');
-        messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+    formatRecipeResponse(recipe) {
+        if (recipe.error) {
+            return `I'm sorry, I couldn't generate a recipe. Error: ${recipe.error}`;
+        }
+
+        let response = `**${recipe.name}**\n\n`;
         
+        if (recipe.cuisine) response += `*Cuisine: ${recipe.cuisine}*\n`;
+        if (recipe.difficulty) response += `*Difficulty: ${recipe.difficulty}*\n`;
+        if (recipe.prep_time) response += `*Prep Time: ${recipe.prep_time}*\n`;
+        if (recipe.cook_time) response += `*Cook Time: ${recipe.cook_time}*\n`;
+        if (recipe.serves) response += `*Serves: ${recipe.serves}*\n\n`;
+
+        response += `## Ingredients\n`;
+        recipe.ingredients.forEach(ingredient => {
+            response += `• ${ingredient}\n`;
+        });
+
+        response += `\n## Instructions\n`;
+        recipe.instructions.forEach((step, index) => {
+            response += `${index + 1}. ${step}\n`;
+        });
+
+        if (recipe.chef_tips && recipe.chef_tips.length > 0) {
+            response += `\n## Chef's Tips\n`;
+            recipe.chef_tips.forEach(tip => {
+                response += `💡 ${tip}\n`;
+            });
+        }
+
+        response += `\n---\n*Powered by Célestique AI - Sooban Talha Productions*`;
+
+        return response;
+    }
+
+    addMessage(content, role) {
+        const chatMessages = document.getElementById('chatMessages');
+        
+        // Remove welcome message if it's the first user message
+        if (role === 'user') {
+            const welcomeMessage = chatMessages.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.innerHTML = `<i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>`;
-        
+        avatar.innerHTML = role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         
-        if (typeof content === 'string') {
-            messageContent.innerHTML = `
-                <p>${content}</p>
-                <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-            `;
-        } else {
-            messageContent.appendChild(content);
-            const timeDiv = document.createElement('div');
-            timeDiv.className = 'message-time';
-            timeDiv.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            messageContent.appendChild(timeDiv);
-        }
-        
+        // Convert markdown-like formatting to HTML
+        const formattedContent = this.formatMessage(content);
+        messageContent.innerHTML = formattedContent;
+
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(messageContent);
         chatMessages.appendChild(messageDiv);
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Add to current chat
+        this.currentChat.push({ role, content });
+    }
+
+    formatMessage(content) {
+        // Simple markdown parsing
+        return content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/## (.*?)\n/g, '<h3>$1</h3>')
+            .replace(/\n/g, '<br>')
+            .replace(/• (.*?)(?=\n|$)/g, '<li>$1</li>')
+            .replace(/(\d+)\. (.*?)(?=\n|$)/g, '<li>$2</li>')
+            .replace(/<li>.*<\/li>/gs, '<ul>$&</ul>')
+            .replace(/💡 (.*?)(?=\n|$)/g, '<div class="tip">💡 $1</div>')
+            .replace(/---/g, '<hr>');
+    }
+
+    showTypingIndicator() {
+        const chatMessages = document.getElementById('chatMessages');
+        
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot';
+        typingDiv.id = 'typingIndicator';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = '<i class="fas fa-robot"></i>';
+
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content typing-indicator';
+        messageContent.innerHTML = `
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span>Célestique AI is cooking...</span>
+        `;
+
+        typingDiv.appendChild(avatar);
+        typingDiv.appendChild(messageContent);
+        chatMessages.appendChild(typingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    showLoading() {
-        const loadingDiv = document.createElement('div');
-        loadingDiv.classList.add('message', 'bot-message');
-        loadingDiv.id = 'loading-message';
-        
-        loadingDiv.innerHTML = `
-            <div class="message-avatar">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div class="message-content">
-                <div class="ai-thinking">
-                    <div class="thinking-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                    <p>Crafting your gourmet recipe with ${this.getModelInfo(this.selectedModel).name}...</p>
-                </div>
-            </div>
-        `;
-        
-        document.getElementById('chat-messages').appendChild(loadingDiv);
-        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-    }
-
-    hideLoading() {
-        const loadingMsg = document.getElementById('loading-message');
-        if (loadingMsg) {
-            loadingMsg.remove();
+    hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
         }
     }
 
-    displayRecipe(recipe) {
-        const recipeCard = this.formatRecipe(recipe);
-        this.addMessage(recipeCard);
-        
-        // Store current recipe
-        this.currentRecipe = recipe;
+    autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     }
 
-    formatRecipe(recipe) {
-        const recipeCard = document.createElement('div');
-        recipeCard.className = 'recipe-card';
-        
-        if (recipe.error) {
-            recipeCard.innerHTML = `
-                <div class="recipe-header">
-                    <h3 class="recipe-title">Recipe Generation Failed</h3>
-                </div>
-                <div class="recipe-content">
-                    <p><strong>Error:</strong> ${recipe.error}</p>
-                    <p>Please try again with a different request.</p>
-                </div>
-            `;
-            return recipeCard;
-        }
-        
-        const ingredientsHTML = recipe.ingredients && recipe.ingredients.length > 0 
-            ? recipe.ingredients.map(ingredient => `
-                <div class="ingredient-item">
-                    <div class="ingredient-emoji">🥄</div>
-                    <div class="ingredient-text">${ingredient}</div>
-                </div>
-            `).join('')
-            : '<p>No ingredients specified</p>';
-        
-        const instructionsHTML = recipe.instructions && recipe.instructions.length > 0
-            ? recipe.instructions.map(instruction => `
-                <li class="instruction-step">${instruction}</li>
-            `).join('')
-            : '<p>No instructions provided</p>';
-        
-        const tipsHTML = recipe.chef_tips && recipe.chef_tips.length > 0
-            ? recipe.chef_tips.map(tip => `
-                <div class="tip-item">
-                    <div class="tip-icon">💡</div>
-                    <div class="tip-text">${tip}</div>
-                </div>
-            `).join('')
-            : '';
-        
-        recipeCard.innerHTML = `
-            <div class="recipe-header">
-                <h2 class="recipe-title">${recipe.name || 'Gourmet Recipe'}</h2>
-                <div class="recipe-meta">
-                    ${recipe.cuisine ? `<div class="meta-item"><i class="fas fa-globe"></i> ${recipe.cuisine}</div>` : ''}
-                    ${recipe.difficulty ? `<div class="meta-item"><i class="fas fa-signal"></i> ${recipe.difficulty}</div>` : ''}
-                    ${recipe.prep_time ? `<div class="meta-item"><i class="fas fa-clock"></i> Prep: ${recipe.prep_time}</div>` : ''}
-                    ${recipe.cook_time ? `<div class="meta-item"><i class="fas fa-fire"></i> Cook: ${recipe.cook_time}</div>` : ''}
-                    ${recipe.serves ? `<div class="meta-item"><i class="fas fa-users"></i> Serves: ${recipe.serves}</div>` : ''}
-                </div>
-            </div>
-            
-            <div class="recipe-content">
-                <div class="recipe-section">
-                    <h3 class="section-title"><i class="fas fa-shopping-basket"></i> Ingredients</h3>
-                    <div class="ingredients-grid">
-                        ${ingredientsHTML}
-                    </div>
-                </div>
-                
-                <div class="recipe-section">
-                    <h3 class="section-title"><i class="fas fa-list-ol"></i> Instructions</h3>
-                    <ol class="instructions-list">
-                        ${instructionsHTML}
-                    </ol>
-                </div>
-                
-                ${tipsHTML ? `
-                <div class="recipe-section">
-                    <h3 class="section-title"><i class="fas fa-lightbulb"></i> Chef's Tips</h3>
-                    <div class="tips-grid">
-                        ${tipsHTML}
-                    </div>
-                </div>
-                ` : ''}
-                
-                <div class="recipe-footer">
-                    <div class="powered-by">
-                        <p><i class="fas fa-robot"></i> Generated by ${this.getModelInfo(recipe.model || this.selectedModel).name} • Sooban Talha Productions</p>
-                        ${recipe.generated_at ? `<p><small>Created: ${new Date(recipe.generated_at).toLocaleString()}</small></p>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        return recipeCard;
-    }
-
-    loadRecipeHistory() {
-        if (!window.authSystem || !window.authSystem.currentUser) return;
-
-        const history = window.authSystem.getRecipeHistory();
-        const historyGrid = document.getElementById('historyGrid');
-        
-        if (history.length === 0) {
-            historyGrid.innerHTML = `
-                <div class="no-history">
+    showWelcomeMessage() {
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = `
+            <div class="welcome-message">
+                <div class="welcome-icon">
                     <i class="fas fa-utensils"></i>
-                    <h3>No recipes yet</h3>
-                    <p>Your generated recipes will appear here</p>
                 </div>
-            `;
-            return;
-        }
-
-        historyGrid.innerHTML = history.slice(0, 6).map(item => `
-            <div class="history-item glass-card" data-recipe-id="${item.id}">
-                <div class="history-item-header">
-                    <div>
-                        <div class="history-item-title">${item.recipe.name}</div>
-                        <div class="history-item-meta">
-                            <span>${item.recipe.cuisine || 'International'}</span>
-                            <span>${item.recipe.difficulty || 'Medium'}</span>
-                            <span>${new Date(item.generatedAt).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                    <div class="history-item-actions">
-                        <button class="history-action-btn favorite-btn ${item.favorite ? 'favorited' : ''}" 
-                                onclick="app.toggleFavorite('${item.id}')">
-                            <i class="fas fa-heart"></i>
+                <h1>Hello! I'm Célestique AI</h1>
+                <p>Your personal AI chef. What would you like to cook today?</p>
+                
+                <div class="quick-suggestions">
+                    <div class="suggestion-grid">
+                        <button class="suggestion-card" data-prompt="Create a chocolate lava cake recipe">
+                            <i class="fas fa-cookie"></i>
+                            <span>Chocolate Lava Cake</span>
                         </button>
-                        <button class="history-action-btn" onclick="app.viewRecipe('${item.id}')">
-                            <i class="fas fa-eye"></i>
+                        <button class="suggestion-card" data-prompt="Make a healthy chicken stir fry">
+                            <i class="fas fa-drumstick-bite"></i>
+                            <span>Chicken Stir Fry</span>
+                        </button>
+                        <button class="suggestion-card" data-prompt="Vegetarian pasta recipe">
+                            <i class="fas fa-pasta"></i>
+                            <span>Vegetarian Pasta</span>
+                        </button>
+                        <button class="suggestion-card" data-prompt="Traditional biryani recipe">
+                            <i class="fas fa-utensil-spoon"></i>
+                            <span>Biryani</span>
                         </button>
                     </div>
-                </div>
-                <div class="history-item-preview">
-                    ${item.recipe.ingredients ? item.recipe.ingredients.slice(0, 3).join(', ') : 'No ingredients listed'}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    toggleFavorite(recipeId) {
-        if (window.authSystem) {
-            window.authSystem.toggleFavorite(recipeId);
-            this.loadRecipeHistory(); // Reload to update UI
-        }
-    }
-
-    viewRecipe(recipeId) {
-        if (!window.authSystem) return;
-
-        const recipeItem = window.authSystem.currentUser.recipeHistory.find(r => r.id === recipeId);
-        if (recipeItem) {
-            this.displayRecipe(recipeItem.recipe);
-            document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-        }
-    }
-
-    updateProfile() {
-        if (!window.authSystem || !window.authSystem.currentUser) return;
-
-        const name = document.getElementById('profileName').value;
-        const email = document.getElementById('profileEmail').value;
-        const preferences = Array.from(document.getElementById('profilePreferences').selectedOptions)
-            .map(option => option.value);
-
-        window.authSystem.currentUser.name = name;
-        window.authSystem.currentUser.email = email;
-        window.authSystem.currentUser.preferences = preferences;
-        
-        window.authSystem.saveUserData();
-        window.authSystem.updateUserInterface();
-        window.authSystem.hideProfileModal();
-        
-        this.showNotification('Profile updated successfully', 'success');
-    }
-
-    handleError(error) {
-        console.error('Error generating recipe:', error);
-        
-        const errorMessage = `
-            <div class="recipe-card">
-                <div class="recipe-header">
-                    <h3 class="recipe-title">Connection Issue</h3>
-                </div>
-                <div class="recipe-content">
-                    <p>Unable to reach Célestique AI at the moment. Please check your connection and try again.</p>
-                    <p><small>Error: ${error.message}</small></p>
                 </div>
             </div>
         `;
+
+        // Re-attach event listeners to suggestion cards
+        document.querySelectorAll('.suggestion-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const prompt = e.currentTarget.dataset.prompt;
+                document.getElementById('messageInput').value = prompt;
+                this.sendMessage();
+            });
+        });
+    }
+
+    clearChatMessages() {
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '';
+    }
+
+    showModelModal() {
+        document.getElementById('modelModal').classList.add('show');
+    }
+
+    hideModelModal() {
+        document.getElementById('modelModal').classList.remove('show');
+    }
+
+    selectModelOption(model) {
+        document.querySelectorAll('.model-option').forEach(option => {
+            option.classList.remove('active');
+        });
         
-        const errorDiv = document.createElement('div');
-        errorDiv.innerHTML = errorMessage;
-        this.addMessage(errorDiv);
-        
-        this.showNotification('Failed to generate recipe. Please try again.', 'error');
+        document.querySelector(`.model-option[data-model="${model}"]`).classList.add('active');
+    }
+
+    confirmModelSelection() {
+        const selectedOption = document.querySelector('.model-option.active');
+        if (selectedOption) {
+            this.selectedModel = selectedOption.dataset.model;
+            this.updateModelDisplay();
+            this.hideModelModal();
+            this.showNotification(`Switched to ${this.getModelName(this.selectedModel)}`, 'success');
+        }
+    }
+
+    updateModelDisplay() {
+        const modelName = this.getModelName(this.selectedModel);
+        document.getElementById('currentModel').textContent = modelName;
+        document.getElementById('currentModelBadge').textContent = modelName;
+    }
+
+    getModelName(model) {
+        const models = {
+            deepseek: 'DeepSeek Chef',
+            gemini: 'Gemini Gourmet',
+            claude: 'Claude Cuisine'
+        };
+        return models[model] || 'DeepSeek Chef';
+    }
+
+    showSettingsModal() {
+        document.getElementById('settingsModal').classList.add('show');
+    }
+
+    hideSettingsModal() {
+        document.getElementById('settingsModal').classList.remove('show');
+    }
+
+    saveSettings() {
+        if (window.authSystem && window.authSystem.currentUser) {
+            const defaultModel = document.getElementById('defaultModelSelect').value;
+            window.authSystem.currentUser.preferences.defaultModel = defaultModel;
+            window.authSystem.saveUserData();
+            this.showNotification('Settings saved successfully', 'success');
+            this.hideSettingsModal();
+        }
+    }
+
+    loadChatHistory() {
+        // Load user's chat history
+        if (window.authSystem && window.authSystem.currentUser) {
+            const historyList = document.getElementById('historyList');
+            const history = window.authSystem.currentUser.chatHistory.slice(0, 10);
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="history-item">No recent chats</div>';
+            } else {
+                historyList.innerHTML = history.map(chat => `
+                    <div class="history-item">${chat.title}</div>
+                `).join('');
+            }
+        }
     }
 
     showNotification(message, type = 'info') {
@@ -419,38 +414,72 @@ class CelestiqueApp {
             window.authSystem.showNotification(message, type);
         }
     }
-
-    initParticles() {
-        const container = document.getElementById('particles');
-        const particleCount = 30;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            
-            const size = Math.random() * 3 + 1;
-            const posX = Math.random() * 100;
-            const posY = Math.random() * 100;
-            const delay = Math.random() * 10;
-            const duration = Math.random() * 20 + 10;
-            
-            particle.style.cssText = `
-                position: absolute;
-                width: ${size}px;
-                height: ${size}px;
-                background: rgba(0, 212, 255, 0.3);
-                border-radius: 50%;
-                left: ${posX}%;
-                top: ${posY}%;
-                animation: float ${duration}s infinite ease-in-out ${delay}s;
-            `;
-            
-            container.appendChild(particle);
-        }
-    }
 }
 
-// Initialize app when DOM is loaded
+// Add typing indicator styles
+const typingStyles = document.createElement('style');
+typingStyles.textContent = `
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .typing-dots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-secondary);
+        animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+    
+    .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0s; }
+    
+    @keyframes typingBounce {
+        0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+        40% { transform: scale(1.2); opacity: 1; }
+    }
+    
+    .message-content .tip {
+        background: rgba(16, 163, 127, 0.1);
+        border: 1px solid rgba(16, 163, 127, 0.2);
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin: 8px 0;
+    }
+    
+    .message-content ul {
+        margin: 8px 0;
+        padding-left: 20px;
+    }
+    
+    .message-content li {
+        margin: 4px 0;
+    }
+    
+    .message-content h3 {
+        margin: 16px 0 8px 0;
+        font-size: 1.1em;
+        font-weight: 600;
+    }
+    
+    .message-content hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 16px 0;
+    }
+`;
+document.head.appendChild(typingStyles);
+
+// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new CelestiqueApp();
 });
