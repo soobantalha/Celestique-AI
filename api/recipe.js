@@ -1,4 +1,4 @@
-// Enhanced recipe generator with user preferences and multiple AI models
+// Ultra-advanced recipe generator with unlimited time
 module.exports = async (req, res) => {
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,246 +15,215 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { message, model = 'deepseek', userPreferences = [] } = req.body;
+    const { message, preferences = {} } = req.body;
 
     if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+      return res.status(400).json({ error: 'Recipe request is required' });
     }
 
-    // Try to generate recipe with AI
-    let recipe;
+    // Try to generate recipe with AI (no time limit)
+    let recipeData;
     try {
-      recipe = await generateRecipeWithAI(message, model, userPreferences);
+      recipeData = await generateRecipe(message, preferences);
     } catch (aiError) {
       console.error('AI generation failed, using fallback:', aiError);
-      recipe = generateFallbackRecipe(message, userPreferences);
+      recipeData = generateFallbackRecipe(message);
     }
 
-    res.status(200).json(recipe);
+    res.status(200).json(recipeData);
 
   } catch (error) {
     console.error('Unexpected error:', error);
-    const fallbackRecipe = generateFallbackRecipe(req.body?.message || 'recipe', req.body?.userPreferences || []);
+    const fallbackRecipe = generateFallbackRecipe(req.body?.message || 'Delicious Recipe');
     res.status(200).json(fallbackRecipe);
   }
 };
 
-// Enhanced AI recipe generation with user preferences
-async function generateRecipeWithAI(userInput, model, userPreferences) {
+// Ultra-detailed AI recipe generator with unlimited time
+async function generateRecipe(userInput, preferences) {
   if (!process.env.OPENROUTER_API_KEY) {
     throw new Error('API key not configured');
   }
 
-  // Build preference context
-  const preferenceContext = userPreferences.length > 0 
-    ? `User preferences: ${userPreferences.join(', ')}. Please consider these in the recipe.`
-    : '';
+  const recipePrompt = `As Celestique AI Master Chef - provide COMPREHENSIVE, DETAILED recipe for: "${userInput}".
 
-  const prompt = `Create a detailed gourmet recipe for: "${userInput}".
-  ${preferenceContext}
-  
-  Respond with JSON in this exact format:
+  USER PREFERENCES: ${JSON.stringify(preferences)}
+
+  IMPORTANT: Provide RESTAURANT-QUALITY responses with:
+  - Detailed recipe name and description
+  - Exact cooking times and servings
+  - Comprehensive ingredient list with quantities
+  - Step-by-step cooking instructions
+  - 5 professional chef tips
+  - Nutritional information
+  - Flavor profile analysis
+  - Wine/ beverage pairings
+  - Dietary information
+  - Equipment needed
+
+  Provide response in this EXACT JSON format:
+
   {
-    "name": "Creative recipe name",
-    "cuisine": "Type of cuisine",
+    "name": "Professional Recipe Name",
+    "description": "Detailed description of the dish",
+    "cuisine": "Cuisine Type",
     "difficulty": "Easy/Medium/Hard",
-    "prep_time": "X minutes",
-    "cook_time": "X minutes", 
-    "serves": "X people",
-    "ingredients": ["ingredient with quantities", "another ingredient"],
-    "instructions": ["step 1", "step 2", "step 3"],
-    "chef_tips": ["professional tip 1", "tip 2"],
-    "score": 85
+    "prep_time": "15 mins",
+    "cook_time": "30 mins",
+    "total_time": "45 mins",
+    "servings": 4,
+    "calories_per_serving": 350,
+    "ingredients": [
+      {"name": "Ingredient 1", "quantity": "200g", "notes": "optional notes"},
+      {"name": "Ingredient 2", "quantity": "2 tbsp", "notes": ""}
+    ],
+    "equipment": ["Equipment 1", "Equipment 2"],
+    "instructions": [
+      {"step": 1, "description": "Detailed step 1", "time": "5 mins", "tips": ["tip1"]},
+      {"step": 2, "description": "Detailed step 2", "time": "10 mins", "tips": []}
+    ],
+    "chef_tips": [
+      "Professional tip 1 with detailed explanation",
+      "Professional tip 2 with detailed explanation",
+      "Professional tip 3 with detailed explanation",
+      "Professional tip 4 with detailed explanation",
+      "Professional tip 5 with detailed explanation"
+    ],
+    "nutritional_info": {
+      "calories": 350,
+      "protein": "25g",
+      "carbs": "45g",
+      "fat": "12g",
+      "fiber": "8g"
+    },
+    "flavor_profile": {
+      "savory": 8,
+      "sweet": 3,
+      "spicy": 2,
+      "umami": 7
+    },
+    "pairings": ["Wine: Chardonnay", "Beer: IPA", "Non-alcoholic: Sparkling water with lemon"],
+    "dietary_tags": ["Gluten-Free", "High-Protein"],
+    "recipe_score": 94
   }
 
-  Make the recipe creative, detailed, and professional. Include exact measurements and clear instructions.`;
+  Make it RESTAURANT-QUALITY, DETAILED, and PRACTICAL. Focus on professional cooking techniques.`;
 
-  try {
-    const models = {
-      deepseek: 'deepseek/deepseek-chat-v3.1:free',
-      gemini: 'google/gemini-2.0-flash-exp:free',
-      claude: 'anthropic/claude-3-haiku:free'
-    };
-
-    const selectedModel = models[model] || models.deepseek;
-
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://celestiqueai.vercel.app',
-        'X-Title': 'Célestique AI Recipe Generator'
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 2000,
-        temperature: 0.7
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Model ${model} failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const content = data.choices[0].message.content;
+  const models = [
     
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const recipe = JSON.parse(jsonMatch[0]);
-      recipe.powered_by = 'Célestique AI - Sooban Talha Productions';
-      recipe.generated_at = new Date().toISOString();
-      recipe.model = model;
-      return recipe;
+    'google/gemini-2.0-flash-exp:free',
+    'z-ai/glm-4.5-air:free',
+    'tngtech/deepseek-r1t2-chimera:free',
+    'deepseek/deepseek-chat-v3.1:free',
+    'deepseek/deepseek-r1-0528:free'
+  ];
+
+  // No timeout - let models take as long as needed
+  for (const model of models) {
+    try {
+      console.log(`Trying model: ${model}`);
+      const recipe = await tryRecipeModel(model, recipePrompt);
+      if (recipe) {
+        console.log(`Success with model: ${model}`);
+        return recipe;
+      }
+    } catch (error) {
+      console.log(`Model ${model} failed:`, error.message);
     }
-
-    throw new Error('No JSON found in response');
-
-  } catch (error) {
-    console.error('AI generation error:', error);
-    throw error;
   }
+  throw new Error('All models failed');
 }
 
-// Enhanced fallback recipe generator with user preferences
-function generateFallbackRecipe(input, userPreferences) {
-  const recipes = {
-    'chocolate': {
-      name: 'Decadent Chocolate Lava Cake',
-      cuisine: 'French',
-      difficulty: 'Medium',
-      prep_time: '20 minutes',
-      cook_time: '12 minutes',
-      serves: '4 people',
-      ingredients: [
-        '200g dark chocolate (70% cocoa)',
-        '200g unsalted butter',
-        '4 large eggs',
-        '150g granulated sugar',
-        '80g all-purpose flour',
-        '1 tsp vanilla extract',
-        'Pinch of salt'
-      ],
-      instructions: [
-        'Preheat oven to 220°C (425°F). Butter 4 ramekins and dust with cocoa powder',
-        'Melt chocolate and butter in double boiler, stirring until smooth',
-        'In separate bowl, whisk eggs and sugar until pale and thick',
-        'Fold melted chocolate into egg mixture, then sift in flour and salt',
-        'Divide batter among ramekins and bake for 10-12 minutes until edges are set but center is soft',
-        'Let rest for 1 minute, then invert onto plates and serve immediately with ice cream'
-      ],
-      chef_tips: [
-        'Do not overbake - the center should be molten',
-        'Serve immediately for best texture',
-        'Use high-quality chocolate for superior flavor'
-      ],
-      score: 92
+async function tryRecipeModel(model, prompt) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer': 'https://celestiqueai.vercel.app',
+      'X-Title': 'Celestique AI Recipes'
     },
-    'pasta': {
-      name: 'Creamy Chicken Alfredo Pasta',
-      cuisine: 'Italian',
-      difficulty: 'Easy',
-      prep_time: '15 minutes',
-      cook_time: '20 minutes',
-      serves: '4 people',
-      ingredients: [
-        '400g fettuccine pasta',
-        '2 chicken breasts, sliced',
-        '2 cups heavy cream',
-        '1 cup grated Parmesan cheese',
-        '4 cloves garlic, minced',
-        '2 tbsp butter',
-        '1 tbsp olive oil',
-        'Salt and black pepper to taste',
-        'Fresh parsley, chopped'
-      ],
-      instructions: [
-        'Cook pasta in salted boiling water until al dente, reserve 1 cup pasta water',
-        'Season chicken with salt and pepper, cook in olive oil until golden',
-        'In same pan, melt butter and sauté garlic until fragrant',
-        'Pour in cream, bring to simmer, then stir in Parmesan until melted',
-        'Add cooked pasta and chicken to sauce, toss to combine',
-        'Season with salt, and pepper. Garnish with parsley'
-      ],
-      chef_tips: [
-        'Use freshly grated Parmesan for best melting',
-        'Save pasta water to adjust sauce consistency',
-        'Do not boil the cream sauce after adding cheese'
-      ],
-      score: 88
-    }
-  };
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 5000, // Increased for detailed recipes
+      temperature: 0.7
+    })
+  });
 
-  // Adjust recipe based on user preferences
-  const adjustRecipeForPreferences = (recipe, preferences) => {
-    if (preferences.includes('vegetarian') && recipe.name.toLowerCase().includes('chicken')) {
-      recipe.name = recipe.name.replace('Chicken', 'Mushroom');
-      recipe.ingredients = recipe.ingredients.filter(ing => !ing.toLowerCase().includes('chicken'));
-      recipe.ingredients.push('400g mixed mushrooms, sliced');
-      recipe.chef_tips.push('For richer flavor, use a mix of wild mushrooms');
-    }
-    
-    if (preferences.includes('vegan')) {
-      recipe.ingredients = recipe.ingredients.map(ing => 
-        ing.replace('heavy cream', 'coconut cream')
-           .replace('Parmesan cheese', 'nutritional yeast')
-           .replace('butter', 'vegan butter')
-           .replace('eggs', 'flax eggs (2 tbsp ground flax + 6 tbsp water)')
-      );
-    }
-    
-    return recipe;
-  };
+  if (!response.ok) throw new Error(`Model failed: ${response.status}`);
 
-  // Find matching recipe
-  const lowerInput = input.toLowerCase();
-  let recipe = null;
-
-  for (const [key, recipeData] of Object.entries(recipes)) {
-    if (lowerInput.includes(key)) {
-      recipe = { ...recipeData };
-      break;
-    }
-  }
-
-  // Create custom recipe if no match found
-  if (!recipe) {
-    recipe = {
-      name: 'Gourmet ' + input.charAt(0).toUpperCase() + input.slice(1),
-      cuisine: 'International',
-      difficulty: 'Medium',
-      prep_time: '25 minutes',
-      cook_time: '30 minutes',
-      serves: '4 people',
-      ingredients: [
-        'Fresh ingredients based on your request',
-        'Herbs and spices for flavor',
-        'Quality proteins and vegetables',
-        'Specialty ingredients for authenticity'
-      ],
-      instructions: [
-        'Prepare all ingredients according to standard culinary practices',
-        'Follow traditional cooking methods for best results',
-        'Adjust seasoning to taste before serving',
-        'Garnish beautifully for presentation'
-      ],
-      chef_tips: [
-        'Use the freshest ingredients available',
-        'Taste and adjust seasoning throughout cooking',
-        'Let the main ingredients shine without overpowering'
-      ],
-      score: 87
-    };
-  }
-
-  // Apply user preferences
-  recipe = adjustRecipeForPreferences(recipe, userPreferences);
+  const data = await response.json();
+  const content = data.choices[0].message.content;
   
-  recipe.powered_by = 'Célestique AI - Sooban Talha Productions';
-  recipe.generated_at = new Date().toISOString();
-  recipe.model = 'fallback';
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    const recipeData = JSON.parse(jsonMatch[0]);
+    recipeData.powered_by = 'Celestique AI - Sooban Talha Technologies';
+    recipeData.generated_at = new Date().toISOString();
+    recipeData.recipe_id = generateRecipeId();
+    return recipeData;
+  }
+  throw new Error('No JSON found in response');
+}
 
-  return recipe;
+function generateRecipeId() {
+  return 'rec_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}
+
+// Enhanced fallback with professional recipe structure
+function generateFallbackRecipe(request) {
+  return {
+    name: `Professional ${request} Recipe`,
+    description: `A masterfully crafted ${request} recipe featuring premium ingredients and professional cooking techniques.`,
+    cuisine: "International Fusion",
+    difficulty: "Medium",
+    prep_time: "20 mins",
+    cook_time: "35 mins",
+    total_time: "55 mins",
+    servings: 4,
+    calories_per_serving: 420,
+    ingredients: [
+      {name: "Premium protein", quantity: "500g", notes: "chicken, fish, or tofu"},
+      {name: "Fresh vegetables", quantity: "3 cups", notes: "seasonal selection"},
+      {name: "Aromatic herbs", quantity: "2 tbsp", notes: "fresh chopped"},
+      {name: "Quality oil", quantity: "3 tbsp", notes: "olive or avocado"},
+      {name: "Flavor base", quantity: "1 medium", notes: "onion and garlic"},
+      {name: "Liquid component", quantity: "1 cup", notes: "broth or cream"},
+      {name: "Seasoning blend", quantity: "2 tsp", notes: "house-made mix"}
+    ],
+    equipment: ["Chef's knife", "Cutting board", "Large skillet", "Mixing bowls", "Measuring tools"],
+    instructions: [
+      {step: 1, description: "Prepare all ingredients using professional mise en place techniques. Chop vegetables uniformly, measure seasonings, and organize workstation.", time: "15 mins", tips: ["Keep ingredients organized for efficient cooking"]},
+      {step: 2, description: "Build flavor foundation by sautéing aromatics until fragrant and golden. Develop deep flavors through proper caramelization.", time: "8 mins", tips: ["Don't rush this step - flavor development is crucial"]},
+      {step: 3, description: "Cook main ingredients to perfection, adjusting heat and timing for optimal texture and flavor integration.", time: "12 mins", tips: ["Monitor cooking progress closely"]},
+      {step: 4, description: "Combine all elements, adjust seasoning with precision, and finish with professional plating techniques.", time: "5 mins", tips: ["Taste and adjust seasoning before serving"]}
+    ],
+    chef_tips: [
+      "Use a digital thermometer for perfect protein cooking every time",
+      "Let ingredients come to room temperature before cooking for even results",
+      "Develop layers of flavor by adding ingredients at optimal times",
+      "Balance flavors with acid (lemon/vinegar) at the end of cooking",
+      "Rest proteins before slicing to retain juices and maximize flavor"
+    ],
+    nutritional_info: {
+      calories: 420,
+      protein: "35g",
+      carbs: "28g",
+      fat: "18g",
+      fiber: "6g"
+    },
+    flavor_profile: {
+      savory: 9,
+      sweet: 4,
+      spicy: 3,
+      umami: 8
+    },
+    pairings: ["Medium-bodied red wine", "Craft lager beer", "Sparkling water with citrus"],
+    dietary_tags: ["High-Protein", "Customizable"],
+    recipe_score: 92,
+    powered_by: "Celestique AI - Sooban Talha Technologies",
+    generated_at: new Date().toISOString(),
+    recipe_id: generateRecipeId()
+  };
 }

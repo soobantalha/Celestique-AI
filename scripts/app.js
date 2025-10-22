@@ -1,485 +1,531 @@
-// Professional Chat Application
-class CelestiqueApp {
+// Celestique AI Recipe Master - Ultra Advanced
+class CelestiqueRecipeMaster {
     constructor() {
-        this.selectedModel = 'deepseek';
-        this.currentChat = [];
-        this.isGenerating = false;
+        this.features = {
+            VOICE_INPUT: true,
+            IMAGE_GENERATION: true,
+            MEAL_PLANNING: true,
+            NUTRITION_TRACKING: true,
+            SHOPPING_LISTS: true,
+            COOKING_TIMER: true,
+            CONVERSION_CALCULATOR: true,
+            RECIPE_SCALING: true,
+            FLAVOR_PROFILING: true,
+            WINE_PAIRING: true,
+            DIETARY_ADAPTATION: true,
+            TECHNIQUE_VIDEOS: true,
+            INGREDIENT_SUBSTITUTION: true,
+            SEASONAL_SUGGESTIONS: true,
+            COST_CALCULATION: true,
+            KITCHEN_INVENTORY: true,
+            RECIPE_SAVING: true,
+            SOCIAL_SHARING: true,
+            COOKING_STREAK: true,
+            ACHIEVEMENTS: true
+        };
+        
+        this.currentRecipe = null;
+        this.userPreferences = this.loadPreferences();
+        this.cookingTimer = null;
+        this.voiceRecognition = null;
         this.init();
     }
 
     init() {
         this.setupEventListeners();
-        this.loadChatHistory();
-        this.updateModelDisplay();
+        this.setupVoiceRecognition();
+        this.loadUserData();
+        this.showDashboard();
+        this.startCookingStreak();
     }
 
     setupEventListeners() {
-        // New chat button
-        document.getElementById('newChatBtn').addEventListener('click', () => {
-            this.newChat();
+        // Navigation
+        document.getElementById('navDashboard').addEventListener('click', () => this.showDashboard());
+        document.getElementById('navRecipeGen').addEventListener('click', () => this.showRecipeGenerator());
+        document.getElementById('navMealPlan').addEventListener('click', () => this.showMealPlanner());
+        document.getElementById('navNutrition').addEventListener('click', () => this.showNutritionTracker());
+        document.getElementById('navSettings').addEventListener('click', () => this.showSettings());
+
+        // Recipe Generation
+        document.getElementById('generateRecipe').addEventListener('click', () => this.generateRecipe());
+        document.getElementById('voiceInputBtn').addEventListener('click', () => this.toggleVoiceInput());
+        document.getElementById('uploadImageBtn').addEventListener('click', () => this.handleImageUpload());
+        document.getElementById('quickIdeasBtn').addEventListener('click', () => this.showQuickIdeas());
+
+        // Cooking Tools
+        document.getElementById('startTimerBtn').addEventListener('click', () => this.startCookingTimer());
+        document.getElementById('scaleRecipeBtn').addEventListener('click', () => this.scaleRecipe());
+        document.getElementById('convertUnitsBtn').addEventListener('click', () => this.showUnitConverter());
+        document.getElementById('shoppingListBtn').addEventListener('click', () => this.generateShoppingList());
+
+        // Social Features
+        document.getElementById('saveRecipeBtn').addEventListener('click', () => this.saveRecipe());
+        document.getElementById('shareRecipeBtn').addEventListener('click', () => this.shareRecipe());
+        document.getElementById('printRecipeBtn').addEventListener('click', () => this.printRecipe());
+
+        // Input handling
+        document.getElementById('recipeInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.generateRecipe();
         });
 
-        // Send message
-        document.getElementById('sendButton').addEventListener('click', () => {
-            this.sendMessage();
+        // Quick filters
+        document.querySelectorAll('.diet-filter').forEach(filter => {
+            filter.addEventListener('click', (e) => this.applyDietFilter(e.target.dataset.diet));
         });
 
-        // Enter key in message input
-        document.getElementById('messageInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
-            }
-        });
-
-        // Auto-resize textarea
-        document.getElementById('messageInput').addEventListener('input', (e) => {
-            this.autoResizeTextarea(e.target);
-        });
-
-        // Model selector
-        document.getElementById('modelSelectorBtn').addEventListener('click', () => {
-            this.showModelModal();
-        });
-
-        document.getElementById('confirmModelSelect').addEventListener('click', () => {
-            this.confirmModelSelection();
-        });
-
-        document.getElementById('cancelModelSelect').addEventListener('click', () => {
-            this.hideModelModal();
-        });
-
-        // Model options
-        document.querySelectorAll('.model-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                this.selectModelOption(e.currentTarget.dataset.model);
-            });
-        });
-
-        // Settings
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-            this.showSettingsModal();
-        });
-
-        document.getElementById('closeSettingsModal').addEventListener('click', () => {
-            this.hideSettingsModal();
-        });
-
-        document.getElementById('saveSettings').addEventListener('click', () => {
-            this.saveSettings();
-        });
-
-        // Clear chat
-        document.getElementById('clearChatBtn').addEventListener('click', () => {
-            this.clearChat();
-        });
-
-        // Quick suggestions
-        document.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const prompt = e.currentTarget.dataset.prompt;
-                document.getElementById('messageInput').value = prompt;
-                this.sendMessage();
-            });
-        });
+        // Initialize all tooltips
+        this.initTooltips();
     }
 
-    newChat() {
-        this.currentChat = [];
-        this.clearChatMessages();
-        this.showWelcomeMessage();
-    }
-
-    clearChat() {
-        if (this.currentChat.length > 0) {
-            if (confirm('Are you sure you want to clear this chat?')) {
-                this.newChat();
-            }
+    async generateRecipe() {
+        const input = document.getElementById('recipeInput').value.trim();
+        if (!input) {
+            this.showNotification('Please describe what you want to cook!', 'warning');
+            return;
         }
-    }
 
-    async sendMessage() {
-        const messageInput = document.getElementById('messageInput');
-        const message = messageInput.value.trim();
-
-        if (!message || this.isGenerating) return;
-
-        // Add user message to chat
-        this.addMessage(message, 'user');
-        messageInput.value = '';
-        this.autoResizeTextarea(messageInput);
-
-        // Show typing indicator
-        this.showTypingIndicator();
-
-        this.isGenerating = true;
-        document.getElementById('sendButton').disabled = true;
+        this.showLoadingState();
+        const preferences = this.getCurrentPreferences();
 
         try {
-            const response = await this.generateRecipe(message);
-            this.hideTypingIndicator();
-            this.addMessage(response, 'bot');
-        } catch (error) {
-            this.hideTypingIndicator();
-            this.addMessage('I apologize, but I encountered an error while generating your recipe. Please try again.', 'bot');
-            console.error('Error:', error);
-        }
-
-        this.isGenerating = false;
-        document.getElementById('sendButton').disabled = false;
-    }
-
-    async generateRecipe(message) {
-        if (!window.authSystem || !window.authSystem.currentUser) {
-            throw new Error('User not authenticated');
-        }
-
-        const response = await fetch('/api/recipe', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-                message,
-                model: this.selectedModel,
-                userPreferences: []
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.error) {
-            throw new Error(data.error);
-        }
-
-        // Format the recipe response
-        return this.formatRecipeResponse(data);
-    }
-
-    formatRecipeResponse(recipe) {
-        if (recipe.error) {
-            return `I'm sorry, I couldn't generate a recipe. Error: ${recipe.error}`;
-        }
-
-        let response = `**${recipe.name}**\n\n`;
-        
-        if (recipe.cuisine) response += `*Cuisine: ${recipe.cuisine}*\n`;
-        if (recipe.difficulty) response += `*Difficulty: ${recipe.difficulty}*\n`;
-        if (recipe.prep_time) response += `*Prep Time: ${recipe.prep_time}*\n`;
-        if (recipe.cook_time) response += `*Cook Time: ${recipe.cook_time}*\n`;
-        if (recipe.serves) response += `*Serves: ${recipe.serves}*\n\n`;
-
-        response += `## Ingredients\n`;
-        recipe.ingredients.forEach(ingredient => {
-            response += `• ${ingredient}\n`;
-        });
-
-        response += `\n## Instructions\n`;
-        recipe.instructions.forEach((step, index) => {
-            response += `${index + 1}. ${step}\n`;
-        });
-
-        if (recipe.chef_tips && recipe.chef_tips.length > 0) {
-            response += `\n## Chef's Tips\n`;
-            recipe.chef_tips.forEach(tip => {
-                response += `💡 ${tip}\n`;
+            const response = await fetch('/api/recipe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: input,
+                    preferences: preferences
+                })
             });
-        }
 
-        response += `\n---\n*Powered by Célestique AI - Sooban Talha Productions*`;
-
-        return response;
-    }
-
-    addMessage(content, role) {
-        const chatMessages = document.getElementById('chatMessages');
-        
-        // Remove welcome message if it's the first user message
-        if (role === 'user') {
-            const welcomeMessage = chatMessages.querySelector('.welcome-message');
-            if (welcomeMessage) {
-                welcomeMessage.remove();
-            }
-        }
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${role}`;
-
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        avatar.innerHTML = role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
-        // Convert markdown-like formatting to HTML
-        const formattedContent = this.formatMessage(content);
-        messageContent.innerHTML = formattedContent;
-
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(messageContent);
-        chatMessages.appendChild(messageDiv);
-
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Add to current chat
-        this.currentChat.push({ role, content });
-    }
-
-    formatMessage(content) {
-        // Simple markdown parsing
-        return content
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/## (.*?)\n/g, '<h3>$1</h3>')
-            .replace(/\n/g, '<br>')
-            .replace(/• (.*?)(?=\n|$)/g, '<li>$1</li>')
-            .replace(/(\d+)\. (.*?)(?=\n|$)/g, '<li>$2</li>')
-            .replace(/<li>.*<\/li>/gs, '<ul>$&</ul>')
-            .replace(/💡 (.*?)(?=\n|$)/g, '<div class="tip">💡 $1</div>')
-            .replace(/---/g, '<hr>');
-    }
-
-    showTypingIndicator() {
-        const chatMessages = document.getElementById('chatMessages');
-        
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'message bot';
-        typingDiv.id = 'typingIndicator';
-
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        avatar.innerHTML = '<i class="fas fa-robot"></i>';
-
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content typing-indicator';
-        messageContent.innerHTML = `
-            <div class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <span>Célestique AI is cooking...</span>
-        `;
-
-        typingDiv.appendChild(avatar);
-        typingDiv.appendChild(messageContent);
-        chatMessages.appendChild(typingDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    hideTypingIndicator() {
-        const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) {
-            typingIndicator.remove();
+            if (!response.ok) throw new Error('Server error');
+            
+            const recipe = await response.json();
+            this.currentRecipe = recipe;
+            this.displayRecipe(recipe);
+            this.trackRecipeGeneration();
+            this.showNotification('Recipe generated successfully!', 'success');
+            
+        } catch (error) {
+            console.error('Error generating recipe:', error);
+            this.showNotification('Failed to generate recipe. Using fallback.', 'error');
+            this.currentRecipe = this.getFallbackRecipe(input);
+            this.displayRecipe(this.currentRecipe);
+        } finally {
+            this.hideLoadingState();
         }
     }
 
-    autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    displayRecipe(recipe) {
+        const container = document.getElementById('recipeContainer');
+        container.innerHTML = this.createRecipeHTML(recipe);
+        this.attachRecipeInteractions();
+        this.showSection('recipeResults');
     }
 
-    showWelcomeMessage() {
-        const chatMessages = document.getElementById('chatMessages');
-        chatMessages.innerHTML = `
-            <div class="welcome-message">
-                <div class="welcome-icon">
-                    <i class="fas fa-utensils"></i>
-                </div>
-                <h1>Hello! I'm Célestique AI</h1>
-                <p>Your personal AI chef. What would you like to cook today?</p>
-                
-                <div class="quick-suggestions">
-                    <div class="suggestion-grid">
-                        <button class="suggestion-card" data-prompt="Create a chocolate lava cake recipe">
-                            <i class="fas fa-cookie"></i>
-                            <span>Chocolate Lava Cake</span>
-                        </button>
-                        <button class="suggestion-card" data-prompt="Make a healthy chicken stir fry">
-                            <i class="fas fa-drumstick-bite"></i>
-                            <span>Chicken Stir Fry</span>
-                        </button>
-                        <button class="suggestion-card" data-prompt="Vegetarian pasta recipe">
-                            <i class="fas fa-pasta"></i>
-                            <span>Vegetarian Pasta</span>
-                        </button>
-                        <button class="suggestion-card" data-prompt="Traditional biryani recipe">
-                            <i class="fas fa-utensil-spoon"></i>
-                            <span>Biryani</span>
-                        </button>
+    createRecipeHTML(recipe) {
+        return `
+            <div class="recipe-master">
+                <!-- Recipe Header -->
+                <div class="recipe-header">
+                    <div class="recipe-meta">
+                        <span class="recipe-score">${recipe.recipe_score}%</span>
+                        <span class="cuisine-badge">${recipe.cuisine}</span>
+                        <span class="difficulty-badge">${recipe.difficulty}</span>
+                    </div>
+                    <h1 class="recipe-title">${recipe.name}</h1>
+                    <p class="recipe-description">${recipe.description}</p>
+                    
+                    <!-- Quick Stats -->
+                    <div class="recipe-stats">
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>${recipe.total_time}</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span>Serves ${recipe.servings}</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-fire"></i>
+                            <span>${recipe.calories_per_serving} cal</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Flavor Profile -->
+                <div class="flavor-profile">
+                    <h3>Flavor Profile</h3>
+                    <div class="flavor-bars">
+                        ${this.createFlavorBars(recipe.flavor_profile)}
+                    </div>
+                </div>
+
+                <!-- Ingredients & Equipment -->
+                <div class="ingredients-equipment">
+                    <div class="ingredients-section">
+                        <h3>Ingredients</h3>
+                        <div class="ingredients-list">
+                            ${recipe.ingredients.map(ing => `
+                                <div class="ingredient-item" data-ingredient="${ing.name}">
+                                    <span class="quantity">${ing.quantity}</span>
+                                    <span class="name">${ing.name}</span>
+                                    ${ing.notes ? `<span class="notes">${ing.notes}</span>` : ''}
+                                    <button class="substitute-btn" onclick="app.showSubstitutions('${ing.name}')">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="equipment-section">
+                        <h3>Equipment Needed</h3>
+                        <div class="equipment-list">
+                            ${recipe.equipment.map(item => `
+                                <div class="equipment-item">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>${item}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="instructions-section">
+                    <h3>Cooking Instructions</h3>
+                    <div class="instructions-timeline">
+                        ${recipe.instructions.map(step => `
+                            <div class="instruction-step">
+                                <div class="step-number">${step.step}</div>
+                                <div class="step-content">
+                                    <p>${step.description}</p>
+                                    ${step.time ? `<span class="step-time">${step.time}</span>` : ''}
+                                    ${step.tips && step.tips.length > 0 ? `
+                                        <div class="step-tips">
+                                            ${step.tips.map(tip => `<span class="tip">💡 ${tip}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <button class="timer-btn" onclick="app.startStepTimer('${step.time}')">
+                                    <i class="fas fa-hourglass-start"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Chef Tips -->
+                <div class="chef-tips-section">
+                    <h3>Professional Chef Tips</h3>
+                    <div class="tips-grid">
+                        ${recipe.chef_tips.map(tip => `
+                            <div class="tip-card">
+                                <i class="fas fa-lightbulb"></i>
+                                <p>${tip}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Pairings & Nutrition -->
+                <div class="pairing-nutrition">
+                    <div class="pairings">
+                        <h4>Perfect Pairings</h4>
+                        <div class="pairing-items">
+                            ${recipe.pairings.map(pairing => `
+                                <span class="pairing-item">${pairing}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="nutrition-facts">
+                        <h4>Nutrition Facts (per serving)</h4>
+                        <div class="nutrition-grid">
+                            <div class="nutrition-item">
+                                <span class="label">Calories</span>
+                                <span class="value">${recipe.nutritional_info.calories}</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <span class="label">Protein</span>
+                                <span class="value">${recipe.nutritional_info.protein}</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <span class="label">Carbs</span>
+                                <span class="value">${recipe.nutritional_info.carbs}</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <span class="label">Fat</span>
+                                <span class="value">${recipe.nutritional_info.fat}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="recipe-actions">
+                    <button class="btn-primary" onclick="app.generateShoppingList()">
+                        <i class="fas fa-shopping-cart"></i> Shopping List
+                    </button>
+                    <button class="btn-secondary" onclick="app.saveRecipe()">
+                        <i class="fas fa-bookmark"></i> Save Recipe
+                    </button>
+                    <button class="btn-secondary" onclick="app.shareRecipe()">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                    <button class="btn-secondary" onclick="app.scaleRecipe()">
+                        <i class="fas fa-calculator"></i> Scale
+                    </button>
+                </div>
+
+                <div class="recipe-footer">
+                    <span class="powered-by">${recipe.powered_by}</span>
+                    <span class="generated-time">Generated ${new Date(recipe.generated_at).toLocaleString()}</span>
+                </div>
             </div>
         `;
-
-        // Re-attach event listeners to suggestion cards
-        document.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                const prompt = e.currentTarget.dataset.prompt;
-                document.getElementById('messageInput').value = prompt;
-                this.sendMessage();
-            });
-        });
     }
 
-    clearChatMessages() {
-        const chatMessages = document.getElementById('chatMessages');
-        chatMessages.innerHTML = '';
+    createFlavorBars(profile) {
+        return Object.entries(profile).map(([flavor, value]) => `
+            <div class="flavor-bar">
+                <span class="flavor-name">${flavor}</span>
+                <div class="bar-container">
+                    <div class="bar-fill" style="width: ${value * 10}%" data-value="${value}"></div>
+                </div>
+                <span class="flavor-value">${value}/10</span>
+            </div>
+        `).join('');
     }
 
-    showModelModal() {
-        document.getElementById('modelModal').classList.add('show');
+    // Advanced Features Implementation
+    setupVoiceRecognition() {
+        if ('webkitSpeechRecognition' in window) {
+            this.voiceRecognition = new webkitSpeechRecognition();
+            this.voiceRecognition.continuous = false;
+            this.voiceRecognition.interimResults = false;
+            
+            this.voiceRecognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('recipeInput').value = transcript;
+                this.showNotification('Voice input captured!', 'success');
+            };
+            
+            this.voiceRecognition.onerror = (event) => {
+                this.showNotification('Voice recognition failed', 'error');
+            };
+        }
     }
 
-    hideModelModal() {
-        document.getElementById('modelModal').classList.remove('show');
+    toggleVoiceInput() {
+        if (this.voiceRecognition) {
+            this.voiceRecognition.start();
+            this.showNotification('Listening... Speak your recipe request', 'info');
+        } else {
+            this.showNotification('Voice recognition not supported', 'warning');
+        }
     }
 
-    selectModelOption(model) {
-        document.querySelectorAll('.model-option').forEach(option => {
-            option.classList.remove('active');
+    startCookingTimer() {
+        if (this.currentRecipe) {
+            const totalMinutes = this.parseTimeToMinutes(this.currentRecipe.total_time);
+            this.createTimerModal(totalMinutes);
+        }
+    }
+
+    startStepTimer(timeString) {
+        const minutes = this.parseTimeToMinutes(timeString);
+        this.createTimerModal(minutes, `Step Timer: ${timeString}`);
+    }
+
+    createTimerModal(minutes, title = 'Cooking Timer') {
+        const modal = document.createElement('div');
+        modal.className = 'timer-modal';
+        modal.innerHTML = `
+            <div class="timer-content">
+                <h3>${title}</h3>
+                <div class="timer-display">${this.formatTime(minutes * 60)}</div>
+                <div class="timer-controls">
+                    <button onclick="app.startTimer(${minutes})">Start</button>
+                    <button onclick="app.pauseTimer()">Pause</button>
+                    <button onclick="app.stopTimer()">Stop</button>
+                </div>
+                <button class="close-timer" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    startTimer(minutes) {
+        let seconds = minutes * 60;
+        this.cookingTimer = setInterval(() => {
+            seconds--;
+            const display = document.querySelector('.timer-display');
+            if (display) display.textContent = this.formatTime(seconds);
+            
+            if (seconds <= 0) {
+                this.stopTimer();
+                this.showNotification('Timer finished!', 'success');
+                this.playTimerSound();
+            }
+        }, 1000);
+    }
+
+    generateShoppingList() {
+        if (!this.currentRecipe) return;
+        
+        const ingredients = this.currentRecipe.ingredients;
+        const shoppingList = ingredients.map(ing => 
+            `☐ ${ing.quantity} ${ing.name} ${ing.notes ? `(${ing.notes})` : ''}`
+        ).join('\n');
+        
+        this.showModal('Shopping List', `
+            <div class="shopping-list">
+                <textarea readonly>${shoppingList}</textarea>
+                <div class="shopping-actions">
+                    <button onclick="app.printText('${shoppingList.replace(/\n/g, '\\n')}')">Print</button>
+                    <button onclick="app.copyToClipboard('${shoppingList.replace(/\n/g, '\\n')}')">Copy</button>
+                </div>
+            </div>
+        `);
+    }
+
+    scaleRecipe() {
+        if (!this.currentRecipe) return;
+        
+        this.showModal('Scale Recipe', `
+            <div class="scale-recipe">
+                <label>Current Servings: ${this.currentRecipe.servings}</label>
+                <input type="number" id="newServings" value="${this.currentRecipe.servings}" min="1" max="20">
+                <button onclick="app.calculateScaledRecipe()">Calculate</button>
+                <div id="scaledResults"></div>
+            </div>
+        `);
+    }
+
+    calculateScaledRecipe() {
+        const newServings = parseInt(document.getElementById('newServings').value);
+        const scaleFactor = newServings / this.currentRecipe.servings;
+        
+        const scaledIngredients = this.currentRecipe.ingredients.map(ing => {
+            return this.scaleIngredient(ing, scaleFactor);
         });
         
-        document.querySelector(`.model-option[data-model="${model}"]`).classList.add('active');
+        document.getElementById('scaledResults').innerHTML = `
+            <h4>Scaled Ingredients:</h4>
+            ${scaledIngredients.map(ing => `
+                <div class="scaled-ingredient">
+                    <span class="quantity">${ing.scaledQuantity}</span>
+                    <span class="name">${ing.name}</span>
+                </div>
+            `).join('')}
+        `;
     }
 
-    confirmModelSelection() {
-        const selectedOption = document.querySelector('.model-option.active');
-        if (selectedOption) {
-            this.selectedModel = selectedOption.dataset.model;
-            this.updateModelDisplay();
-            this.hideModelModal();
-            this.showNotification(`Switched to ${this.getModelName(this.selectedModel)}`, 'success');
-        }
-    }
-
-    updateModelDisplay() {
-        const modelName = this.getModelName(this.selectedModel);
-        document.getElementById('currentModel').textContent = modelName;
-        document.getElementById('currentModelBadge').textContent = modelName;
-    }
-
-    getModelName(model) {
-        const models = {
-            deepseek: 'DeepSeek Chef',
-            gemini: 'Gemini Gourmet',
-            claude: 'Claude Cuisine'
+    scaleIngredient(ingredient, scaleFactor) {
+        // Simple scaling logic - in production, you'd want more sophisticated parsing
+        const quantity = ingredient.quantity;
+        const scaledQuantity = this.parseAndScaleQuantity(quantity, scaleFactor);
+        
+        return {
+            ...ingredient,
+            scaledQuantity: scaledQuantity
         };
-        return models[model] || 'DeepSeek Chef';
     }
 
-    showSettingsModal() {
-        document.getElementById('settingsModal').classList.add('show');
-    }
-
-    hideSettingsModal() {
-        document.getElementById('settingsModal').classList.remove('show');
-    }
-
-    saveSettings() {
-        if (window.authSystem && window.authSystem.currentUser) {
-            const defaultModel = document.getElementById('defaultModelSelect').value;
-            window.authSystem.currentUser.preferences.defaultModel = defaultModel;
-            window.authSystem.saveUserData();
-            this.showNotification('Settings saved successfully', 'success');
-            this.hideSettingsModal();
-        }
-    }
-
-    loadChatHistory() {
-        // Load user's chat history
-        if (window.authSystem && window.authSystem.currentUser) {
-            const historyList = document.getElementById('historyList');
-            const history = window.authSystem.currentUser.chatHistory.slice(0, 10);
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<div class="history-item">No recent chats</div>';
-            } else {
-                historyList.innerHTML = history.map(chat => `
-                    <div class="history-item">${chat.title}</div>
-                `).join('');
-            }
-        }
-    }
-
+    // Utility Methods
     showNotification(message, type = 'info') {
-        if (window.authSystem) {
-            window.authSystem.showNotification(message, type);
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()">×</button>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    }
+
+    showModal(title, content) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>${title}</h3>
+                    <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+                </div>
+                <div class="modal-body">${content}</div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    showSection(sectionId) {
+        document.querySelectorAll('.main-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(sectionId).classList.add('active');
+    }
+
+    // Data Management
+    saveRecipe() {
+        if (!this.currentRecipe) return;
+        
+        const savedRecipes = JSON.parse(localStorage.getItem('celestique_saved_recipes') || '[]');
+        savedRecipes.push({
+            ...this.currentRecipe,
+            saved_at: new Date().toISOString()
+        });
+        
+        localStorage.setItem('celestique_saved_recipes', JSON.stringify(savedRecipes));
+        this.showNotification('Recipe saved to your collection!', 'success');
+    }
+
+    loadPreferences() {
+        return JSON.parse(localStorage.getItem('celestique_preferences') || '{}');
+    }
+
+    savePreferences() {
+        localStorage.setItem('celestique_preferences', JSON.stringify(this.userPreferences));
+    }
+
+    // 20+ Features Tracking
+    trackRecipeGeneration() {
+        const stats = JSON.parse(localStorage.getItem('celestique_stats') || '{"generated": 0, "last_generated": ""}');
+        stats.generated++;
+        stats.last_generated = new Date().toISOString();
+        localStorage.setItem('celestique_stats', JSON.stringify(stats));
+        
+        this.updateAchievements();
+    }
+
+    startCookingStreak() {
+        // Implement cooking streak tracking
+        const today = new Date().toDateString();
+        const lastCooked = localStorage.getItem('celestique_last_cooked');
+        
+        if (lastCooked !== today) {
+            const streak = parseInt(localStorage.getItem('celestique_cooking_streak') || '0');
+            localStorage.setItem('celestique_cooking_streak', (streak + 1).toString());
+            localStorage.setItem('celestique_last_cooked', today);
         }
+    }
+
+    updateAchievements() {
+        // Implement achievement system
+        const stats = JSON.parse(localStorage.getItem('celestique_stats') || '{"generated": 0}');
+        const achievements = [];
+        
+        if (stats.generated >= 10) achievements.push('Recipe Explorer');
+        if (stats.generated >= 50) achievements.push('Master Chef');
+        if (stats.generated >= 100) achievements.push('Recipe Guru');
+        
+        localStorage.setItem('celestique_achievements', JSON.stringify(achievements));
     }
 }
 
-// Add typing indicator styles
-const typingStyles = document.createElement('style');
-typingStyles.textContent = `
-    .typing-indicator {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: var(--text-secondary);
-    }
-    
-    .typing-dots {
-        display: flex;
-        gap: 4px;
-    }
-    
-    .typing-dots span {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--text-secondary);
-        animation: typingBounce 1.4s infinite ease-in-out both;
-    }
-    
-    .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-    .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0s; }
-    
-    @keyframes typingBounce {
-        0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-        40% { transform: scale(1.2); opacity: 1; }
-    }
-    
-    .message-content .tip {
-        background: rgba(16, 163, 127, 0.1);
-        border: 1px solid rgba(16, 163, 127, 0.2);
-        border-radius: 6px;
-        padding: 8px 12px;
-        margin: 8px 0;
-    }
-    
-    .message-content ul {
-        margin: 8px 0;
-        padding-left: 20px;
-    }
-    
-    .message-content li {
-        margin: 4px 0;
-    }
-    
-    .message-content h3 {
-        margin: 16px 0 8px 0;
-        font-size: 1.1em;
-        font-weight: 600;
-    }
-    
-    .message-content hr {
-        border: none;
-        border-top: 1px solid var(--border);
-        margin: 16px 0;
-    }
-`;
-document.head.appendChild(typingStyles);
-
-// Initialize app
+// Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new CelestiqueApp();
+    window.app = new CelestiqueRecipeMaster();
 });
