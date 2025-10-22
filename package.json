@@ -1,0 +1,23 @@
+{
+  "name": "celestique-ai-recipes",
+  "version": "1.0.0",
+  "description": "Professional AI Recipe Generator by Sooban Talha Technologies",
+  "main": "api/recipe.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@vercel/node": "^2.0.0"
+  },
+  "keywords": [
+    "ai",
+    "recipes",
+    "cooking",
+    "food",
+    "celestique"
+  ],
+  "author": "Sooban Talha Technologies",
+  "license": "MIT"
+}
