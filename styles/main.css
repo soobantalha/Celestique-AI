@@ -33,11 +33,19 @@ body {
     background: rgba(10, 10, 10, 0.95);
     backdrop-filter: blur(20px);
     border-bottom: 2px solid var(--accent-gold);
-    padding: 1rem 2rem;
+    padding: 2rem 4rem;
     position: fixed;
-    top: 0;
-    width: 100%;
+    top: 10%;
+    bottom: auto ;
+    width: 1000%;
     z-index: 1000;
+}
+
+.status {
+    color: var(--warning);
+    font-weight: bold;
+    font-size: 4rem;
+    margin-top: 0.5rem;
 }
 
 .nav-brand {
@@ -45,6 +53,8 @@ body {
     align-items: center;
     gap: 1rem;
 }
+
+
 
 .brand-logo {
     font-size: 2rem;
