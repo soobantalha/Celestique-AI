@@ -1,5 +1,5 @@
 /**
- * Celestique AI Recipe Master - WORKING VERSION
+ * Celestique AI Recipe Master - SIMPLE WORKING VERSION
  * @version 3.0.0
  * @author Sooban Talha Technologies
  */
@@ -12,29 +12,54 @@ class CelestiqueRecipeMaster {
 
     init() {
         this.setupEventListeners();
-        this.showDashboard();
+        console.log('Celestique AI initialized');
     }
 
     setupEventListeners() {
         // Recipe Generation
-        document.getElementById('generateRecipe').addEventListener('click', () => this.generateRecipe());
-        
-        // Navigation
-        document.getElementById('navDashboard').addEventListener('click', () => this.showDashboard());
-        document.getElementById('navRecipeGen').addEventListener('click', () => this.showRecipeGenerator());
-        
+        const generateBtn = document.getElementById('generateRecipe');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', () => this.generateRecipe());
+        }
+
         // Enter key support
-        document.getElementById('recipeInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.generateRecipe();
+        const recipeInput = document.getElementById('recipeInput');
+        if (recipeInput) {
+            recipeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.generateRecipe();
+                }
+            });
+        }
+
+        // Navigation
+        this.setupNavigation();
+    }
+
+    setupNavigation() {
+        const navItems = {
+            'navDashboard': () => this.showSection('dashboard'),
+            'navRecipeGen': () => this.showSection('recipeGenerator'),
+            'navMealPlan': () => this.showSection('mealPlanner'),
+            'navNutrition': () => this.showSection('nutritionTracker'),
+            'navSettings': () => this.showSection('settings')
+        };
+
+        Object.entries(navItems).forEach(([id, handler]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('click', handler);
             }
         });
     }
 
     async generateRecipe() {
-        const input = document.getElementById('recipeInput').value.trim();
-        if (!input) {
+        const input = document.getElementById('recipeInput');
+        if (!input) return;
+
+        const message = input.value.trim();
+        if (!message) {
             this.showNotification('Please describe what you want to cook!', 'warning');
             return;
         }
@@ -42,23 +67,27 @@ class CelestiqueRecipeMaster {
         this.showLoadingState();
 
         try {
+            console.log('Sending request to API...');
+            
             const response = await fetch('/api/recipe', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    message: input,
-                    preferences: this.getCurrentPreferences(),
-                    context: this.getAdvancedOptions()
+                    message: message,
+                    preferences: this.getCurrentPreferences()
                 })
             });
 
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
                 throw new Error(`Server error: ${response.status}`);
             }
             
             const result = await response.json();
+            console.log('API Response:', result);
             
             if (result.success && result.data) {
                 this.currentRecipe = result.data;
@@ -70,8 +99,8 @@ class CelestiqueRecipeMaster {
             
         } catch (error) {
             console.error('Error generating recipe:', error);
-            this.showNotification('Failed to generate recipe. Using enhanced fallback.', 'error');
-            this.currentRecipe = this.getEnhancedFallbackRecipe(input);
+            this.showNotification('Failed to generate recipe. Using fallback.', 'error');
+            this.currentRecipe = this.getEnhancedFallbackRecipe(message);
             this.displayRecipe(this.currentRecipe);
         } finally {
             this.hideLoadingState();
@@ -80,7 +109,10 @@ class CelestiqueRecipeMaster {
 
     displayRecipe(recipe) {
         const container = document.getElementById('recipeResults');
-        if (!container) return;
+        if (!container) {
+            console.error('Recipe results container not found');
+            return;
+        }
 
         container.innerHTML = this.createRecipeHTML(recipe);
         this.showSection('recipeResults');
@@ -88,19 +120,11 @@ class CelestiqueRecipeMaster {
 
     createRecipeHTML(recipe) {
         return `
-            <div class="recipe-master" data-recipe-id="${recipe.recipe_id}">
-                <!-- Recipe Header -->
+            <div class="recipe-master">
                 <div class="recipe-header">
-                    <div class="recipe-meta">
-                        <span class="recipe-score">${recipe.recipe_score}%</span>
-                        <span class="cuisine-badge">${recipe.cuisine}</span>
-                        <span class="difficulty-badge">${recipe.difficulty}</span>
-                    </div>
+                    <h1 class="recipe-title">${this.escapeHtml(recipe.name)}</h1>
+                    <p class="recipe-description">${this.escapeHtml(recipe.description)}</p>
                     
-                    <h1 class="recipe-title">${recipe.name}</h1>
-                    <p class="recipe-description">${recipe.description}</p>
-                    
-                    <!-- Quick Stats -->
                     <div class="recipe-stats">
                         <div class="stat">
                             <i class="fas fa-clock"></i>
@@ -114,36 +138,38 @@ class CelestiqueRecipeMaster {
                             <i class="fas fa-fire-alt"></i>
                             <span>${recipe.calories_per_serving} cal</span>
                         </div>
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>${recipe.recipe_score}%</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Ingredients -->
                 <div class="ingredients-section">
                     <h3><i class="fas fa-shopping-basket"></i> Ingredients</h3>
                     <div class="ingredients-list">
-                        ${recipe.ingredients.map((ing, index) => `
+                        ${recipe.ingredients.map(ing => `
                             <div class="ingredient-item">
-                                <span class="quantity">${ing.quantity}</span>
-                                <span class="name">${ing.name}</span>
-                                ${ing.notes ? `<span class="notes">${ing.notes}</span>` : ''}
+                                <span class="quantity">${this.escapeHtml(ing.quantity)}</span>
+                                <span class="name">${this.escapeHtml(ing.name)}</span>
+                                ${ing.notes ? `<span class="notes">${this.escapeHtml(ing.notes)}</span>` : ''}
                             </div>
                         `).join('')}
                     </div>
                 </div>
 
-                <!-- Instructions -->
                 <div class="instructions-section">
-                    <h3><i class="fas fa-list-ol"></i> Cooking Instructions</h3>
+                    <h3><i class="fas fa-list-ol"></i> Instructions</h3>
                     <div class="instructions-timeline">
                         ${recipe.instructions.map(step => `
                             <div class="instruction-step">
                                 <div class="step-number">${step.step}</div>
                                 <div class="step-content">
-                                    <p>${step.description}</p>
-                                    ${step.time ? `<span class="step-time"><i class="fas fa-clock"></i> ${step.time}</span>` : ''}
+                                    <p>${this.escapeHtml(step.description)}</p>
+                                    ${step.time ? `<div class="step-time"><i class="fas fa-clock"></i> ${step.time}</div>` : ''}
                                     ${step.tips && step.tips.length > 0 ? `
                                         <div class="step-tips">
-                                            ${step.tips.map(tip => `<span class="tip"><i class="fas fa-lightbulb"></i> ${tip}</span>`).join('')}
+                                            ${step.tips.map(tip => `<span class="tip"><i class="fas fa-lightbulb"></i> ${this.escapeHtml(tip)}</span>`).join('')}
                                         </div>
                                     ` : ''}
                                 </div>
@@ -152,23 +178,17 @@ class CelestiqueRecipeMaster {
                     </div>
                 </div>
 
-                <!-- Chef Tips -->
                 <div class="chef-tips-section">
-                    <h3><i class="fas fa-graduation-cap"></i> Professional Chef Tips</h3>
-                    <div class="tips-grid">
-                        ${recipe.chef_tips.map((tip, index) => `
-                            <div class="tip-card">
-                                <div class="tip-content">
-                                    <p>${tip}</p>
-                                </div>
-                            </div>
+                    <h3><i class="fas fa-graduation-cap"></i> Chef Tips</h3>
+                    <div class="tips-list">
+                        ${recipe.chef_tips.map(tip => `
+                            <div class="tip-item">${this.escapeHtml(tip)}</div>
                         `).join('')}
                     </div>
                 </div>
 
-                <!-- Nutrition -->
                 <div class="nutrition-section">
-                    <h3><i class="fas fa-chart-bar"></i> Nutrition Facts</h3>
+                    <h3><i class="fas fa-chart-bar"></i> Nutrition</h3>
                     <div class="nutrition-grid">
                         ${Object.entries(recipe.nutritional_info).map(([key, value]) => `
                             <div class="nutrition-item">
@@ -180,51 +200,46 @@ class CelestiqueRecipeMaster {
                 </div>
 
                 <div class="recipe-footer">
-                    <div class="footer-info">
-                        <span class="powered-by">${recipe.powered_by}</span>
-                        <span class="generated-time">Generated ${new Date(recipe.generated_at).toLocaleString()}</span>
-                    </div>
+                    <div class="powered-by">${this.escapeHtml(recipe.powered_by)}</div>
+                    <div class="generated-time">Generated ${new Date(recipe.generated_at).toLocaleString()}</div>
                 </div>
             </div>
         `;
     }
 
-    // Utility Methods
-    showNotification(message, type = 'info') {
-        // Simple notification implementation
-        alert(`${type.toUpperCase()}: ${message}`);
-    }
-
-    showLoadingState() {
-        // Simple loading state
-        document.getElementById('generateRecipe').disabled = true;
-        document.getElementById('generateRecipe').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-    }
-
-    hideLoadingState() {
-        document.getElementById('generateRecipe').disabled = false;
-        document.getElementById('generateRecipe').innerHTML = '<i class="fas fa-magic"></i> Generate Recipe';
-    }
-
     showSection(sectionId) {
         // Hide all sections
         document.querySelectorAll('.main-section').forEach(section => {
-            section.classList.remove('active');
+            section.style.display = 'none';
         });
         
         // Show target section
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
-            targetSection.classList.add('active');
+            targetSection.style.display = 'block';
         }
     }
 
-    showDashboard() {
-        this.showSection('dashboard');
+    showLoadingState() {
+        const btn = document.getElementById('generateRecipe');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        }
     }
 
-    showRecipeGenerator() {
-        this.showSection('recipeGenerator');
+    hideLoadingState() {
+        const btn = document.getElementById('generateRecipe');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-magic"></i> Generate Recipe';
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Simple notification
+        console.log(`${type}: ${message}`);
+        alert(`${type.toUpperCase()}: ${message}`);
     }
 
     getCurrentPreferences() {
@@ -235,26 +250,21 @@ class CelestiqueRecipeMaster {
         };
     }
 
-    getAdvancedOptions() {
-        return {};
-    }
-
     getEnhancedFallbackRecipe(input) {
-        // Simple fallback recipe
         return {
             name: `Delicious ${input}`,
             description: `A wonderful recipe for ${input} created with care and expertise.`,
             cuisine: "International",
             difficulty: "Medium",
             prep_time: "15 mins",
-            cook_time: "30 mins",
+            cook_time: "30 mins", 
             total_time: "45 mins",
             servings: 4,
             calories_per_serving: 400,
             ingredients: [
-                { name: "Main ingredient", quantity: "500g", notes: "Fresh and high quality", category: "main" },
-                { name: "Vegetables", quantity: "2 cups", notes: "Seasonal varieties", category: "produce" },
-                { name: "Spices", quantity: "1 tbsp", notes: "To taste", category: "seasoning" }
+                { name: "Main ingredient", quantity: "500g", notes: "Fresh and high quality" },
+                { name: "Vegetables", quantity: "2 cups", notes: "Seasonal varieties" },
+                { name: "Spices", quantity: "1 tbsp", notes: "To taste" }
             ],
             equipment: ["Knife", "Cutting board", "Pan"],
             instructions: [
@@ -267,7 +277,7 @@ class CelestiqueRecipeMaster {
                 {
                     step: 2,
                     description: "Cook with love and attention to detail.",
-                    time: "20 mins",
+                    time: "20 mins", 
                     tips: ["Taste as you go", "Adjust seasoning"]
                 }
             ],
@@ -278,22 +288,12 @@ class CelestiqueRecipeMaster {
             ],
             nutritional_info: {
                 calories: 400,
-                protein: "25g",
+                protein: "25g", 
                 carbs: "45g",
                 fat: "15g"
             },
-            flavor_profile: {
-                savory: 7,
-                sweet: 5,
-                spicy: 3
-            },
-            pairings: {
-                wine: ["Nice white wine"],
-                beer: ["Refreshing lager"],
-                non_alcoholic: ["Sparkling water"]
-            },
             recipe_score: 85,
-            powered_by: "Celestique AI",
+            powered_by: "Celestique AI by Sooban Talha Technologies",
             generated_at: new Date().toISOString(),
             recipe_id: 'fallback_' + Date.now()
         };
@@ -302,7 +302,7 @@ class CelestiqueRecipeMaster {
     formatNutritionLabel(key) {
         const labels = {
             calories: "Calories",
-            protein: "Protein",
+            protein: "Protein", 
             carbs: "Carbohydrates",
             fat: "Fat",
             fiber: "Fiber",
@@ -311,15 +311,23 @@ class CelestiqueRecipeMaster {
         };
         return labels[key] || key;
     }
+
+    escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 }
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    try {
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
         window.app = new CelestiqueRecipeMaster();
-        console.log('Celestique AI Recipe Master initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize Celestique AI:', error);
-        alert('Application loading failed. Please refresh the page.');
-    }
-});
+    });
+} else {
+    window.app = new CelestiqueRecipeMaster();
+}
