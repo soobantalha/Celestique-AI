@@ -1,5 +1,6 @@
+
 /**
- * Celestique AI - ULTRA Recipe Generator (Study.js Logic)
+ * Celestique AI - ULTRA Recipe Generator (recipe.js Logic)
  * Same structure as study.js but for recipes
  * @version 5.0.0
  * @author Sooban Talha Technologies
