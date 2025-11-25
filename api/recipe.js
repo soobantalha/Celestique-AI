@@ -1,6 +1,5 @@
-
 /**
- * Celestique AI - ULTRA Recipe Generator (recipe.js Logic)
+ * Celestique AI - ULTRA Recipe Generator (Working Version)
  * Same structure as study.js but for recipes
  * @version 5.0.0
  * @author Sooban Talha Technologies
@@ -37,12 +36,19 @@ module.exports = async (req, res) => {
       recipeData = generateFallbackRecipe(message, preferences);
     }
 
-    res.status(200).json(recipeData);
+    // Return success response
+    res.status(200).json({
+      success: true,
+      data: recipeData
+    });
 
   } catch (error) {
     console.error('Unexpected error:', error);
     const fallbackRecipe = generateFallbackRecipe(req.body?.message || 'Delicious Recipe', req.body?.preferences || {});
-    res.status(200).json(fallbackRecipe);
+    res.status(200).json({
+      success: true,
+      data: fallbackRecipe
+    });
   }
 };
 
@@ -145,6 +151,12 @@ Make it COMPREHENSIVE, DETAILED, and PROFESSIONAL. Focus on restaurant-quality r
         recipe.powered_by = 'Celestique AI by Sooban Talha Technologies';
         recipe.generated_at = new Date().toISOString();
         recipe.recipe_id = generateRecipeId();
+        recipe.version = '3.0.0';
+        recipe.culinary_style = 'Professional Chef Crafted';
+        recipe.seasonality = 'All-Season';
+        recipe.cost_estimate = '15-25';
+        recipe.sustainability_score = 75;
+        recipe.special_techniques = ['Mise en place', 'Layering flavors', 'Temperature control'];
         return recipe;
       }
     } catch (error) {
@@ -322,7 +334,13 @@ function generateFallbackRecipe(topic, preferences = {}) {
     recipe_score: 92,
     powered_by: "Celestique AI by Sooban Talha Technologies",
     generated_at: new Date().toISOString(),
-    recipe_id: generateRecipeId()
+    recipe_id: generateRecipeId(),
+    version: '3.0.0',
+    culinary_style: 'Professional Chef Crafted',
+    seasonality: 'All-Season',
+    cost_estimate: '15-25',
+    sustainability_score: 75,
+    special_techniques: ['Mise en place', 'Layering flavors', 'Temperature control']
   };
 }
 
