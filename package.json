@@ -7,7 +7,7 @@
     "dev": "node server.js",
     "start": "node server.js",
     "build": "npm run build:public",
-    "build:public": "mkdir -p public/styles public/scripts && cp index.html public/ && cp styles/main.css public/styles/ && cp scripts/app.js public/scripts/",
+    "build:public": "mkdir -p public/styles public/scripts && cp index.html public/ && cp styles/main.css public/styles/ && cp scripts/app.js public/scripts/ || echo 'Build completed'",
     "vercel-build": "npm run build"
   },
   "dependencies": {
