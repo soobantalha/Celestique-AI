@@ -2,38 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "recipe.js",
+      "src": "server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "package.json",
-      "use": "@vercel/static-build"
+      "src": "public/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/recipe",
-      "dest": "/recipe.js",
-      "methods": ["GET", "POST", "OPTIONS"]
-    },
-    {
-      "src": "/api/health",
-      "dest": "/recipe.js",
-      "methods": ["GET", "OPTIONS"]
+      "src": "/api/(.*)",
+      "dest": "/server.js"
     },
     {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "outputDirectory": "public",
-  "functions": {
-    "recipe.js": {
-      "maxDuration": 60,
-      "memory": 1024
-    }
-  },
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }

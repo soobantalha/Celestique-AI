@@ -2,40 +2,19 @@
   "name": "celestique-ai-recipes",
   "version": "3.0.0",
   "description": "Advanced AI Recipe Generator with Culinary Intelligence",
-  "main": "recipe.js",
+  "main": "server.js",
   "scripts": {
     "dev": "node server.js",
-    "build": "npm run build:html && npm run build:css && npm run build:js && npm run build:assets",
-    "build:html": "node scripts/build-html.js",
-    "build:css": "node scripts/build-css.js",
-    "build:js": "node scripts/build-js.js",
-    "build:assets": "node scripts/build-assets.js",
     "start": "node server.js",
-    "deploy": "npm run build && vercel --prod"
+    "build": "npm run build:public",
+    "build:public": "mkdir -p public/styles public/scripts && cp index.html public/ && cp styles/main.css public/styles/ && cp scripts/app.js public/scripts/",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
-    "node-fetch": "^2.6.7",
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "helmet": "^7.0.0",
-    "compression": "^1.7.4",
-    "rate-limiter-flexible": "^3.0.8",
-    "sanitize-html": "^2.8.1"
+    "node-fetch": "^2.6.7"
   },
-  "devDependencies": {
-    "vercel": "^28.16.0",
-    "clean-css": "^5.3.2",
-    "uglify-js": "^3.17.4"
-  },
-  "keywords": [
-    "ai",
-    "recipes",
-    "cooking",
-    "nutrition",
-    "meal-planning"
-  ],
-  "author": "Sooban Talha Technologies",
-  "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
   }
