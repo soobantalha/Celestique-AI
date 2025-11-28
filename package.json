@@ -1,20 +1,17 @@
+// package.json - ULTRA ADVANCED
 {
-  "name": "celestique-ai-recipe-generator",
-  "version": "3.0.0",
-  "description": "Advanced AI-powered recipe generator with culinary intelligence",
-  "type": "module",
-  "scripts": {
-    "dev": "vercel dev",
-    "start": "node server.js",
-    "build": "echo 'No build step required'"
-  },
-  "dependencies": {
-    "node-fetch": "^3.3.2"
-  },
-  "devDependencies": {
-    "vercel": "^28.0.0"
-  },
-  "keywords": ["ai", "recipes", "cooking", "nutrition", "meal-planning"],
+  "name": "celestique-ai-ultra",
+  "version": "5.0.0",
+  "description": "World's most advanced AI recipe generator with professional culinary intelligence",
   "author": "Sooban Talha Technologies",
-  "license": "MIT"
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "uuid": "^9.0.1"
+  },
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'Ultra Advanced Build Complete'"
+  }
 }
