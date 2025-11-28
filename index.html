@@ -1,318 +1,242 @@
-<!-- index.html - ULTRA ADVANCED VERSION -->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestique AI Ultra - Advanced Culinary Intelligence | Sooban Talha Technologies</title>
-    <meta name="description" content="World's most advanced AI-powered recipe generator with professional culinary intelligence">
+    <title>Celestique AI - Advanced Culinary Intelligence | Sooban Talha Technologies</title>
+    <meta name="description" content="Professional AI-powered recipe generator with advanced culinary intelligence, nutrition analysis, and cooking assistance">
     
-    <!-- Ultra Advanced Styling -->
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <!-- Ultra Advanced Navigation -->
-    <nav class="ultra-navbar">
+    <!-- Navigation -->
+    <nav class="navbar">
         <div class="nav-brand">
             <div class="brand-logo">
                 <i class="fas fa-crown"></i>
-                CELESTIQUE AI ULTRA
+                CELESTIQUE AI
             </div>
             <div class="brand-tagline">
-                Advanced Culinary Intelligence v5.0
+                Advanced Culinary Intelligence
             </div>
         </div>
         
         <ul class="nav-links">
-            <li><a href="#" class="nav-link active" id="navDashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="#" class="nav-link" id="navRecipeGen"><i class="fas fa-chef-hat"></i> Recipe Generator</a></li>
-            <li><a href="#" class="nav-link" id="navMealPlan"><i class="fas fa-calendar-alt"></i> Meal Planner</a></li>
-            <li><a href="#" class="nav-link" id="navNutrition"><i class="fas fa-chart-pie"></i> Nutrition</a></li>
-            <li><a href="#" class="nav-link" id="navSettings"><i class="fas fa-cog"></i> Settings</a></li>
+            <li>
+                <a href="#" class="nav-link active" id="navDashboard">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" id="navRecipeGen">
+                    <i class="fas fa-utensils"></i>
+                    Recipe Generator
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" id="navMealPlan">
+                    <i class="fas fa-calendar-alt"></i>
+                    Meal Planner
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" id="navNutrition">
+                    <i class="fas fa-chart-pie"></i>
+                    Nutrition
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link" id="navSettings">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </li>
         </ul>
     </nav>
 
     <!-- Status Banner -->
     <div class="status-banner">
         <i class="fas fa-rocket"></i>
-        Celestique AI Ultra v5.0 - Now with Professional Chef Intelligence & Advanced Features
+        Celestique AI v5.0 - Now with Advanced Culinary Intelligence & Professional Features
     </div>
 
     <!-- Main Container -->
     <div class="main-container">
-        <!-- Dashboard -->
+        <!-- Dashboard Section -->
         <section id="dashboard" class="main-section active">
             <div class="dashboard-header">
-                <h1>Celestique AI Ultra</h1>
-                <p>World's most advanced AI culinary assistant with professional chef intelligence</p>
+                <h1>Welcome to Celestique AI</h1>
+                <p>Your advanced culinary assistant for professional recipes, meal planning, and nutrition analysis</p>
             </div>
             
             <div class="dashboard-actions">
                 <div class="action-card" onclick="celestiqueAI.showSection('recipeGenerator')">
                     <div class="action-icon">
-                        <i class="fas fa-chef-hat"></i>
+                        <i class="fas fa-utensils"></i>
                     </div>
-                    <h3>Generate Ultra Recipe</h3>
-                    <p>Create professional recipes with AI chef intelligence</p>
-                    <button class="btn-primary">Start Cooking</button>
+                    <h3>Generate Recipe</h3>
+                    <p>Create custom recipes with AI</p>
+                    <button class="btn-primary">Get Started</button>
                 </div>
-                
-                <div class="action-card">
+                <div class="action-card" onclick="celestiqueAI.showSection('mealPlanner')">
                     <div class="action-icon">
-                        <i class="fas fa-wine-bottle"></i>
+                        <i class="fas fa-calendar-plus"></i>
                     </div>
-                    <h3>Wine Pairing Expert</h3>
-                    <p>Perfect wine recommendations for every dish</p>
-                    <button class="btn-secondary">Explore Pairings</button>
+                    <h3>Meal Planning</h3>
+                    <p>Plan your weekly meals</p>
+                    <button class="btn-secondary">Plan Meals</button>
                 </div>
-                
-                <div class="action-card">
+                <div class="action-card" onclick="celestiqueAI.showSection('nutritionTracker')">
                     <div class="action-icon">
-                        <i class="fas fa-graduation-cap"></i>
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <h3>Cooking Masterclass</h3>
-                    <p>Learn professional techniques and skills</p>
-                    <button class="btn-secondary">Learn More</button>
+                    <h3>Nutrition Tracking</h3>
+                    <p>Monitor your nutrition goals</p>
+                    <button class="btn-secondary">Track Nutrition</button>
                 </div>
             </div>
         </section>
 
-        <!-- Recipe Generator -->
+        <!-- Recipe Generator Section -->
         <section id="recipeGenerator" class="main-section">
-            <div class="ultra-input-section">
+            <div class="recipe-input-section">
                 <div class="input-header">
-                    <h1>Create Your Masterpiece</h1>
-                    <p>Describe your culinary vision and our AI Executive Chef will create a professional recipe</p>
+                    <h1>Create Your Perfect Recipe</h1>
+                    <p>Describe what you want to cook, and our AI will create a professional recipe with detailed instructions, nutrition analysis, and chef tips</p>
                 </div>
 
                 <div class="input-container">
                     <textarea 
                         id="recipeInput" 
-                        placeholder="Describe your recipe idea in detail... (e.g., 'A gourmet Italian seafood pasta with fresh herbs, white wine sauce, and professional plating techniques for a special dinner party')"
+                        placeholder="Describe your recipe idea... (e.g., 'A healthy Mediterranean chicken dish with quinoa and roasted vegetables for 4 people that takes under 30 minutes to prepare')"
                         rows="4"
                     ></textarea>
                     
                     <div class="input-actions">
-                        <button id="generateRecipe" class="btn-primary ultra-btn">
-                            <i class="fas fa-chef-hat"></i>
-                            Generate Ultra Recipe
+                        <button id="generateRecipe" class="btn-primary">
+                            <i class="fas fa-magic"></i>
+                            Generate Recipe
                         </button>
-                        
                         <button class="btn-secondary">
-                            <i class="fas fa-wine-bottle"></i>
-                            Wine Pairing
+                            <i class="fas fa-microphone"></i>
+                            Voice Input
                         </button>
-                        
                         <button class="btn-secondary">
-                            <i class="fas fa-utensils"></i>
-                            Techniques
+                            <i class="fas fa-lightbulb"></i>
+                            Quick Ideas
                         </button>
                     </div>
                 </div>
 
-                <!-- Quick Suggestions -->
-                <div class="quick-suggestions">
-                    <h4>Quick Ideas:</h4>
-                    <div class="suggestion-chips">
-                        <button class="suggestion-chip" data-prompt="Gourmet beef Wellington with mushroom duxelles and puff pastry">
-                            🥩 Beef Wellington
-                        </button>
-                        <button class="suggestion-chip" data-prompt="Professional French coq au vin with red wine sauce">
-                            🍷 Coq au Vin
-                        </button>
-                        <button class="suggestion-chip" data-prompt="Italian risotto with wild mushrooms and truffle oil">
-                            🍄 Mushroom Risotto
-                        </button>
-                        <button class="suggestion-chip" data-prompt="Fresh Mediterranean seafood paella with saffron">
-                            🥘 Seafood Paella
-                        </button>
-                    </div>
+                <div class="quick-filters">
+                    <button class="filter-btn diet-filter active" data-diet="none">Any Diet</button>
+                    <button class="filter-btn diet-filter" data-diet="vegetarian">Vegetarian</button>
+                    <button class="filter-btn diet-filter" data-diet="vegan">Vegan</button>
+                    <button class="filter-btn diet-filter" data-diet="gluten-free">Gluten-Free</button>
+                    <button class="filter-btn cuisine-filter active" data-cuisine="fusion">Any Cuisine</button>
+                    <button class="filter-btn cuisine-filter" data-cuisine="italian">Italian</button>
+                    <button class="filter-btn cuisine-filter" data-cuisine="mexican">Mexican</button>
+                    <button class="filter-btn cuisine-filter" data-cuisine="asian">Asian</button>
                 </div>
             </div>
 
-            <!-- Results Area -->
             <div id="recipeResults" class="main-section">
-                <!-- Ultra recipes will appear here -->
+                <!-- Recipe content will be dynamically inserted here -->
             </div>
         </section>
 
-        <!-- Other sections... -->
+        <!-- Meal Planner Section -->
+        <section id="mealPlanner" class="main-section">
+            <div class="section-header">
+                <h1>Meal Planning</h1>
+                <p>Plan your weekly meals with AI-powered suggestions and nutrition balance</p>
+            </div>
+            <div class="meal-planner-container">
+                <div class="coming-soon">
+                    <i class="fas fa-tools"></i>
+                    <h3>Meal Planner Coming Soon</h3>
+                    <p>Advanced meal planning features are under development</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nutrition Tracker Section -->
+        <section id="nutritionTracker" class="main-section">
+            <div class="section-header">
+                <h1>Nutrition Tracking</h1>
+                <p>Track your nutritional intake and get insights from your cooking</p>
+            </div>
+            <div class="nutrition-container">
+                <div class="coming-soon">
+                    <i class="fas fa-tools"></i>
+                    <h3>Nutrition Tracker Coming Soon</h3>
+                    <p>Advanced nutrition tracking features are under development</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="main-section">
+            <div class="section-header">
+                <h1>Settings</h1>
+                <p>Customize your Celestique AI experience</p>
+            </div>
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h3>Preferences</h3>
+                    <div class="setting-item">
+                        <label for="dietPreference">Dietary Preference</label>
+                        <select id="dietPreference">
+                            <option value="none">No Restrictions</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="gluten-free">Gluten-Free</option>
+                            <option value="keto">Keto</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="cuisinePreference">Preferred Cuisine</label>
+                        <select id="cuisinePreference">
+                            <option value="fusion">Any Cuisine</option>
+                            <option value="italian">Italian</option>
+                            <option value="mexican">Mexican</option>
+                            <option value="asian">Asian</option>
+                            <option value="mediterranean">Mediterranean</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Generating your recipe with AI...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <i class="fas fa-crown"></i> Celestique AI
+            </div>
+            <div class="footer-copyright">
+                &copy; 2024 Sooban Talha Technologies. Advanced Culinary Intelligence.
+            </div>
+        </div>
+    </footer>
 
     <!-- Scripts -->
     <script src="scripts/app.js"></script>
-    
-    <!-- Ultra Advanced CSS Animations -->
-    <style>
-        .ultra-recipe-master {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .recipe-section {
-            margin-bottom: 3rem;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-        
-        .recipe-section.animate-in {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .ultra-recipe-header {
-            text-align: center;
-            padding: 3rem 2rem;
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .recipe-meta-badges {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .recipe-score, .cuisine-badge, .difficulty-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .recipe-score {
-            background: var(--accent-gold);
-            color: var(--primary-bg);
-        }
-        
-        .ultra-recipe-title {
-            font-size: 3.5rem;
-            background: var(--accent-gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-        }
-        
-        .flavor-bars {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .flavor-bar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .bar-container {
-            flex: 1;
-            background: var(--primary-bg);
-            height: 8px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .bar-fill {
-            height: 100%;
-            background: var(--accent-gold-gradient);
-            border-radius: 10px;
-            transition: width 1s ease;
-        }
-        
-        .ingredient-group {
-            margin-bottom: 2rem;
-        }
-        
-        .ingredient-item {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 15px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .ingredient-item:hover {
-            transform: translateX(10px);
-            border-color: var(--accent-gold);
-        }
-        
-        .cooking-step {
-            display: flex;
-            gap: 2rem;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: 15px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-        
-        .step-number {
-            background: var(--accent-gold);
-            color: var(--primary-bg);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        
-        .pro-tips {
-            margin-top: 1rem;
-        }
-        
-        .pro-tip {
-            background: rgba(255, 215, 0, 0.1);
-            padding: 0.8rem;
-            border-radius: 10px;
-            margin: 0.5rem 0;
-            border-left: 3px solid var(--accent-gold);
-        }
-        
-        .technique-tag {
-            background: rgba(68, 136, 255, 0.1);
-            color: var(--info-light);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            border: 1px solid rgba(68, 136, 255, 0.3);
-        }
-        
-        .ultra-btn {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .ultra-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .ultra-btn:hover::before {
-            left: 100%;
-        }
-    </style>
 </body>
 </html>

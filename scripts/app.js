@@ -1,6 +1,5 @@
-// app.js - ULTRA ADVANCED VERSION (Study AI Pattern Based)
 /**
- * CELESTIQUE AI RECIPE MASTER - ULTRA ADVANCED
+ * Celestique AI Recipe Master
  * @version 5.0.0
  * @author Sooban Talha Technologies
  */
@@ -8,35 +7,22 @@
 class CelestiqueRecipeMaster {
     constructor() {
         this.currentRecipe = null;
-        this.conversationHistory = [];
-        this.isGenerating = false;
         this.init();
     }
 
     init() {
         this.setupEventListeners();
-        this.initializeAdvancedAnimations();
-        console.log('🎯 Celestique AI Ultra Advanced initialized');
-    }
-
-    initializeAdvancedAnimations() {
-        // Study AI jaise scroll animations
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                }
-            });
-        }, { threshold: 0.1 });
+        console.log('Celestique AI initialized');
     }
 
     setupEventListeners() {
-        // Study AI jaise advanced event handling
+        // Recipe Generation
         const generateBtn = document.getElementById('generateRecipe');
         if (generateBtn) {
             generateBtn.addEventListener('click', () => this.generateRecipe());
         }
 
+        // Enter key support
         const recipeInput = document.getElementById('recipeInput');
         if (recipeInput) {
             recipeInput.addEventListener('keypress', (e) => {
@@ -45,25 +31,13 @@ class CelestiqueRecipeMaster {
                     this.generateRecipe();
                 }
             });
-
-            // Study AI jaise auto-resize
-            recipeInput.addEventListener('input', () => {
-                this.autoResize();
-                this.animateInput();
-            });
         }
 
-        // Study AI jaise quick suggestions
-        document.querySelectorAll('.suggestion-chip').forEach(chip => {
-            chip.addEventListener('click', (e) => {
-                this.animateButton(e.target);
-                const prompt = chip.getAttribute('data-prompt');
-                this.messageInput.value = prompt;
-                setTimeout(() => this.generateRecipe(), 300);
-            });
-        });
-
+        // Navigation
         this.setupNavigation();
+
+        // Filter buttons
+        this.setupFilters();
     }
 
     setupNavigation() {
@@ -78,8 +52,35 @@ class CelestiqueRecipeMaster {
         Object.entries(navItems).forEach(([id, handler]) => {
             const element = document.getElementById(id);
             if (element) {
-                element.addEventListener('click', handler);
+                element.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Remove active class from all nav items
+                    document.querySelectorAll('.nav-link').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    // Add active class to clicked nav item
+                    element.classList.add('active');
+                    handler();
+                });
             }
+        });
+    }
+
+    setupFilters() {
+        // Diet filters
+        document.querySelectorAll('.diet-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.diet-filter').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Cuisine filters
+        document.querySelectorAll('.cuisine-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cuisine-filter').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
         });
     }
 
@@ -96,7 +97,7 @@ class CelestiqueRecipeMaster {
         this.showLoadingState();
 
         try {
-            console.log('🚀 Sending request to Ultra AI...');
+            console.log('Sending request to API...');
             
             const response = await fetch('/api/recipe', {
                 method: 'POST',
@@ -105,8 +106,7 @@ class CelestiqueRecipeMaster {
                 },
                 body: JSON.stringify({
                     message: message,
-                    preferences: this.getCurrentPreferences(),
-                    context: this.getCookingContext()
+                    preferences: this.getCurrentPreferences()
                 })
             });
 
@@ -117,403 +117,280 @@ class CelestiqueRecipeMaster {
             }
             
             const result = await response.json();
-            console.log('🎉 Ultra AI Response:', result);
+            console.log('API Response:', result);
             
             if (result.success && result.data) {
                 this.currentRecipe = result.data;
-                this.displayUltraRecipe(this.currentRecipe);
-                this.showNotification('Ultra Recipe Generated! 🎊', 'success');
+                this.displayRecipe(this.currentRecipe);
+                this.showNotification('Recipe generated successfully! 🎉', 'success');
             } else {
                 throw new Error(result.error || 'Unknown error occurred');
             }
             
         } catch (error) {
             console.error('Error generating recipe:', error);
-            this.showNotification('Using advanced fallback recipe.', 'info');
-            this.currentRecipe = this.getUltraFallbackRecipe(message);
-            this.displayUltraRecipe(this.currentRecipe);
+            this.showNotification('Failed to generate recipe. Using fallback.', 'error');
+            this.currentRecipe = this.getEnhancedFallbackRecipe(message);
+            this.displayRecipe(this.currentRecipe);
         } finally {
             this.hideLoadingState();
         }
     }
 
-    displayUltraRecipe(recipe) {
+    displayRecipe(recipe) {
         const container = document.getElementById('recipeResults');
         if (!container) {
             console.error('Recipe results container not found');
             return;
         }
 
-        container.innerHTML = this.createUltraRecipeHTML(recipe);
+        container.innerHTML = this.createRecipeHTML(recipe);
         this.showSection('recipeResults');
-        
-        // Study AI jaise scroll animations
-        setTimeout(() => {
-            document.querySelectorAll('.recipe-section').forEach(section => {
-                this.observer.observe(section);
-            });
-        }, 100);
     }
 
-    createUltraRecipeHTML(recipe) {
+    createRecipeHTML(recipe) {
         return `
-            <div class="ultra-recipe-master">
-                <!-- Recipe Header -->
-                <div class="recipe-section">
-                    <div class="ultra-recipe-header">
-                        <div class="recipe-meta-badges">
-                            <span class="recipe-score">⭐ ${recipe.recipe_ratings?.overall_score || 95}/100</span>
-                            <span class="cuisine-badge">${recipe.basic_info?.cuisine_type || 'Gourmet'}</span>
-                            <span class="difficulty-badge">${recipe.basic_info?.difficulty_level || 'Medium'}</span>
+            <div class="recipe-master">
+                <div class="recipe-header">
+                    <h1 class="recipe-title">${this.escapeHtml(recipe.name)}</h1>
+                    <p class="recipe-description">${this.escapeHtml(recipe.description)}</p>
+                    
+                    <div class="recipe-stats">
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span>${recipe.total_time}</span>
                         </div>
-                        <h1 class="ultra-recipe-title">${this.escapeHtml(recipe.basic_info?.name)}</h1>
-                        <p class="ultra-recipe-description">${this.escapeHtml(recipe.basic_info?.description)}</p>
-                        
-                        <div class="ultra-recipe-stats">
-                            <div class="stat">
-                                <i class="fas fa-clock"></i>
-                                <span>${recipe.basic_info?.total_time_minutes} mins total</span>
-                            </div>
-                            <div class="stat">
-                                <i class="fas fa-users"></i>
-                                <span>Serves ${recipe.basic_info?.servings}</span>
-                            </div>
-                            <div class="stat">
-                                <i class="fas fa-fire-alt"></i>
-                                <span>${recipe.basic_info?.calories_per_serving} cal/serving</span>
-                            </div>
-                            <div class="stat">
-                                <i class="fas fa-chef-hat"></i>
-                                <span>${recipe.basic_info?.difficulty_level}</span>
-                            </div>
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span>Serves ${recipe.servings}</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-fire-alt"></i>
+                            <span>${recipe.calories_per_serving} cal</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span>${recipe.recipe_score}%</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Flavor Profile -->
-                ${recipe.flavor_profile ? `
-                <div class="recipe-section">
-                    <div class="flavor-profile-section">
-                        <h3><i class="fas fa-palette"></i> Flavor Profile</h3>
-                        <div class="flavor-bars">
-                            ${Object.entries(recipe.flavor_profile).map(([key, value]) => {
-                                if (typeof value === 'number') {
-                                    return `
-                                        <div class="flavor-bar">
-                                            <span class="flavor-name">${this.formatFlavorName(key)}</span>
-                                            <div class="bar-container">
-                                                <div class="bar-fill" style="width: ${value * 10}%"></div>
-                                            </div>
-                                            <span class="flavor-value">${value}/10</span>
-                                        </div>
-                                    `;
-                                }
-                                return '';
-                            }).join('')}
-                        </div>
+                <div class="ingredients-section">
+                    <h3><i class="fas fa-shopping-basket"></i> Ingredients</h3>
+                    <div class="ingredients-list">
+                        ${recipe.ingredients.map(ing => `
+                            <div class="ingredient-item">
+                                <span class="quantity">${this.escapeHtml(ing.quantity)}</span>
+                                <span class="name">${this.escapeHtml(ing.name)}</span>
+                                ${ing.notes ? `<span class="notes">${this.escapeHtml(ing.notes)}</span>` : ''}
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
-                ` : ''}
 
-                <!-- Ingredients -->
-                <div class="recipe-section">
-                    <div class="ingredients-section">
-                        <h3><i class="fas fa-shopping-basket"></i> Ingredients</h3>
-                        ${recipe.ingredients_section?.ingredient_groups?.map(group => `
-                            <div class="ingredient-group">
-                                <h4>${this.escapeHtml(group.group_name)}</h4>
-                                <div class="ingredients-list">
-                                    ${group.ingredients?.map(ing => `
-                                        <div class="ingredient-item">
-                                            <div class="ingredient-main">
-                                                <span class="quantity">${this.escapeHtml(ing.quantity)}</span>
-                                                <span class="name">${this.escapeHtml(ing.name)}</span>
-                                            </div>
-                                            ${ing.preparation ? `<div class="preparation">${this.escapeHtml(ing.preparation)}</div>` : ''}
-                                            ${ing.quality_notes ? `<div class="quality-notes">${this.escapeHtml(ing.quality_notes)}</div>` : ''}
-                                            ${ing.substitutes?.length ? `
-                                                <div class="substitutes">
-                                                    <strong>Substitutes:</strong> ${ing.substitutes.join(', ')}
-                                                </div>
-                                            ` : ''}
+                <div class="instructions-section">
+                    <h3><i class="fas fa-list-ol"></i> Instructions</h3>
+                    <div class="instructions-timeline">
+                        ${recipe.instructions.map(step => `
+                            <div class="instruction-step">
+                                <div class="step-number">${step.step}</div>
+                                <div class="step-content">
+                                    <p>${this.escapeHtml(step.description)}</p>
+                                    ${step.time ? `<div class="step-time"><i class="fas fa-clock"></i> ${step.time}</div>` : ''}
+                                    ${step.tips && step.tips.length > 0 ? `
+                                        <div class="step-tips">
+                                            ${step.tips.map(tip => `<span class="tip"><i class="fas fa-lightbulb"></i> ${this.escapeHtml(tip)}</span>`).join('')}
                                         </div>
-                                    `).join('')}
+                                    ` : ''}
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
 
-                <!-- Cooking Instructions -->
-                <div class="recipe-section">
-                    <div class="instructions-section">
-                        <h3><i class="fas fa-list-ol"></i> Cooking Instructions</h3>
-                        
-                        <!-- Preparation Steps -->
-                        ${recipe.cooking_instructions?.preparation_steps?.length ? `
-                        <div class="preparation-steps">
-                            <h4>Preparation</h4>
-                            ${recipe.cooking_instructions.preparation_steps.map(step => `
-                                <div class="prep-step">
-                                    <div class="step-content">
-                                        <p>${this.escapeHtml(step.description)}</p>
-                                        ${step.time_required ? `<div class="step-time"><i class="fas fa-clock"></i> ${step.time_required}</div>` : ''}
-                                        ${step.tips?.length ? `
-                                            <div class="step-tips">
-                                                ${step.tips.map(tip => `<span class="tip"><i class="fas fa-lightbulb"></i> ${this.escapeHtml(tip)}</span>`).join('')}
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        ` : ''}
-
-                        <!-- Cooking Steps -->
-                        <div class="cooking-steps">
-                            <h4>Cooking Process</h4>
-                            <div class="steps-timeline">
-                                ${recipe.cooking_instructions?.cooking_steps?.map(step => `
-                                    <div class="cooking-step">
-                                        <div class="step-number">${step.step_number}</div>
-                                        <div class="step-content">
-                                            <h5>${this.escapeHtml(step.title)}</h5>
-                                            <p>${this.escapeHtml(step.description)}</p>
-                                            <div class="step-details">
-                                                ${step.time_required ? `<span class="detail"><i class="fas fa-clock"></i> ${step.time_required}</span>` : ''}
-                                                ${step.temperature ? `<span class="detail"><i class="fas fa-thermometer-half"></i> ${step.temperature}</span>` : ''}
-                                            </div>
-                                            ${step.techniques?.length ? `
-                                                <div class="techniques">
-                                                    <strong>Techniques:</strong> ${step.techniques.join(', ')}
-                                                </div>
-                                            ` : ''}
-                                            ${step.pro_tips?.length ? `
-                                                <div class="pro-tips">
-                                                    ${step.pro_tips.map(tip => `<div class="pro-tip"><i class="fas fa-star"></i> ${this.escapeHtml(tip)}</div>`).join('')}
-                                                </div>
-                                            ` : ''}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chef Expertise -->
-                ${recipe.chef_expertise ? `
-                <div class="recipe-section">
-                    <div class="chef-expertise-section">
-                        <h3><i class="fas fa-graduation-cap"></i> Chef's Expertise</h3>
-                        ${recipe.chef_expertise.advanced_techniques ? `
-                            <div class="expertise-group">
-                                <h4>Advanced Techniques</h4>
-                                <div class="techniques-list">
-                                    ${recipe.chef_expertise.advanced_techniques.map(tech => `
-                                        <span class="technique-tag">${this.escapeHtml(tech)}</span>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
-                        ${recipe.chef_expertise.professional_tips ? `
-                            <div class="expertise-group">
-                                <h4>Professional Tips</h4>
-                                <div class="tips-list">
-                                    ${recipe.chef_expertise.professional_tips.map(tip => `
-                                        <div class="pro-tip-item">${this.escapeHtml(tip)}</div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
+                ${recipe.chef_tips ? `
+                <div class="chef-tips-section">
+                    <h3><i class="fas fa-graduation-cap"></i> Chef Tips</h3>
+                    <div class="tips-list">
+                        ${recipe.chef_tips.map(tip => `
+                            <div class="tip-item">${this.escapeHtml(tip)}</div>
+                        `).join('')}
                     </div>
                 </div>
                 ` : ''}
 
-                <!-- Wine Pairings -->
-                ${recipe.wine_pairings ? `
-                <div class="recipe-section">
-                    <div class="pairings-section">
-                        <h3><i class="fas fa-wine-glass-alt"></i> Perfect Pairings</h3>
-                        ${recipe.wine_pairings.white_wines?.length ? `
-                            <div class="pairing-category">
-                                <h4>White Wines</h4>
-                                ${recipe.wine_pairings.white_wines.map(wine => `
-                                    <div class="pairing-item">
-                                        <strong>${this.escapeHtml(wine.type)}</strong>
-                                        ${wine.pairing_rationale ? `<span class="pairing-rationale">${this.escapeHtml(wine.pairing_rationale)}</span>` : ''}
-                                    </div>
-                                `).join('')}
+                ${recipe.nutritional_info ? `
+                <div class="nutrition-section">
+                    <h3><i class="fas fa-chart-bar"></i> Nutrition</h3>
+                    <div class="nutrition-grid">
+                        ${Object.entries(recipe.nutritional_info).map(([key, value]) => `
+                            <div class="nutrition-item">
+                                <span class="label">${this.formatNutritionLabel(key)}</span>
+                                <span class="value">${value}</span>
                             </div>
-                        ` : ''}
-                        ${recipe.wine_pairings.red_wines?.length ? `
-                            <div class="pairing-category">
-                                <h4>Red Wines</h4>
-                                ${recipe.wine_pairings.red_wines.map(wine => `
-                                    <div class="pairing-item">
-                                        <strong>${this.escapeHtml(wine.type)}</strong>
-                                        ${wine.pairing_rationale ? `<span class="pairing-rationale">${this.escapeHtml(wine.pairing_rationale)}</span>` : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
+                        `).join('')}
                     </div>
                 </div>
                 ` : ''}
 
-                <!-- Recipe Footer -->
-                <div class="recipe-section">
-                    <div class="ultra-recipe-footer">
-                        <div class="powered-by">
-                            <i class="fas fa-crown"></i>
-                            ${recipe.powered_by || 'Celestique AI Ultra by Sooban Talha Technologies'}
-                        </div>
-                        <div class="recipe-ids">
-                            <span class="recipe-id">ID: ${recipe.recipe_id}</span>
-                            <span class="generated-time">Generated: ${new Date(recipe.generated_at).toLocaleString()}</span>
-                        </div>
-                    </div>
+                <div class="recipe-footer">
+                    <div class="powered-by">${this.escapeHtml(recipe.powered_by)}</div>
+                    <div class="generated-time">Generated ${new Date(recipe.generated_at).toLocaleString()}</div>
                 </div>
             </div>
         `;
     }
 
-    // Study AI jaise helper methods
-    animateInput() {
-        const input = document.getElementById('recipeInput');
-        input.style.transform = 'scale(1.02)';
-        setTimeout(() => {
-            input.style.transform = 'scale(1)';
-        }, 150);
-    }
-
-    autoResize() {
-        const input = document.getElementById('recipeInput');
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-    }
-
-    showLoadingState() {
-        const btn = document.getElementById('generateRecipe');
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Crafting Ultra Recipe...';
-        }
-    }
-
-    hideLoadingState() {
-        const btn = document.getElementById('generateRecipe');
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-chef-hat"></i> Generate Ultra Recipe';
-        }
-    }
-
     showSection(sectionId) {
+        // Hide all sections
         document.querySelectorAll('.main-section').forEach(section => {
             section.style.display = 'none';
         });
         
+        // Show target section
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.style.display = 'block';
         }
     }
 
+    showLoadingState() {
+        const overlay = document.getElementById('loadingOverlay');
+        const btn = document.getElementById('generateRecipe');
+        
+        if (overlay) overlay.classList.add('active');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        }
+    }
+
+    hideLoadingState() {
+        const overlay = document.getElementById('loadingOverlay');
+        const btn = document.getElementById('generateRecipe');
+        
+        if (overlay) overlay.classList.remove('active');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-magic"></i> Generate Recipe';
+        }
+    }
+
     showNotification(message, type = 'info') {
-        // Study AI jaise notification system
+        // Simple notification - you can enhance this with toast notifications
         console.log(`${type}: ${message}`);
-        // Implement toast notification here
+        
+        // Create a simple alert for now
+        const alert = document.createElement('div');
+        alert.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: ${type === 'error' ? '#ff4444' : type === 'success' ? '#00ff88' : '#ffaa00'};
+            color: #0a0a0a;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 3000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        alert.textContent = message;
+        
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            document.body.removeChild(alert);
+        }, 3000);
     }
 
     getCurrentPreferences() {
+        const dietFilter = document.querySelector('.diet-filter.active');
+        const cuisineFilter = document.querySelector('.cuisine-filter.active');
+        
         return {
-            diet: 'none',
-            cuisine: 'fusion',
+            diet: dietFilter ? dietFilter.getAttribute('data-diet') : 'none',
+            cuisine: cuisineFilter ? cuisineFilter.getAttribute('data-cuisine') : 'fusion',
             difficulty: 'medium',
             servings: 4
         };
     }
 
-    getCookingContext() {
+    getEnhancedFallbackRecipe(input) {
         return {
-            experience_level: 'intermediate',
-            kitchen_setup: 'standard',
-            time_available: 'moderate'
+            name: `Delicious ${input}`,
+            description: `A wonderful recipe for ${input} created with care and expertise.`,
+            cuisine: "International",
+            difficulty: "Medium",
+            prep_time: "15 mins",
+            cook_time: "30 mins", 
+            total_time: "45 mins",
+            servings: 4,
+            calories_per_serving: 400,
+            ingredients: [
+                { name: "Main ingredient", quantity: "500g", notes: "Fresh and high quality" },
+                { name: "Vegetables", quantity: "2 cups", notes: "Seasonal varieties" },
+                { name: "Spices", quantity: "1 tbsp", notes: "To taste" },
+                { name: "Oil", quantity: "2 tbsp", notes: "For cooking" },
+                { name: "Herbs", quantity: "1/4 cup", notes: "Fresh chopped" }
+            ],
+            equipment: ["Knife", "Cutting board", "Pan", "Mixing bowls"],
+            instructions: [
+                {
+                    step: 1,
+                    description: `Prepare your ingredients for ${input}. Wash, chop, and measure everything needed.`,
+                    time: "10 mins",
+                    tips: ["Work carefully", "Use sharp tools"]
+                },
+                {
+                    step: 2,
+                    description: "Start cooking with the main ingredients. Build flavors gradually.",
+                    time: "15 mins",
+                    tips: ["Taste as you go", "Adjust heat as needed"]
+                },
+                {
+                    step: 3,
+                    description: "Add remaining ingredients and cook until perfect.",
+                    time: "15 mins",
+                    tips: ["Don't overcrowd the pan", "Season properly"]
+                },
+                {
+                    step: 4,
+                    description: "Finish with fresh herbs and serve immediately.",
+                    time: "5 mins",
+                    tips: ["Garnish beautifully", "Serve hot"]
+                }
+            ],
+            chef_tips: [
+                "Use fresh ingredients for best results",
+                "Don't rush the cooking process", 
+                "Taste and adjust seasoning throughout",
+                "Let the dish rest before serving",
+                "Presentation matters - plate beautifully"
+            ],
+            nutritional_info: {
+                calories: 400,
+                protein: "25g",
+                carbs: "45g",
+                fat: "15g"
+            },
+            recipe_score: 85,
+            powered_by: "Celestique AI by Sooban Talha Technologies",
+            generated_at: new Date().toISOString(),
+            recipe_id: 'fallback_' + Date.now()
         };
     }
 
-    getUltraFallbackRecipe(input) {
-        // Study AI jaise detailed fallback
-        return {
-            recipe_metadata: {
-                recipe_id: 'fallback_' + Date.now(),
-                version: "5.0.0",
-                culinary_style: "Professional Gastronomy",
-                fallback_generated: true
-            },
-            basic_info: {
-                name: `Exquisite ${input} | Chef's Masterpiece`,
-                description: `An extraordinary culinary creation featuring ${input}, crafted with precision techniques.`,
-                cuisine_type: "Contemporary Fusion",
-                difficulty_level: "Medium",
-                prep_time_minutes: 25,
-                cook_time_minutes: 35,
-                total_time_minutes: 60,
-                servings: 4,
-                calories_per_serving: 480
-            },
-            ingredients_section: {
-                ingredient_groups: [
-                    {
-                        group_name: "Main Components",
-                        ingredients: [
-                            {
-                                name: "Premium Ingredient",
-                                quantity: "500g",
-                                preparation: "Properly prepared",
-                                quality_notes: "Use high-quality ingredients"
-                            }
-                        ]
-                    }
-                ]
-            },
-            cooking_instructions: {
-                cooking_steps: [
-                    {
-                        step_number: 1,
-                        title: "Flavor Foundation",
-                        description: `Build the foundational flavors for ${input} with careful technique.`,
-                        time_required: "10 mins",
-                        pro_tips: ["Use quality ingredients", "Control temperature precisely"]
-                    }
-                ]
-            },
-            chef_expertise: {
-                professional_tips: [
-                    "Always taste as you cook",
-                    "Use fresh herbs for maximum flavor",
-                    "Let meat rest before serving"
-                ]
-            },
-            powered_by: "Celestique AI Ultra by Sooban Talha Technologies",
-            generated_at: new Date().toISOString()
+    formatNutritionLabel(key) {
+        const labels = {
+            calories: "Calories",
+            protein: "Protein", 
+            carbs: "Carbohydrates",
+            fat: "Fat",
+            fiber: "Fiber",
+            sugar: "Sugar",
+            sodium: "Sodium"
         };
-    }
-
-    formatFlavorName(key) {
-        const names = {
-            flavor_intensity: "Intensity",
-            complexity_rating: "Complexity", 
-            balance_rating: "Balance",
-            umami_level: "Umami",
-            sweetness: "Sweetness",
-            saltiness: "Saltiness",
-            sourness: "Sourness",
-            bitterness: "Bitterness",
-            spiciness: "Spiciness"
-        };
-        return names[key] || key;
+        return labels[key] || key;
     }
 
     escapeHtml(unsafe) {
@@ -527,7 +404,7 @@ class CelestiqueRecipeMaster {
     }
 }
 
-// Study AI jaise initialization
+// Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.celestiqueAI = new CelestiqueRecipeMaster();
