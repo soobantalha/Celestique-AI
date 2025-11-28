@@ -1,4 +1,3 @@
-// package.json - ULTRA ADVANCED
 {
   "name": "celestique-ai-ultra",
   "version": "5.0.0",
@@ -12,6 +11,6 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "build": "echo 'Ultra Advanced Build Complete'"
+    "build": "echo 'Ultra Advanced Celestique AI Build Complete'"
   }
 }
