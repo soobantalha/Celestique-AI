@@ -1,16 +1,17 @@
-# Célestique AI - Gourmet Recipe Generator
+# 🎓 Savoiré AI - Ultra-Satisfying Study Assistant
 
-A full-featured web application for generating AI-powered gourmet recipes with user authentication, multiple AI models, and recipe history.
+**by Sooban Talha Technologies**
 
-## Features
+AI-powered study assistant that generates ultra-comprehensive learning materials for any subject with 10+ detailed sections.
 
-- 🔐 **User Authentication** - Sign up, login, and profile management
-- 🤖 **Multiple AI Models** - DeepSeek, Gemini, and Claude integration
-- 📊 **User Dashboard** - Statistics and recipe history
-- 💾 **Local Storage** - Save recipes and user data locally
-- 🎨 **Futuristic UI** - Dark theme with glassmorphism effects
-- 📱 **Responsive Design** - Works on all devices
+## 🚀 Quick Deployment
 
-## Setup Instructions
-
-### Step 1: Create Project Structure
+1. **Create all files** in the structure above
+2. **Push to GitHub**:
+```bash
+git init
+git add .
+git commit -m "Initial Savoiré AI"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/Savoire-AI.git
+git push -u origin main

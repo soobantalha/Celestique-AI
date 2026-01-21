@@ -1,16 +1,5 @@
 {
-  "name": "celestique-ai-ultra",
-  "version": "5.0.0",
-  "description": "World's most advanced AI recipe generator with professional culinary intelligence",
-  "author": "Sooban Talha Technologies",
-  "type": "module",
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "uuid": "^9.0.1"
-  },
-  "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
-    "build": "echo 'Ultra Advanced Celestique AI Build Complete'"
+    "@vercel/analytics": "^1.5.0"
   }
 }

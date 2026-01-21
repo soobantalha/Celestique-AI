@@ -1,11 +1,5 @@
-# .gitignore - ULTRA
 node_modules/
 .env
 .DS_Store
 *.log
 .vercel
-*.tmp
-.cache
-dist/
-build/
-.env*.local
