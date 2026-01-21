@@ -3,155 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestique AI - Advanced Recipe Generator</title>
+    <title>Celestique AI v2.0 | Sooban Talha Technologies</title>
     
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Advanced AI-powered recipe generator with detailed instructions, nutrition info, and cooking techniques">
-    <meta name="keywords" content="AI recipes, cooking, meal planning, nutrition, culinary AI">
-    <meta name="author" content="Sooban Talha Technologies">
-    
-    <!-- Icons -->
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2921/2921815.png">
-    
-    <!-- Font Awesome -->
+    <meta name="author" content="Sooban Talha">
+    <meta name="description" content="The advanced AI Recipe Architect by Sooban Talha Technologies.">
+    <meta property="og:title" content="Celestique AI v2.0">
+    <meta property="og:description" content="Next-gen culinary AI by Sooban Talha Technologies.">
+    <meta property="og:url" content="https://soobantalhatech.xyz">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
-    <!-- Animated Background -->
-    <div class="animated-bg"></div>
-    <div class="floating-elements"></div>
-    
-    <!-- Minimal Header -->
-    <header class="modern-header">
-        <div class="header-container">
-            <div class="logo-area">
-                <div class="logo-wrapper">
-                    <div class="logo-background animated-logo">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2921/2921815.png" alt="Celestique AI" class="logo-img">
-                    </div>
-                </div>
-                <div class="brand-text">
-                    <h1 class="animated-text">Celestique AI</h1>
-                    <div class="brand-tagline">by Sooban Talha Technologies</div>
-                </div>
+<body class="dark-theme">
+
+    <div class="culinary-grid-bg"></div>
+    <div class="vignette-overlay"></div>
+
+    <header class="glass-header">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fa-solid fa-fire-burner"></i>
             </div>
-            <div class="header-actions">
-                <button class="icon-btn theme-toggle glow">
-                    <i class="fas fa-moon"></i>
-                </button>
+            <div class="brand-info">
+                <h1>Celestique AI <span class="version-tag">v2.0</span></h1>
+                <a href="https://soobantalhatech.xyz" target="_blank" class="sub-brand">by Sooban Talha Technologies</a>
             </div>
+        </div>
+        <div class="header-controls">
+            <button id="themeToggle" class="control-btn"><i class="fa-solid fa-sun"></i></button>
+            <a href="https://soobantalhatech.xyz" class="company-link">Visit Official Site</a>
         </div>
     </header>
 
-    <!-- Main Chat Area -->
-    <main class="modern-chat">
-        <div class="chat-container">
-            <!-- Welcome Area -->
-            <div class="welcome-area" id="welcomeArea">
-                <div class="welcome-center">
-                    <div class="welcome-logo">
-                        <div class="logo-background large animated-logo">
-                            <img src="https://cdn-icons-png.flaticon.com/512/2921/2921815.png" alt="Celestique AI" class="logo-img">
-                        </div>
-                    </div>
-                    <h1 class="welcome-title slide-in">Welcome to Celestique AI</h1>
-                    <p class="welcome-subtitle fade-in">Experience the ultimate culinary companion, generating detailed recipes, nutrition info, cooking techniques, and personalized meal plans with advanced AI technology.</p>
-                    
-                    <!-- Quick Suggestions -->
-                    <div class="suggestions-grid">
-                        <div class="suggestion-chip animated-btn" data-prompt="Create a detailed Italian pasta recipe with fresh ingredients">
-                            <i class="fas fa-utensils bounce"></i>
-                            Italian Pasta
-                        </div>
-                        <div class="suggestion-chip animated-btn" data-prompt="Generate a healthy vegan lunch recipe with nutritional information">
-                            <i class="fas fa-leaf bounce"></i>
-                            Vegan Lunch
-                        </div>
-                        <div class="suggestion-chip animated-btn" data-prompt="Provide a detailed dessert recipe with step-by-step instructions">
-                            <i class="fas fa-ice-cream bounce"></i>
-                            Dessert Recipe
-                        </div>
-                        <div class="suggestion-chip animated-btn" data-prompt="Create a quick breakfast recipe under 15 minutes">
-                            <i class="fas fa-egg bounce"></i>
-                            Quick Breakfast
-                        </div>
-                    </div>
-
-                    <!-- Brand Footer -->
-                    <div class="brand-footer">
-                        <div class="production-credit pulse">by Sooban Talha Technologies</div>
-                        <div class="feature-tags">
-                            <span class="feature-tag glow">AI Recipes</span>
-                            <span class="feature-tag glow">Nutrition Info</span>
-                            <span class="feature-tag glow">PDF Export</span>
-                        </div>
-                    </div>
-                </div>
+    <main class="app-container">
+        
+        <section id="inputSection" class="input-section active">
+            <div class="hero-text">
+                <h2 class="typing-hero">What are we cooking today, Chef?</h2>
+                <p>Powered by the Celestique Neural Engine</p>
             </div>
 
-            <!-- Chat Messages -->
-            <div class="messages-container" id="messagesContainer" style="display: none;">
-                <div class="messages-scroll" id="chatMessages">
-                    <!-- Messages will be added here dynamically -->
-                </div>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div class="thinking-indicator" id="thinkingIndicator" style="display: none;">
-                <div class="thinking-avatar">
-                    <div class="logo-background small pulse">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2921/2921815.png" alt="Celestique AI" class="logo-img">
-                    </div>
-                </div>
-                <div class="thinking-content">
-                    <div class="typing-animation">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                    <span class="thinking-text">Creating your culinary masterpiece... 🍳✨</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="input-area">
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <div class="text-input-container glow-border">
-                        <textarea 
-                            id="messageInput" 
-                            placeholder="Describe your desired recipe, ingredients, or dietary preferences..."
-                            rows="1"
-                        ></textarea>
-                        <div class="input-actions">
-                            <button class="send-button pulse animated-btn" id="sendButton">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-actions">
-                    <button class="footer-btn animated-btn" id="clearChat">
-                        <i class="fas fa-trash"></i>
-                        Clear chat
+            <div class="search-wrapper">
+                <div class="input-glass-box">
+                    <i class="fa-solid fa-wand-magic-sparkles magic-icon"></i>
+                    <textarea id="recipePrompt" placeholder="Describe your craving (e.g., 'Spicy molecular gastronomy pasta' or 'Keto-friendly chocolate dessert')..." rows="1"></textarea>
+                    <button id="generateBtn" class="generate-btn">
+                        <span class="btn-text">Ignite AI</span>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </button>
-                    <div class="production-watermark fade-in">
-                      • Powered by Sooban Talha Technologies
-                    </div>
                 </div>
             </div>
-        </div>
+
+            <div class="quick-tags">
+                <span class="tag" onclick="useTag('High Protein Breakfast')">🍳 High Protein Breakfast</span>
+                <span class="tag" onclick="useTag('Italian Dinner Date')">🍝 Italian Dinner Date</span>
+                <span class="tag" onclick="useTag('Japanese Fusion')">🍱 Japanese Fusion</span>
+                <span class="tag" onclick="useTag('Sugar-Free Dessert')">🧁 Sugar-Free Dessert</span>
+            </div>
+        </section>
+
+        <section id="processingSection" class="processing-section hidden">
+            <div class="loader-content">
+                <div class="cooking-animation">
+                    <div class="pan"></div>
+                    <div class="food"></div>
+                </div>
+                <h3 id="loadingText">Analyzing flavor profiles...</h3>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+        </section>
+
+        <section id="resultSection" class="result-section hidden">
+            <div class="recipe-card glass-panel">
+                <div id="recipeContent" class="recipe-content"></div>
+                
+                <div class="recipe-actions">
+                    <button id="downloadPdfBtn" class="action-btn secondary">
+                        <i class="fa-solid fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button id="newRecipeBtn" class="action-btn primary">
+                        <i class="fa-solid fa-rotate-right"></i> Generate Another
+                    </button>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Scripts -->
+    <footer class="glass-footer">
+        <p>© 2026 Celestique AI. All rights reserved.</p>
+        <p class="powered-by">Masterminded by <a href="https://soobantalhatech.xyz">Sooban Talha Technologies</a></p>
+    </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>
