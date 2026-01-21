@@ -4,100 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Celestique AI v2.0 | Sooban Talha Technologies</title>
-    
     <meta name="author" content="Sooban Talha">
-    <meta name="description" content="The advanced AI Recipe Architect by Sooban Talha Technologies.">
-    <meta property="og:title" content="Celestique AI v2.0">
-    <meta property="og:description" content="Next-gen culinary AI by Sooban Talha Technologies.">
-    <meta property="og:url" content="https://soobantalhatech.xyz">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="The world's most advanced AI Recipe Generator by Sooban Talha Technologies.">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
 </head>
-<body class="dark-theme">
+<body class="theme-cyber">
 
-    <div class="culinary-grid-bg"></div>
-    <div class="vignette-overlay"></div>
+    <canvas id="neuralCanvas"></canvas>
+    <div class="overlay-grid"></div>
 
-    <header class="glass-header">
-        <div class="logo-container">
-            <div class="logo-icon">
-                <i class="fa-solid fa-fire-burner"></i>
-            </div>
-            <div class="brand-info">
-                <h1>Celestique AI <span class="version-tag">v2.0</span></h1>
-                <a href="https://soobantalhatech.xyz" target="_blank" class="sub-brand">by Sooban Talha Technologies</a>
-            </div>
-        </div>
-        <div class="header-controls">
-            <button id="themeToggle" class="control-btn"><i class="fa-solid fa-sun"></i></button>
-            <a href="https://soobantalhatech.xyz" class="company-link">Visit Official Site</a>
-        </div>
-    </header>
-
-    <main class="app-container">
+    <div id="app" class="app-container">
         
-        <section id="inputSection" class="input-section active">
-            <div class="hero-text">
-                <h2 class="typing-hero">What are we cooking today, Chef?</h2>
-                <p>Powered by the Celestique Neural Engine</p>
+        <aside class="sidebar glass-panel">
+            <div class="brand-box">
+                <div class="logo-spinner"></div>
+                <h2>Celestique<span class="highlight">AI</span></h2>
+                <p class="sub-brand">by Sooban Talha Tech</p>
             </div>
 
-            <div class="search-wrapper">
-                <div class="input-glass-box">
-                    <i class="fa-solid fa-wand-magic-sparkles magic-icon"></i>
-                    <textarea id="recipePrompt" placeholder="Describe your craving (e.g., 'Spicy molecular gastronomy pasta' or 'Keto-friendly chocolate dessert')..." rows="1"></textarea>
-                    <button id="generateBtn" class="generate-btn">
-                        <span class="btn-text">Ignite AI</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
+            <nav class="main-nav">
+                <button class="nav-btn active" data-tab="generator"><i class="fa-solid fa-microchip"></i> Generator</button>
+                <button class="nav-btn" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+                <button class="nav-btn" data-tab="settings"><i class="fa-solid fa-sliders"></i> System</button>
+            </nav>
+
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="led green"></span> System Online
                 </div>
-            </div>
-
-            <div class="quick-tags">
-                <span class="tag" onclick="useTag('High Protein Breakfast')">🍳 High Protein Breakfast</span>
-                <span class="tag" onclick="useTag('Italian Dinner Date')">🍝 Italian Dinner Date</span>
-                <span class="tag" onclick="useTag('Japanese Fusion')">🍱 Japanese Fusion</span>
-                <span class="tag" onclick="useTag('Sugar-Free Dessert')">🧁 Sugar-Free Dessert</span>
-            </div>
-        </section>
-
-        <section id="processingSection" class="processing-section hidden">
-            <div class="loader-content">
-                <div class="cooking-animation">
-                    <div class="pan"></div>
-                    <div class="food"></div>
+                <div class="status-item">
+                    <span class="led blue"></span> v2.0.0 Stable
                 </div>
-                <h3 id="loadingText">Analyzing flavor profiles...</h3>
-                <div class="progress-bar"><div class="progress-fill"></div></div>
+                <div class="server-link">soobantalhatech.xyz</div>
             </div>
-        </section>
+        </aside>
 
-        <section id="resultSection" class="result-section hidden">
-            <div class="recipe-card glass-panel">
-                <div id="recipeContent" class="recipe-content"></div>
-                
-                <div class="recipe-actions">
-                    <button id="downloadPdfBtn" class="action-btn secondary">
-                        <i class="fa-solid fa-file-pdf"></i> Download PDF
-                    </button>
-                    <button id="newRecipeBtn" class="action-btn primary">
-                        <i class="fa-solid fa-rotate-right"></i> Generate Another
-                    </button>
+        <main class="content-area">
+            
+            <header class="top-bar glass-panel">
+                <h1 id="pageTitle">NEURAL KITCHEN // ONLINE</h1>
+                <div class="user-controls">
+                    <button id="soundToggle" class="icon-btn"><i class="fa-solid fa-volume-high"></i></button>
+                    <a href="https://soobantalhatech.xyz" target="_blank" class="company-badge">STT Official</a>
                 </div>
-            </div>
-        </section>
+            </header>
 
-    </main>
+            <section id="generator" class="tab-content active">
+                <div class="input-zone glass-panel">
+                    <div class="prompt-container">
+                        <textarea id="promptInput" placeholder="Initialize culinary request sequence (e.g., 'Molecular gastronomy spicy noodles')..."></textarea>
+                        <div class="input-actions">
+                            <button id="generateBtn" class="cyber-btn">
+                                <span class="btn-text">INITIATE GENERATION</span>
+                                <span class="glitch-effect"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chips-container">
+                        <span class="chip" onclick="app.quickFill('High Protein Keto')">⚡ High Protein</span>
+                        <span class="chip" onclick="app.quickFill('Italian 5-Course')">🍝 Italian Feast</span>
+                        <span class="chip" onclick="app.quickFill('Japanese Fusion')">🍱 J-Fusion</span>
+                    </div>
+                </div>
 
-    <footer class="glass-footer">
-        <p>© 2026 Celestique AI. All rights reserved.</p>
-        <p class="powered-by">Masterminded by <a href="https://soobantalhatech.xyz">Sooban Talha Technologies</a></p>
-    </footer>
+                <div id="terminalOutput" class="terminal-window glass-panel hidden">
+                    <div class="terminal-header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span class="terminal-title">STT_OUTPUT_STREAM_v2.0</span>
+                    </div>
+                    <div class="terminal-body">
+                        <div id="streamContent" class="stream-content"></div>
+                        <div id="cursor" class="cursor">_</div>
+                    </div>
+                    <div class="terminal-actions">
+                        <button onclick="app.downloadPDF()" class="action-btn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                        <button onclick="app.reset()" class="action-btn"><i class="fa-solid fa-rotate"></i> Reset</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="history" class="tab-content">
+                <div class="history-grid glass-panel" id="historyList">
+                    <h3>Recent Generations</h3>
+                    <div class="empty-state">No neural logs found.</div>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="scripts/app.js"></script>
