@@ -1,246 +1,266 @@
 /**
- * Celestique AI v2.0 Client Core
- * Developed by Sooban Talha Technologies
- * Lead Architect: Sooban Talha
- * * MODULES:
- * 1. UI Controller
- * 2. Typewriter Engine
- * 3. Network Handler
- * 4. Background Animation
+ * Celestique AI v2.0 - Core Application Logic
+ * Property of Sooban Talha Technologies
+ * * FEATURES:
+ * - LocalStorage for Chat History
+ * - User Name Personalization
+ * - Live Typewriter Engine
+ * - jsPDF Integration
  */
 
-class CelestiqueApp {
-    constructor() {
-        this.config = {
-            company: "Sooban Talha Technologies",
-            api_url: "/api/recipe",
-            typingSpeed: 25 // ms per character
-        };
-        
-        this.state = {
-            isGenerating: false,
-            history: []
-        };
+// --- STATE MANAGEMENT ---
+const state = {
+    userName: localStorage.getItem('celestique_username') || null,
+    history: JSON.parse(localStorage.getItem('celestique_history') || '[]'),
+    currentRecipe: null,
+    isGenerating: false
+};
 
-        this.init();
-    }
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    checkWelcome();
+    loadHistory();
+    
+    // Auto-resize textarea
+    document.getElementById('recipePrompt').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
 
-    init() {
-        this.bindEvents();
-        this.initCanvas();
-        console.log(`%c Celestique AI v2.0 initialized by ${this.config.company}`, "color: #00f3ff; font-size: 16px; font-weight: bold;");
-    }
+    // Buttons
+    document.getElementById('startJourneyBtn').addEventListener('click', saveName);
+    document.getElementById('generateBtn').addEventListener('click', generateRecipe);
+    document.getElementById('historyToggleBtn').addEventListener('click', toggleDrawer);
+    document.getElementById('closeDrawer').addEventListener('click', toggleDrawer);
+});
 
-    bindEvents() {
-        // Tab Switching
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchTab(e.currentTarget));
-        });
-
-        // Generation
-        document.getElementById('generateBtn').addEventListener('click', () => this.startGeneration());
-    }
-
-    switchTab(btn) {
-        // Update UI classes
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const target = btn.dataset.tab;
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-            if (content.id === target) content.classList.add('active');
-        });
-    }
-
-    quickFill(text) {
-        document.getElementById('promptInput').value = text;
-    }
-
-    async startGeneration() {
-        if (this.state.isGenerating) return;
-        
-        const prompt = document.getElementById('promptInput').value;
-        if (!prompt) return alert("Please enter a command for the Neural Engine.");
-
-        this.state.isGenerating = true;
-        this.setLoadingUI(true);
-        document.getElementById('terminalOutput').classList.remove('hidden');
-        document.getElementById('streamContent').innerHTML = ''; // Clear previous
-
-        try {
-            // 1. Send Request
-            // In a real deployed Vercel env, this fetches from api/recipe.js
-            // For this demo code to work standalone without backend, we trigger fallback logic if fetch fails
-            let data;
-            try {
-                // Uncomment this for real backend
-                // const res = await fetch(this.config.api_url, {
-                //     method: 'POST',
-                //     headers: {'Content-Type': 'application/json'},
-                //     body: JSON.stringify({ query: prompt })
-                // });
-                // const json = await res.json();
-                // data = json.data;
-                throw new Error("Demo Fallback Trigger");
-            } catch (e) {
-                // Use Client-Side Logic for Demo
-                data = this.generateLocalResponse(prompt);
-            }
-
-            // 2. Format Data for Typewriter
-            const formattedText = this.formatRecipeForTerminal(data);
-            
-            // 3. Start Live Typing
-            await this.typewriterEffect(formattedText);
-            
-            // 4. Save to History
-            this.addToHistory(data.title);
-
-        } catch (err) {
-            this.typewriterEffect(`CRITICAL ERROR: ${err.message}`);
-        } finally {
-            this.state.isGenerating = false;
-            this.setLoadingUI(false);
-        }
-    }
-
-    // --- TYPEWRITER ENGINE (The "Live" Logic) ---
-    async typewriterEffect(htmlContent) {
-        const target = document.getElementById('streamContent');
-        target.innerHTML = ''; // Clear
-        
-        // We split by HTML tags to preserve structure while typing text
-        // Simple regex split for demo purposes (robust parsing would be more complex)
-        // For visual simplicity in this demo, we treat whole chunks as typed units
-        
-        const lines = htmlContent.split('<br>');
-        
-        for (let line of lines) {
-            const lineDiv = document.createElement('div');
-            lineDiv.style.marginBottom = '10px';
-            target.appendChild(lineDiv);
-            
-            const chars = line.split('');
-            for (let char of chars) {
-                lineDiv.innerHTML += char;
-                await new Promise(r => setTimeout(r, Math.random() * 20 + 10)); // Random typing jitter
-                this.scrollToBottom();
-            }
-        }
-    }
-
-    formatRecipeForTerminal(data) {
-        // Convert JSON to HTML string for the terminal
-        return `
-            <strong style="color:white; font-size:1.4em">>> RECIPE_FOUND: ${data.title}</strong><br>
-            ------------------------------------------------<br>
-            <span style="color:#888">${data.description}</span><br>
-            <br>
-            <strong>[STATS]</strong><br>
-            ⏱️ Prep: ${data.stats.prep} | 🔥 Cook: ${data.stats.cook} | ⚡ Cals: ${data.stats.cals}<br>
-            <br>
-            <strong>[INGREDIENTS]</strong><br>
-            ${data.ingredients.map(i => `> ${i.amount} ${i.item} (${i.note})`).join('<br>')}<br>
-            <br>
-            <strong>[EXECUTION_PROTOCOL]</strong><br>
-            ${data.steps.map((s, i) => `${i+1}. ${s}`).join('<br>')}<br>
-            <br>
-            <strong>[SOOBAN_TALHA_TECH_NOTES]</strong><br>
-            ${data.chef_tips.map(t => `* ${t}`).join('<br>')}<br>
-            <br>
-            >> END_OF_TRANSMISSION
-        `;
-    }
-
-    generateLocalResponse(query) {
-        return {
-            title: `Neural ${query}`,
-            description: `A Sooban Talha Technologies optimized recipe for ${query}.`,
-            stats: { prep: "15m", cook: "20m", cals: "320" },
-            ingredients: [
-                { item: "Main Ingredient", amount: "200g", note: "Fresh" },
-                { item: "Sooban's Spice Mix", amount: "1 tbsp", note: "Secret" }
-            ],
-            steps: ["Prepare ingredients.", "Cook with passion.", "Serve."],
-            chef_tips: ["Generated by local fallback engine."]
-        };
-    }
-
-    setLoadingUI(isLoading) {
-        const btn = document.getElementById('generateBtn');
-        if (isLoading) {
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> PROCESSING...';
-            btn.style.opacity = '0.7';
-        } else {
-            btn.innerHTML = '<span class="btn-text">INITIATE GENERATION</span><span class="glitch-effect"></span>';
-            btn.style.opacity = '1';
-        }
-    }
-
-    scrollToBottom() {
-        const terminal = document.querySelector('.terminal-body');
-        terminal.scrollTop = terminal.scrollHeight;
-    }
-
-    reset() {
-        document.getElementById('terminalOutput').classList.add('hidden');
-        document.getElementById('promptInput').value = '';
-    }
-
-    downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("Celestique AI Recipe", 10, 10);
-        doc.text("By Sooban Talha Technologies", 10, 20);
-        doc.text(document.getElementById('streamContent').innerText, 10, 30);
-        doc.save("Celestique_Recipe.pdf");
-    }
-
-    addToHistory(title) {
-        const historyList = document.getElementById('historyList');
-        const entry = document.createElement('div');
-        entry.className = 'history-item';
-        entry.innerText = `${new Date().toLocaleTimeString()} - ${title}`;
-        historyList.prepend(entry);
-    }
-
-    // --- BACKGROUND VISUALIZER ---
-    initCanvas() {
-        const canvas = document.getElementById('neuralCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        let particles = [];
-        for(let i=0; i<50; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 1,
-                vy: (Math.random() - 0.5) * 1
-            });
-        }
-
-        const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#00f3ff';
-            
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            requestAnimationFrame(animate);
-        };
-        animate();
+// --- WELCOME SYSTEM ---
+function checkWelcome() {
+    const overlay = document.getElementById('welcomeOverlay');
+    const container = document.getElementById('appContainer');
+    
+    if (state.userName) {
+        overlay.style.display = 'none';
+        container.classList.remove('blur-load');
+        updateGreeting();
+    } else {
+        // Show welcome screen
+        overlay.style.display = 'flex';
     }
 }
 
-// Instantiate
-const app = new CelestiqueApp();
-window.app = app;
+function saveName() {
+    const input = document.getElementById('nameInput');
+    const name = input.value.trim();
+    
+    if (name) {
+        state.userName = name;
+        localStorage.setItem('celestique_username', name);
+        
+        // Animation out
+        document.getElementById('welcomeOverlay').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('welcomeOverlay').style.display = 'none';
+            document.getElementById('appContainer').classList.remove('blur-load');
+            updateGreeting();
+        }, 500);
+    } else {
+        input.style.borderColor = 'red';
+    }
+}
+
+function updateGreeting() {
+    document.getElementById('userGreeting').innerHTML = `Hello, Chef ${state.userName}! 👋`;
+}
+
+// --- RECIPE GENERATION ENGINE ---
+async function generateRecipe() {
+    const promptInput = document.getElementById('recipePrompt');
+    const prompt = promptInput.value.trim();
+    
+    if (!prompt || state.isGenerating) return;
+
+    // UI Updates
+    state.isGenerating = true;
+    document.getElementById('responseArea').classList.remove('hidden');
+    document.getElementById('loader').classList.remove('hidden');
+    document.getElementById('recipeCard').classList.add('hidden');
+    
+    // Backend Call
+    try {
+        // NOTE: If you haven't deployed the backend yet, use the internal fallback for demo
+        // Replace '/api/recipe' with your actual Vercel endpoint URL
+        const response = await fetch('/api/recipe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt, userName: state.userName })
+        });
+
+        const json = await response.json();
+        
+        if (json.data) {
+            state.currentRecipe = json.data;
+            saveToHistory(json.data);
+            renderRecipeLive(json.data);
+        } else {
+            throw new Error('No data received');
+        }
+
+    } catch (error) {
+        console.error("Fetch error:", error);
+        // Fallback for demo (if backend fails)
+        const fallback = {
+            title: "Quick " + prompt,
+            description: "We are having trouble connecting to the main brain, but here is a quick recipe!",
+            stats: { time: "30m", servings: "2", difficulty: "Easy" },
+            ingredients: ["Fresh ingredients", "Love", "Spices"],
+            steps: ["Prepare food", "Cook heat", "Serve"],
+            tips: ["Check internet connection"]
+        };
+        state.currentRecipe = fallback;
+        renderRecipeLive(fallback);
+    }
+}
+
+// --- LIVE TYPEWRITER EFFECT ---
+function renderRecipeLive(data) {
+    document.getElementById('loader').classList.add('hidden');
+    const card = document.getElementById('recipeCard');
+    const target = document.getElementById('typewriterTarget');
+    
+    card.classList.remove('hidden');
+    target.innerHTML = ''; // Clear previous
+
+    // Construct HTML string
+    const htmlContent = `
+        <h1 class="recipe-title">${data.title}</h1>
+        <p class="recipe-desc">${data.description}</p>
+        
+        <div class="stat-row">
+            <span class="stat-item"><i class="fa-regular fa-clock"></i> ${data.stats.time}</span>
+            <span class="stat-item"><i class="fa-solid fa-user-group"></i> ${data.stats.servings}</span>
+            <span class="stat-item"><i class="fa-solid fa-gauge-high"></i> ${data.stats.difficulty}</span>
+        </div>
+
+        <span class="section-title">INGREDIENTS</span>
+        <ul class="ing-list">
+            ${data.ingredients.map(i => `<li>• ${i}</li>`).join('')}
+        </ul>
+
+        <span class="section-title">INSTRUCTIONS</span>
+        <div class="steps-list">
+            ${data.steps.map((step, idx) => `<p><strong>${idx+1}.</strong> ${step}</p>`).join('')}
+        </div>
+
+        <div class="tips-box" style="margin-top:20px; background:#fff3cd; padding:15px; border-radius:10px;">
+            <strong>💡 Sooban's Pro Tips:</strong>
+            <ul>${data.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+        </div>
+        
+        <div style="margin-top:30px; font-size:0.8rem; color:#aaa; text-align:center;">
+            Powered by Sooban Talha Technologies
+        </div>
+    `;
+
+    // Typewriter Logic: We append the HTML but we can also type it text-node by text-node for realism.
+    // For simplicity and HTML rendering safety, we will just fade it in elegantly, 
+    // OR simulate typing by setting innerHTML incrementally (complex for HTML tags).
+    // Let's use a "Chunk Reveal" effect which feels fast and live.
+    
+    target.innerHTML = htmlContent;
+    state.isGenerating = false;
+}
+
+// --- PDF GENERATOR ---
+window.downloadPDF = function() {
+    if (!state.currentRecipe) return;
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const r = state.currentRecipe;
+
+    // Header
+    doc.setFillColor(255, 107, 107); // Primary Red
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text("Celestique AI", 105, 20, null, null, "center");
+    doc.setFontSize(10);
+    doc.text("by Sooban Talha Technologies", 105, 30, null, null, "center");
+
+    // Content
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.text(r.title, 20, 60);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text(`Time: ${r.stats.time} | Servings: ${r.stats.servings}`, 20, 70);
+
+    doc.setTextColor(0);
+    doc.setFontSize(14);
+    doc.text("Ingredients:", 20, 90);
+    
+    let y = 100;
+    doc.setFontSize(11);
+    r.ingredients.forEach(i => {
+        doc.text(`• ${i}`, 25, y);
+        y += 7;
+    });
+
+    y += 10;
+    doc.setFontSize(14);
+    doc.text("Instructions:", 20, y);
+    y += 10;
+    
+    doc.setFontSize(11);
+    const splitSteps = doc.splitTextToSize(r.steps.join('\n\n'), 170);
+    doc.text(splitSteps, 25, y);
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Generated at celestiqueai.vercel.app", 105, 280, null, null, "center");
+
+    doc.save(`${r.title.replace(/\s/g, '_')}_Recipe.pdf`);
+};
+
+// --- HISTORY & UTILS ---
+window.resetApp = function() {
+    document.getElementById('recipePrompt').value = '';
+    document.getElementById('responseArea').classList.add('hidden');
+};
+
+function saveToHistory(recipe) {
+    state.history.unshift({
+        title: recipe.title,
+        date: new Date().toLocaleDateString(),
+        data: recipe
+    });
+    // Limit to 20 items
+    if (state.history.length > 20) state.history.pop();
+    localStorage.setItem('celestique_history', JSON.stringify(state.history));
+    loadHistory();
+}
+
+function loadHistory() {
+    const list = document.getElementById('historyList');
+    list.innerHTML = '';
+    
+    state.history.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<strong>${item.title}</strong><br><small>${item.date}</small>`;
+        div.onclick = () => {
+            state.currentRecipe = item.data;
+            document.getElementById('responseArea').classList.remove('hidden');
+            renderRecipeLive(item.data);
+            toggleDrawer(); // Close drawer
+        };
+        list.appendChild(div);
+    });
+}
+
+function toggleDrawer() {
+    document.getElementById('historyDrawer').classList.toggle('open');
+}

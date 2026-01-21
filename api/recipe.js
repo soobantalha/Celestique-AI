@@ -1,172 +1,137 @@
 /**
- * Celestique AI v2.0 - Enterprise Backend
- * Copyright (c) 2026 Sooban Talha Technologies
- * Website: soobantalhatech.xyz
- * Founder: Sooban Talha
- * * ARCHITECTURE:
- * 1. Security Layer (CORS, Rate Limiting)
- * 2. AI Orchestration (DeepSeek/Gemini Routing)
- * 3. Fallback Neural Database (Offline Mode)
+ * Celestique AI v2.0 - World Edition Backend
+ * Owned by: Sooban Talha Technologies (soobantalhatech.xyz)
+ * Deployed at: celestiqueai.vercel.app
+ * * SYSTEM ARCHITECTURE:
+ * - Request Validation
+ * - User Personalization Layer
+ * - AI Model Orchestration
+ * - Fallback Neural Database
  */
 
 import fetch from 'node-fetch';
 
-// --- CONFIGURATION ---
-const APP_CONFIG = {
-    name: "Celestique AI",
-    version: "2.0.0-ENTERPRISE",
-    company: "Sooban Talha Technologies",
-    website: "https://soobantalhatech.xyz",
-    ai_models: [
-        'google/gemini-2.0-flash-exp:free',
-        'deepseek/deepseek-chat-v3.1:free',
-        'meta-llama/llama-3-70b-instruct'
-    ]
-};
-
-// --- MAIN HANDLER ---
 export default async function handler(req, res) {
-    // 1. SECURITY HEADERS
+    // 1. GLOBAL CORS POLICY (Allows access from anywhere in the world)
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Sooban-Auth');
-    res.setHeader('X-Powered-By', 'Sooban Talha Technologies Engine');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Restricted' });
+    // Handle Preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed - Use POST' });
+    }
 
     try {
-        const { query, mode = 'standard', userSettings = {} } = req.body;
+        const { prompt, userName = "Chef" } = req.body;
 
-        if (!query) {
-            return res.status(400).json({ error: 'Query Null' });
+        if (!prompt) {
+            return res.status(400).json({ error: 'Please provide a food request.' });
         }
 
-        console.log(`[SoobanTalhaTech] Processing request: ${query}`);
+        console.log(`[SoobanTalhaTech] Request from ${userName}: ${prompt}`);
 
-        // 2. AI GENERATION ATTEMPT
+        // 2. ATTEMPT AI GENERATION
         let recipeData;
         try {
-            recipeData = await generateAIResponse(query, mode);
-        } catch (aiError) {
-            console.error('[SoobanTalhaTech] AI Failover:', aiError.message);
-            // 3. INTELLIGENT FALLBACK
-            recipeData = generateFallback(query);
+            // Check for API Key (Set this in Vercel Environment Variables)
+            if (!process.env.OPENROUTER_API_KEY) {
+                throw new Error("No API Key configured - switching to Fallback Mode");
+            }
+            recipeData = await generateAIRecipe(prompt, userName);
+        } catch (error) {
+            console.warn("AI Generation failed, using Fallback Engine:", error.message);
+            recipeData = generateFallbackRecipe(prompt, userName);
         }
 
-        // 4. FINAL RESPONSE ENRICHMENT
-        const finalResponse = {
+        // 3. SEND RESPONSE
+        res.status(200).json({
             success: true,
             meta: {
-                generated_by: APP_CONFIG.name,
-                company: APP_CONFIG.company,
-                timestamp: new Date().toISOString(),
-                compute_node: `NODE_${Math.floor(Math.random() * 9999)}`
+                powered_by: "Sooban Talha Technologies",
+                version: "2.0.0-WORLD",
+                timestamp: new Date().toISOString()
             },
             data: recipeData
-        };
-
-        res.status(200).json(finalResponse);
-
-    } catch (criticalError) {
-        console.error('[SoobanTalhaTech] Critical:', criticalError);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Internal Neural Network Error',
-            contact: 'support@soobantalhatech.xyz'
         });
+
+    } catch (error) {
+        console.error("Critical Server Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 }
 
-// --- AI ENGINE ---
-async function generateAIResponse(userInput, mode) {
-    if (!process.env.OPENROUTER_API_KEY) throw new Error("API Key Missing");
-
-    const systemContext = `
-        You are Celestique AI, the advanced culinary engine by Sooban Talha Technologies.
-        Create a recipe for "${userInput}".
-        Mode: ${mode}.
+// --- AI ORCHESTRATOR ---
+async function generateAIRecipe(prompt, userName) {
+    const systemPrompt = `
+        You are Celestique AI, a world-class culinary expert created by Sooban Talha Technologies.
+        You are speaking to "${userName}".
         
-        Strictly return ONLY valid JSON with this structure:
+        Create a detailed, delicious recipe for: "${prompt}".
+        
+        Return strictly JSON format:
         {
-            "title": "Name",
-            "description": " enticing description",
-            "stats": { "prep": "X min", "cook": "X min", "cals": "X" },
-            "ingredients": [{ "item": "name", "amount": "qty", "note": "optional" }],
+            "title": "Recipe Name",
+            "description": "Warm, appetizing description addressing ${userName}",
+            "stats": { "time": "30 mins", "servings": "2", "difficulty": "Medium" },
+            "ingredients": ["Item 1", "Item 2"],
             "steps": ["Step 1", "Step 2"],
-            "chef_tips": ["Tip 1", "Tip 2"]
+            "tips": ["Tip 1", "Tip 2"]
         }
     `;
 
-    // Try models in sequence
-    for (const model of APP_CONFIG.ai_models) {
-        try {
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-                    'HTTP-Referer': APP_CONFIG.website,
-                    'X-Title': APP_CONFIG.name
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [{ role: 'system', content: systemContext }],
-                    temperature: 0.7,
-                    response_format: { type: "json_object" }
-                })
-            });
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'HTTP-Referer': 'https://celestiqueai.vercel.app',
+            'X-Title': 'Celestique AI'
+        },
+        body: JSON.stringify({
+            model: "google/gemini-2.0-flash-exp:free",
+            messages: [{ role: 'user', content: systemPrompt }]
+        })
+    });
 
-            if (response.ok) {
-                const data = await response.json();
-                let content = data.choices[0].message.content;
-                // Sanitize JSON
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
-                return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
-            }
-        } catch (e) {
-            continue; // Try next model
-        }
-    }
-    throw new Error("All models exhausted");
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    return JSON.parse(jsonMatch ? jsonMatch[0] : content);
 }
 
-// --- HUGE FALLBACK DATABASE (Condensed for brevity, simulates 10,000 lines) ---
-function generateFallback(query) {
-    const q = query.toLowerCase();
-    
-    // Template Generator
-    const baseRecipe = {
-        title: `Gourmet ${query} (Offline Mode)`,
-        description: `A premium recipe for ${query} generated by the Celestique Offline Neural Engine. Designed by Sooban Talha Technologies.`,
-        stats: { prep: "20 mins", cook: "35 mins", cals: "450" },
+// --- FALLBACK DATABASE (If AI is offline) ---
+function generateFallbackRecipe(prompt, userName) {
+    return {
+        title: `Signature ${prompt}`,
+        description: `Hello ${userName}! Here is a specially crafted version of ${prompt}, designed by the Sooban Talha Technologies offline engine just for you.`,
+        stats: {
+            time: "45 Mins",
+            servings: "2-4 People",
+            difficulty: "Easy"
+        },
         ingredients: [
-            { item: "Premium Main Ingredient", amount: "500g", note: "Fresh" },
-            { item: "Aromatic Spices", amount: "2 tbsp", note: "Sooban's Secret Blend" },
-            { item: "Fresh Herbs", amount: "1 bunch", note: "Finely chopped" },
-            { item: "Olive Oil", amount: "30ml", note: "Extra Virgin" }
+            "500g Fresh Main Ingredient",
+            "2 tbsp Olive Oil (Extra Virgin)",
+            "1 tsp Sooban's Secret Spice Mix",
+            "Salt & Pepper to taste",
+            "Fresh Herbs for garnish"
         ],
         steps: [
-            "Prepare your workstation (Mise en place). Wash and chop all fresh ingredients.",
-            "Heat a heavy-bottomed pan over medium heat. Toast spices to release aromatics.",
-            "Incorporate main ingredients and sear until golden brown.",
-            "Reduce heat, cover, and simmer to allow flavors to meld.",
-            "Garnish with fresh herbs and serve immediately on a warmed plate."
+            "Begin by washing all vegetables and preparing your workstation (mise en place).",
+            "Heat the oil in a large pan over medium heat until it shimmers.",
+            "Add the main ingredients and sear until golden brown (approx 5-7 mins).",
+            "Lower the heat, add spices, and cover. Let it simmer to develop flavor.",
+            "Serve hot, garnished with fresh herbs. Enjoy your meal, Chef " + userName + "!"
         ],
-        chef_tips: [
-            "Rest the dish for 5 minutes before serving for maximum flavor.",
-            "Season gradually throughout the cooking process.",
-            "Powered by Sooban Talha Technologies."
+        tips: [
+            "Rest the dish for 5 minutes before serving.",
+            "Adjust spices according to your taste.",
+            "Download the PDF to save this forever."
         ]
     };
-
-    if (q.includes('pasta')) {
-        baseRecipe.title = "Artisan Truffle Pasta";
-        baseRecipe.ingredients.push({ item: "Truffle Oil", amount: "1 tsp", note: "White truffle" });
-    } else if (q.includes('chicken')) {
-        baseRecipe.title = "Herb-Crusted Roast Chicken";
-        baseRecipe.stats.cook = "45 mins";
-    }
-
-    return baseRecipe;
 }

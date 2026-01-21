@@ -2,97 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestique AI v2.0 | Sooban Talha Technologies</title>
-    <meta name="author" content="Sooban Talha">
-    <meta name="description" content="The world's most advanced AI Recipe Generator by Sooban Talha Technologies.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Celestique AI | World's Best Recipe Generator</title>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="author" content="Sooban Talha Technologies">
+    <meta name="description" content="AI Recipe Generator for the World. Created by Sooban Talha Technologies.">
+    <meta name="theme-color" content="#ff6b6b">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="styles/main.css">
 </head>
-<body class="theme-cyber">
+<body>
 
-    <canvas id="neuralCanvas"></canvas>
-    <div class="overlay-grid"></div>
-
-    <div id="app" class="app-container">
-        
-        <aside class="sidebar glass-panel">
-            <div class="brand-box">
-                <div class="logo-spinner"></div>
-                <h2>Celestique<span class="highlight">AI</span></h2>
-                <p class="sub-brand">by Sooban Talha Tech</p>
+    <div id="welcomeOverlay" class="welcome-overlay">
+        <div class="welcome-card">
+            <div class="logo-animate">
+                <i class="fa-solid fa-utensils"></i>
             </div>
-
-            <nav class="main-nav">
-                <button class="nav-btn active" data-tab="generator"><i class="fa-solid fa-microchip"></i> Generator</button>
-                <button class="nav-btn" data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
-                <button class="nav-btn" data-tab="settings"><i class="fa-solid fa-sliders"></i> System</button>
-            </nav>
-
-            <div class="status-panel">
-                <div class="status-item">
-                    <span class="led green"></span> System Online
-                </div>
-                <div class="status-item">
-                    <span class="led blue"></span> v2.0.0 Stable
-                </div>
-                <div class="server-link">soobantalhatech.xyz</div>
-            </div>
-        </aside>
-
-        <main class="content-area">
+            <h1 class="script-font">Welcome to Celestique</h1>
+            <p>A culinary journey by Sooban Talha Technologies.</p>
+            <p class="sub-text">Before we begin, what should we call you?</p>
             
-            <header class="top-bar glass-panel">
-                <h1 id="pageTitle">NEURAL KITCHEN // ONLINE</h1>
-                <div class="user-controls">
-                    <button id="soundToggle" class="icon-btn"><i class="fa-solid fa-volume-high"></i></button>
-                    <a href="https://soobantalhatech.xyz" target="_blank" class="company-badge">STT Official</a>
-                </div>
-            </header>
+            <input type="text" id="nameInput" placeholder="Enter your name..." autocomplete="off">
+            <button id="startJourneyBtn" class="pulse-btn">Start Cooking <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
 
-            <section id="generator" class="tab-content active">
-                <div class="input-zone glass-panel">
-                    <div class="prompt-container">
-                        <textarea id="promptInput" placeholder="Initialize culinary request sequence (e.g., 'Molecular gastronomy spicy noodles')..."></textarea>
-                        <div class="input-actions">
-                            <button id="generateBtn" class="cyber-btn">
-                                <span class="btn-text">INITIATE GENERATION</span>
-                                <span class="glitch-effect"></span>
-                            </button>
-                        </div>
+    <div id="appContainer" class="app-container blur-load">
+        
+        <header class="mobile-header">
+            <div class="brand">
+                <i class="fa-solid fa-fire-burner brand-icon"></i>
+                <div class="brand-text">
+                    <h2>Celestique AI</h2>
+                    <span>by Sooban Talha Technologies</span>
+                </div>
+            </div>
+            <button id="historyToggleBtn" class="icon-btn"><i class="fa-solid fa-clock-rotate-left"></i></button>
+        </header>
+
+        <main>
+            <div class="greeting-section">
+                <h3 id="userGreeting">Hello, Chef! 👋</h3>
+                <p>What are you craving today?</p>
+            </div>
+
+            <div class="search-box-wrapper">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <textarea id="recipePrompt" placeholder="e.g., Spicy Chicken Biryani or Vegan Pasta..." rows="1"></textarea>
+                    <button id="generateBtn" class="send-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="responseArea" class="response-area hidden">
+                <div class="loading-animation hidden" id="loader">
+                    <div class="skillet">
+                        <div class="food-jump">🥘</div>
                     </div>
-                    <div class="chips-container">
-                        <span class="chip" onclick="app.quickFill('High Protein Keto')">⚡ High Protein</span>
-                        <span class="chip" onclick="app.quickFill('Italian 5-Course')">🍝 Italian Feast</span>
-                        <span class="chip" onclick="app.quickFill('Japanese Fusion')">🍱 J-Fusion</span>
-                    </div>
+                    <p>Cooking up your recipe...</p>
                 </div>
 
-                <div id="terminalOutput" class="terminal-window glass-panel hidden">
-                    <div class="terminal-header">
-                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-                        <span class="terminal-title">STT_OUTPUT_STREAM_v2.0</span>
-                    </div>
-                    <div class="terminal-body">
-                        <div id="streamContent" class="stream-content"></div>
-                        <div id="cursor" class="cursor">_</div>
-                    </div>
-                    <div class="terminal-actions">
-                        <button onclick="app.downloadPDF()" class="action-btn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
-                        <button onclick="app.reset()" class="action-btn"><i class="fa-solid fa-rotate"></i> Reset</button>
+                <div id="recipeCard" class="recipe-card hidden">
+                    <div id="typewriterTarget"></div>
+                    
+                    <div class="action-buttons">
+                        <button onclick="downloadPDF()" class="action-btn pdf-btn">
+                            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button onclick="resetApp()" class="action-btn new-btn">
+                            <i class="fa-solid fa-rotate-right"></i> New Recipe
+                        </button>
                     </div>
                 </div>
-            </section>
-
-            <section id="history" class="tab-content">
-                <div class="history-grid glass-panel" id="historyList">
-                    <h3>Recent Generations</h3>
-                    <div class="empty-state">No neural logs found.</div>
-                </div>
-            </section>
+            </div>
         </main>
+
+        <div id="historyDrawer" class="history-drawer">
+            <div class="drawer-header">
+                <h3>Your Cookbook</h3>
+                <button id="closeDrawer" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="historyList" class="history-list">
+                </div>
+        </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
