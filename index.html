@@ -2,176 +2,161 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Celestique AI | The Future of Culinary Intelligence</title>
-    
-    <meta name="author" content="Sooban Talha Technologies">
-    <meta name="description" content="Celestique AI: The world's most beautiful and intelligent personal chef. Created by Sooban Talha Technologies.">
-    <meta name="theme-color" content="#FF6B6B">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestique AI – World's Most Advanced Recipe Generator</title>
+    <link rel="stylesheet" href="styles/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
 </head>
 <body>
-
-    <div id="toast-container" class="toast-container"></div>
-
-    <div id="welcome-overlay" class="welcome-overlay">
+    <!-- Welcome Overlay -->
+    <div id="welcomeOverlay" class="welcome-overlay active">
+        <div class="welcome-background"></div>
         <div class="welcome-content">
-            <div class="brand-mark-large">
-                <i class="fa-solid fa-sparkles fa-beat-fade"></i>
+            <div class="welcome-logo">
+                <span class="logo-icon">🍳</span>
+                <h1 class="logo-text">Celestique AI</h1>
             </div>
-            <h1 class="welcome-title">Celestique AI</h1>
-            <p class="welcome-subtitle">Culinary Intelligence by Sooban Talha Technologies</p>
-            
-            <div class="interaction-zone">
-                <div class="typing-container">
-                    <p id="welcome-message" class="typing-text"></p>
-                    <span class="cursor">|</span>
-                </div>
-
-                <div class="input-wrapper" id="name-input-wrapper">
-                    <div class="glass-input-box">
-                        <input type="text" id="user-name-input" placeholder="Type your name..." autocomplete="off">
-                        <button id="btn-confirm-name" class="btn-icon-circle">
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="ambient-background">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="orb orb-3"></div>
-        </div>
-    </div>
-
-    <div id="app-root" class="app-root blur-state">
-        
-        <nav class="glass-nav">
-            <div class="nav-brand">
-                <div class="nav-logo">
-                    <i class="fa-solid fa-fire-burner"></i>
-                </div>
-                <div class="nav-info">
-                    <span class="nav-title">Celestique</span>
-                    <span class="nav-credit">Sooban Talha Tech</span>
-                </div>
-            </div>
-            <div class="nav-controls">
-                <button class="nav-btn" id="btn-history" aria-label="History">
-                    <i class="fa-solid fa-book-open"></i>
-                </button>
-                <button class="nav-btn" id="btn-favorites" aria-label="Favorites">
-                    <i class="fa-solid fa-heart"></i>
-                </button>
-                <button class="nav-btn theme-toggle" id="btn-theme" aria-label="Toggle Theme">
-                    <div class="theme-icon-sun"><i class="fa-solid fa-sun"></i></div>
-                    <div class="theme-icon-moon"><i class="fa-solid fa-moon"></i></div>
-                </button>
-            </div>
-        </nav>
-
-        <main class="main-content">
-            
-            <section class="hero-section">
-                <div class="greeting-wrapper">
-                    <h2 id="dynamic-greeting" class="hero-title">Welcome back, Chef.</h2>
-                    <p class="hero-subtitle">The kitchen is yours. Let's create something extraordinary.</p>
-                </div>
-            </section>
-
-            <section class="search-section">
-                <div class="search-glass-card">
-                    <div class="search-icon-wrapper">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-                    <textarea 
-                        id="prompt-input" 
-                        class="smart-textarea" 
-                        placeholder="What are you craving? (e.g., 'A spicy, high-protein pasta for a rainy evening')"
-                        rows="1"
-                    ></textarea>
-                    <button id="btn-generate" class="generate-btn">
-                        <span class="btn-text">Create</span>
-                        <div class="btn-shine"></div>
+            <div class="welcome-message">
+                <h2 class="welcome-title">Welcome to your personal kitchen companion</h2>
+                <p class="welcome-subtitle">I'm not just a recipe generator. I'm your culinary partner, here to create meals that tell stories, evoke memories, and nourish both body and soul.</p>
+                <p class="welcome-quote">"Good food is the foundation of genuine happiness."</p>
+                <div class="name-input-container">
+                    <input type="text" id="userNameInput" class="name-input" placeholder="What's your name?" maxlength="30">
+                    <button id="enterKitchenBtn" class="enter-btn">
+                        <span>Enter the Kitchen</span>
+                        <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
+                <p class="welcome-note">Your name helps me personalize every recipe just for you.</p>
+            </div>
+        </div>
+    </div>
 
-                <div class="suggestion-chips">
-                    <button class="chip" data-val="Healthy 15-minute Avocado Toast">🥑 Healthy Breakfast</button>
-                    <button class="chip" data-val="Authentic Italian Truffle Carbonara">🍝 Date Night</button>
-                    <button class="chip" data-val="Spicy Grilled Chicken Salad">🥗 High Protein</button>
-                    <button class="chip" data-val="Decadent Molten Lava Cake">🍫 Dessert</button>
-                    <button class="chip" data-val="Vegan Buddha Bowl">🌱 Vegan</button>
-                </div>
-            </section>
-
-            <section id="processing-view" class="processing-view hidden">
-                <div class="culinary-loader">
-                    <div class="loader-circle"></div>
-                    <div class="loader-icon"><i class="fa-solid fa-utensils"></i></div>
-                </div>
-                <h3 id="loading-status" class="loading-text">Analyzing flavor profiles...</h3>
-                <div class="loading-progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-            </section>
-
-            <section id="result-view" class="result-view hidden">
-                <div class="result-controls">
-                    <button class="control-pill" id="btn-back"><i class="fa-solid fa-arrow-left"></i> Back</button>
-                    <div class="right-controls">
-                        <button class="control-pill action" id="btn-save-fav"><i class="fa-regular fa-heart"></i> Save</button>
-                        <button class="control-pill action" id="btn-download-pdf"><i class="fa-solid fa-download"></i> PDF</button>
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="app-logo">
+                    <span class="app-logo-icon">🍳</span>
+                    <div class="app-logo-text">
+                        <h1>Celestique AI</h1>
+                        <p class="app-tagline">Personal Recipe Generator</p>
                     </div>
                 </div>
+            </div>
+            <div class="header-center">
+                <div class="user-greeting" id="userGreeting">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="greetingText">Welcome back, Chef!</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="historyToggle" class="icon-btn" title="Recipe History">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button id="exportPDFBtn" class="icon-btn" title="Export to PDF" style="display: none;">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+                <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
 
-                <div id="recipe-container" class="recipe-layout">
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Recipe Display Area -->
+            <div class="recipe-display-section">
+                <div class="recipe-display-container">
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-state-icon">👨‍🍳</div>
+                        <h2 class="empty-state-title">Ready to create something delicious?</h2>
+                        <p class="empty-state-text">Describe what you'd like to cook, and I'll create a personalized recipe just for you.</p>
+                        <div class="empty-state-examples">
+                            <p>Try something like:</p>
+                            <ul>
+                                <li>"A hearty vegetarian lasagna for a cozy night in"</li>
+                                <li>"Quick and healthy lunch for work tomorrow"</li>
+                                <li>"Authentic Thai curry with ingredients I have on hand"</li>
+                            </ul>
+                        </div>
                     </div>
-            </section>
+                    
+                    <div class="recipe-container" id="recipeContainer" style="display: none;">
+                        <!-- Recipe will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
 
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="input-container">
+                    <div class="input-header">
+                        <h3><i class="fas fa-magic"></i> Describe your culinary vision</h3>
+                        <p>Be as specific or as creative as you like</p>
+                    </div>
+                    <div class="input-wrapper">
+                        <textarea id="recipePrompt" class="recipe-input" placeholder="e.g., A comforting chicken soup for a rainy day, or an impressive chocolate dessert for a dinner party..." rows="3"></textarea>
+                        <div class="input-actions">
+                            <div class="input-hints">
+                                <span class="hint-tag" data-hint="Quick breakfast">Quick breakfast</span>
+                                <span class="hint-tag" data-hint="Healthy dinner">Healthy dinner</span>
+                                <span class="hint-tag" data-hint="Comfort food">Comfort food</span>
+                                <span class="hint-tag" data-hint="Dessert">Dessert</span>
+                            </div>
+                            <button id="generateRecipeBtn" class="generate-btn">
+                                <i class="fas fa-sparkles"></i>
+                                <span>Generate Recipe</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
-        <footer class="glass-footer">
-            <div class="footer-content">
-                <p>Powered by <strong>Sooban Talha Technologies</strong></p>
-                <div class="footer-links">
-                    <a href="https://soobantalhatech.xyz" target="_blank">Official Website</a> • 
-                    <span>v4.0.0 World Edition</span>
+        <!-- History Drawer -->
+        <aside class="history-drawer" id="historyDrawer">
+            <div class="history-header">
+                <h3><i class="fas fa-history"></i> Your Recipe History</h3>
+                <button id="closeHistoryBtn" class="close-history-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="history-content" id="historyContent">
+                <!-- History items will be dynamically inserted here -->
+                <div class="empty-history">
+                    <i class="fas fa-utensils"></i>
+                    <p>Your recipe history will appear here</p>
                 </div>
             </div>
-        </footer>
-
+        </aside>
+        <div class="history-overlay" id="historyOverlay"></div>
     </div>
 
-    <div id="drawer-history" class="side-drawer">
-        <div class="drawer-header">
-            <h3>Culinary History</h3>
-            <button class="close-drawer-btn"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="drawer-content" id="history-list">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner-circle"></div>
+                <div class="spinner-circle"></div>
+                <div class="spinner-circle"></div>
             </div>
-    </div>
-
-    <div id="drawer-favorites" class="side-drawer">
-        <div class="drawer-header">
-            <h3>Your Favorites</h3>
-            <button class="close-drawer-btn"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="drawer-content" id="favorites-list">
+            <p class="loading-text">Crafting your personalized recipe...</p>
+            <div class="loading-hints">
+                <p><i class="fas fa-lightbulb"></i> Adding secret ingredients...</p>
+                <p><i class="fas fa-lightbulb"></i> Perfecting cooking times...</p>
+                <p><i class="fas fa-lightbulb"></i> Writing personalized notes...</p>
             </div>
+        </div>
     </div>
 
-    <div id="backdrop" class="backdrop"></div>
-
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="api/recipe.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>
