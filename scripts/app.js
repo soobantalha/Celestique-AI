@@ -1,246 +1,291 @@
 /**
- * CELESTIQUE AI - APPLICATION CONTROLLER
+ * CELESTIQUE AI v4.0 - ADVANCED CONTROLLER
  * Property of Sooban Talha Technologies
- * * Manages UI State, User Persistence, PDF Generation, and Logic Binding.
+ * * Features:
+ * - Robust Welcome Flow
+ * - Magazine-Style DOM Generation
+ * - Favorites & History Management
+ * - Toast Notification System
+ * - Theme Management
  */
 
 class CelestiqueApp {
     constructor() {
-        // State
+        // State Management
         this.user = {
-            name: localStorage.getItem('celestique_user_name') || null,
-            history: JSON.parse(localStorage.getItem('celestique_history') || '[]')
+            name: localStorage.getItem('celestique_name') || null,
+            history: JSON.parse(localStorage.getItem('celestique_history') || '[]'),
+            favorites: JSON.parse(localStorage.getItem('celestique_favorites') || '[]')
         };
         this.currentRecipe = null;
-        
-        // DOM Elements Map
-        this.ui = {
-            welcome: document.getElementById('welcome-overlay'),
-            inputGroup: document.getElementById('name-input-group'),
-            typingText: document.getElementById('welcome-message'),
-            root: document.getElementById('app-root'),
-            prompt: document.getElementById('recipe-prompt'),
-            generateBtn: document.getElementById('btn-generate'),
-            loader: document.getElementById('loader-state'),
-            loaderText: document.getElementById('loader-text'),
-            resultSection: document.getElementById('recipe-result'),
-            recipeContent: document.getElementById('recipe-content'),
+        this.isDark = localStorage.getItem('celestique_theme') !== 'light';
+
+        // DOM Map
+        this.dom = {
+            welcomeOverlay: document.getElementById('welcome-overlay'),
+            welcomeMsg: document.getElementById('welcome-message'),
+            inputWrapper: document.getElementById('name-input-wrapper'),
+            nameInput: document.getElementById('user-name-input'),
+            confirmNameBtn: document.getElementById('btn-confirm-name'),
+            appRoot: document.getElementById('app-root'),
             greeting: document.getElementById('dynamic-greeting'),
-            historyList: document.getElementById('history-list'),
-            drawer: document.getElementById('history-drawer'),
-            backdrop: document.getElementById('drawer-backdrop')
+            promptInput: document.getElementById('prompt-input'),
+            generateBtn: document.getElementById('btn-generate'),
+            processingView: document.getElementById('processing-view'),
+            resultView: document.getElementById('result-view'),
+            recipeContainer: document.getElementById('recipe-container'),
+            loadingBar: document.querySelector('.progress-fill'),
+            loadingStatus: document.getElementById('loading-status'),
+            drawers: {
+                history: document.getElementById('drawer-history'),
+                favorites: document.getElementById('drawer-favorites')
+            },
+            lists: {
+                history: document.getElementById('history-list'),
+                favorites: document.getElementById('favorites-list')
+            },
+            backdrop: document.getElementById('backdrop'),
+            toastContainer: document.getElementById('toast-container')
         };
 
         this.init();
     }
 
     init() {
-        this.checkWelcomeFlow();
-        this.setupEventListeners();
-        this.renderHistory();
-        
-        // Theme Check
-        if (localStorage.getItem('celestique_theme') === 'light') {
-            document.body.setAttribute('data-theme', 'light');
-        }
+        this.applyTheme();
+        this.checkWelcome();
+        this.setupListeners();
+        this.renderLists();
     }
 
-    // --- WELCOME FLOW ---
-    checkWelcomeFlow() {
+    // --- WELCOME FLOW (FIXED) ---
+    checkWelcome() {
         if (this.user.name) {
-            // User exists - skip welcome
-            this.ui.welcome.style.display = 'none';
-            this.ui.root.classList.remove('blur-bg');
+            this.dom.welcomeOverlay.classList.add('hidden');
+            this.dom.appRoot.classList.remove('blur-state');
             this.updateGreeting();
         } else {
-            // First time user - Typewriter effect
-            this.typewriter("Hello. Before we cook memories together... what should I call you?", this.ui.typingText, () => {
-                this.ui.inputGroup.classList.add('visible');
+            // Typing effect then show input
+            this.typewriter("Hello. Before we create magic... what is your name?", this.dom.welcomeMsg, () => {
+                this.dom.inputWrapper.classList.add('visible');
+                this.dom.nameInput.focus();
             });
         }
     }
 
-    saveUserName() {
-        const input = document.getElementById('user-name');
-        const name = input.value.trim();
+    saveName() {
+        const name = this.dom.nameInput.value.trim();
         if (name) {
             this.user.name = name;
-            localStorage.setItem('celestique_user_name', name);
+            localStorage.setItem('celestique_name', name);
             
-            // Fade out welcome
-            this.ui.welcome.classList.add('fade-out');
+            // Animation out
+            this.dom.welcomeOverlay.style.opacity = '0';
             setTimeout(() => {
-                this.ui.welcome.style.display = 'none';
-                this.ui.root.classList.remove('blur-bg');
+                this.dom.welcomeOverlay.classList.add('hidden');
+                this.dom.appRoot.classList.remove('blur-state');
                 this.updateGreeting();
-            }, 1000);
+                this.showToast(`Welcome, Chef ${name}`);
+            }, 800);
+        } else {
+            this.dom.nameInput.style.borderColor = 'var(--primary)';
+            setTimeout(() => this.dom.nameInput.style.borderColor = 'rgba(255,255,255,0.2)', 1000);
         }
     }
 
     updateGreeting() {
-        const hour = new Date().getHours();
-        let timeGreeting = "Hello";
-        if (hour < 12) timeGreeting = "Good Morning";
-        else if (hour < 18) timeGreeting = "Good Afternoon";
-        else timeGreeting = "Good Evening";
-
-        this.ui.greeting.innerText = `${timeGreeting}, Chef ${this.user.name}.`;
+        const h = new Date().getHours();
+        const time = h < 12 ? "Morning" : h < 18 ? "Afternoon" : "Evening";
+        this.dom.greeting.innerText = `Good ${time}, Chef ${this.user.name}.`;
     }
 
-    // --- RECIPE GENERATION ORCHESTRATION ---
+    // --- GENERATION LOGIC ---
     async handleGenerate() {
-        const prompt = this.ui.prompt.value.trim();
-        if (!prompt) return;
-
-        // UI State: Loading
-        this.ui.resultSection.classList.add('hidden');
-        this.ui.loader.classList.remove('hidden');
-        
-        // Cycle loading messages
-        const msgs = ["Gathering ingredients...", "Consulting culinary history...", "Balancing flavors...", "Plating your masterpiece..."];
-        let msgIdx = 0;
-        const msgInterval = setInterval(() => {
-            this.ui.loaderText.innerText = msgs[msgIdx % msgs.length];
-            msgIdx++;
-        }, 800);
-        
-        // Simulate Processing Time (for realism and weight)
-        await new Promise(r => setTimeout(r, 3000));
-        clearInterval(msgInterval);
-
-        // Use the Engine (from api/recipe.js)
-        // Defensive check
-        if (typeof window.CelestiqueEngine === 'undefined') {
-            alert("Engine Error: Reload page.");
+        const prompt = this.dom.promptInput.value.trim();
+        if (!prompt) {
+            this.showToast("Please describe a recipe first!", "error");
             return;
         }
 
+        // UI State: Loading
+        this.dom.resultView.classList.add('hidden');
+        this.dom.processingView.classList.remove('hidden');
+        this.dom.promptInput.value = ''; // clear
+        
+        // Progress Simulation
+        let width = 0;
+        const statusMsgs = ["Sourcing ingredients...", "Consulting culinary history...", "Balancing flavors...", "Plating dish..."];
+        const interval = setInterval(() => {
+            width += Math.random() * 15;
+            if (width > 100) width = 100;
+            this.dom.loadingBar.style.width = width + '%';
+            this.dom.loadingStatus.innerText = statusMsgs[Math.floor((width/100) * statusMsgs.length)] || "Finishing up...";
+        }, 300);
+
+        // Wait (Fake API delay)
+        await new Promise(r => setTimeout(r, 2500));
+        clearInterval(interval);
+
+        // Generate
+        if (!window.CelestiqueEngine) return alert("Engine Error");
         const recipe = window.CelestiqueEngine.generate(prompt, this.user.name);
         
-        // Save to History
+        // Save
         this.addToHistory(recipe);
         
         // Render
-        this.renderRecipe(recipe);
+        this.renderRecipePremium(recipe);
         
-        // UI State: Show Result
-        this.ui.loader.classList.add('hidden');
-        this.ui.resultSection.classList.remove('hidden');
+        // UI Switch
+        this.dom.processingView.classList.add('hidden');
+        this.dom.resultView.classList.remove('hidden');
+        this.dom.loadingBar.style.width = '0%';
         
-        // Smooth Scroll
-        this.ui.resultSection.scrollIntoView({ behavior: 'smooth' });
+        // Scroll to result
+        this.dom.resultView.scrollIntoView({ behavior: 'smooth' });
     }
 
-    renderRecipe(data) {
-        this.currentRecipe = data; // Store for PDF
+    // --- PREMIUM RENDERING (The Magazine Layout) ---
+    renderRecipePremium(data) {
+        this.currentRecipe = data;
         
-        // Helper for lists
-        const listHTML = (items, icon="check") => items.map(i => `<div class="ingredient-item"><i class="fa-solid fa-${icon}" style="color:var(--primary)"></i> ${i}</div>`).join('');
-        const stepHTML = (items) => items.map((step, i) => `<div class="step-item"><span class="step-num">Step ${i+1}:</span> ${step}</div>`).join('');
-        const cardHTML = (obj) => Object.entries(obj).map(([k, v]) => `<div class="info-card"><strong>${k}</strong>${v}</div>`).join('');
-
+        // Dynamic HTML Construction
         const html = `
-            <div class="recipe-header">
-                <h2 class="recipe-title-text">${data.title}</h2>
-                <p class="recipe-emotional-desc">"${data.intro}"</p>
-                <div class="recipe-meta-grid">
-                    <div class="meta-item"><i class="fa-solid fa-earth-americas"></i> ${data.cuisine}</div>
-                    <div class="meta-item"><i class="fa-regular fa-clock"></i> ${data.cookingTime}</div>
-                    <div class="meta-item"><i class="fa-solid fa-fire"></i> ${data.calories}</div>
-                    <div class="meta-item"><i class="fa-solid fa-layer-group"></i> ${data.difficulty}</div>
+            <div class="recipe-header-block">
+                <div class="meta-pill-container">
+                    <span class="meta-pill"><i class="fa-solid fa-earth-americas"></i> ${data.cuisine}</span>
+                    <span class="meta-pill"><i class="fa-solid fa-fire"></i> ${data.calories}</span>
+                    <span class="meta-pill"><i class="fa-regular fa-clock"></i> ${data.totalTime}</span>
+                </div>
+                <h1 class="recipe-super-title">${data.title}</h1>
+                <p class="recipe-quote">"${data.intro}"</p>
+            </div>
+
+            <div class="recipe-body-grid">
+                <div class="col-main">
+                    <div style="background:rgba(255,255,255,0.03); padding:2rem; border-radius:16px; margin-bottom:3rem; border-left:4px solid var(--primary);">
+                        <h3 class="section-head" style="margin-top:0; border:none; font-size:1.4rem;">Story & Origin</h3>
+                        <p style="color:var(--text-muted); line-height:1.8;">${data.story}</p>
+                    </div>
+
+                    <h3 class="section-head"><i class="fa-solid fa-list-ol"></i> Preparation Journey</h3>
+                    <div class="steps-container">
+                        ${data.steps.map((step, i) => `
+                            <div class="step-row">
+                                <div class="step-marker">${i+1}</div>
+                                <div class="step-content">
+                                    <h4>Step ${i+1}</h4>
+                                    <p>${step}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="pro-tips-box" style="margin-top:3rem; background: rgba(255, 107, 107, 0.08); border: 1px solid rgba(255, 107, 107, 0.2); padding: 2rem; border-radius: 16px;">
+                        <h4 style="color:var(--primary); margin-bottom:1rem;"><i class="fa-solid fa-lightbulb"></i> Chef's Secrets</h4>
+                        <ul style="padding-left:20px; color:var(--text-muted);">
+                            ${data.tips.map(t => `<li style="margin-bottom:8px;">${t}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-sidebar">
+                    <div class="ingredients-card">
+                        <h3 class="section-head"><i class="fa-solid fa-basket-shopping"></i> Ingredients</h3>
+                        <div class="ingredients-grid" style="grid-template-columns: 1fr;">
+                            ${data.ingredients.map(ing => `
+                                <div class="ingredient-check-item" onclick="this.classList.toggle('checked')">
+                                    <div class="custom-checkbox"><i class="fa-solid fa-check" style="font-size:10px; color:white;"></i></div>
+                                    <span>${ing}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p style="margin-top:1.5rem; font-size:0.9rem; color:var(--text-muted);">
+                            <strong>Substitutions:</strong> ${data.substitutions}
+                        </p>
+                    </div>
+
+                    <div style="margin-top:2rem;">
+                        <h3 class="section-head" style="font-size:1.4rem;">Nutrition</h3>
+                        <div class="nutrition-row">
+                            <div class="macro-circle">
+                                <div class="macro-val">${data.macros.protein}g</div>
+                                <div class="macro-label">Protein</div>
+                            </div>
+                            <div class="macro-circle">
+                                <div class="macro-val">${data.macros.carbs}g</div>
+                                <div class="macro-label">Carbs</div>
+                            </div>
+                            <div class="macro-circle">
+                                <div class="macro-val">${data.macros.fats}g</div>
+                                <div class="macro-label">Fats</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top:2rem; text-align:center; padding:1.5rem; border:1px solid var(--glass-border); border-radius:16px;">
+                        <div style="font-weight:bold; color:var(--primary);">Pairing Suggestion</div>
+                        <div style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;">${data.pairings}</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="recipe-body">
-                <div style="margin-bottom:2rem; padding:1.5rem; background:rgba(255,255,255,0.03); border-radius:12px;">
-                    <h3 class="recipe-section-title" style="margin-top:0"><i class="fa-solid fa-book-open"></i> Story & Origin</h3>
-                    <p>${data.story}</p>
-                </div>
-
-                <h3 class="recipe-section-title"><i class="fa-solid fa-chart-pie"></i> Nutritional Profile</h3>
-                <div class="info-grid">${cardHTML(data.macros)}</div>
-
-                <h3 class="recipe-section-title"><i class="fa-solid fa-basket-shopping"></i> Ingredients</h3>
-                <div class="ingredient-list">
-                    ${listHTML(data.ingredients)}
-                </div>
-                <p style="margin-top:10px; font-size:0.9rem; color:var(--text-muted)"><strong>Substitutions:</strong> ${data.substitutions.join(', ')}</p>
-
-                <h3 class="recipe-section-title"><i class="fa-solid fa-list-ol"></i> Preparation Method</h3>
-                <div class="step-list">
-                    ${stepHTML(data.steps)}
-                </div>
-
-                <div class="pro-tips-box">
-                    <h4 style="margin-bottom:10px; color:var(--primary)"><i class="fa-solid fa-lightbulb"></i> Chef's Secret Tips</h4>
-                    <ul>
-                        ${data.chefSecrets.map(tip => `<li style="margin-bottom:5px">${tip}</li>`).join('')}
-                    </ul>
-                </div>
-                
-                <h3 class="recipe-section-title"><i class="fa-solid fa-utensils"></i> Serving & Storage</h3>
-                <div class="info-grid">
-                    <div class="info-card"><strong>Pairing</strong>${data.pairings}</div>
-                    <div class="info-card"><strong>Storage</strong>${data.storage}</div>
-                </div>
-                
-                <div style="margin-top:3rem; text-align:center; font-style:italic; color:var(--text-muted); border-top:1px solid var(--border); padding-top:2rem;">
-                    "${data.finalMessage}"
-                </div>
+            <div style="text-align:center; margin-top:4rem; color:var(--text-muted); font-style:italic;">
+                "${data.finalMessage}"
             </div>
         `;
-
-        this.ui.recipeContent.innerHTML = html;
-        document.getElementById('result-actions').classList.remove('hidden');
+        
+        this.dom.recipeContainer.innerHTML = html;
     }
 
-    // --- PDF SYSTEM ---
+    // --- PDF GENERATION ---
     generatePDF() {
         if (!this.currentRecipe) return;
+        const r = this.currentRecipe;
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const r = this.currentRecipe;
-        let y = 20; // Vertical cursor
+        let y = 20;
 
-        // Branding Header
-        doc.setFillColor(255, 107, 107); // Brand Color
+        // Brand Header
+        doc.setFillColor(255, 107, 107);
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
-        doc.setFont("times", "bold");
         doc.setFontSize(24);
         doc.text("Celestique AI", 105, 25, null, null, "center");
         doc.setFontSize(10);
-        doc.text("Powered by Sooban Talha Technologies", 105, 35, null, null, "center");
+        doc.text("Sooban Talha Technologies", 105, 35, null, null, "center");
 
-        // Title & Intro
         y = 60;
+        // Title
         doc.setTextColor(0, 0, 0);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(20);
+        doc.setFontSize(22);
         doc.text(r.title, 20, y);
-        
         y += 10;
-        doc.setFont("helvetica", "italic");
+        
+        // Intro
         doc.setFontSize(11);
-        doc.setTextColor(100);
-        const splitIntro = doc.splitTextToSize(r.intro, 170);
-        doc.text(splitIntro, 20, y);
-        y += splitIntro.length * 5 + 10;
+        doc.setTextColor(80);
+        const intro = doc.splitTextToSize(r.intro, 170);
+        doc.text(intro, 20, y);
+        y += intro.length * 6 + 10;
 
-        // Meta Data Line
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(50);
-        doc.text(`Time: ${r.cookingTime}  |  Servings: ${r.servingSize}  |  Calories: ${r.calories}`, 20, y);
+        // Stats
+        doc.setDrawColor(200);
+        doc.line(20, y, 190, y);
+        y += 7;
+        doc.setFontSize(10);
+        doc.text(`Time: ${r.totalTime}  |  Cuisine: ${r.cuisine}  |  Calories: ${r.calories}`, 20, y);
+        y += 10;
+        doc.line(20, y, 190, y);
         y += 15;
 
         // Ingredients
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(0);
         doc.setFontSize(14);
+        doc.setTextColor(255, 107, 107);
         doc.text("Ingredients", 20, y);
         y += 8;
-        doc.setFont("helvetica", "normal");
         doc.setFontSize(11);
+        doc.setTextColor(0);
         r.ingredients.forEach(ing => {
             if (y > 270) { doc.addPage(); y = 20; }
             doc.text(`• ${ing}`, 25, y);
@@ -249,157 +294,132 @@ class CelestiqueApp {
 
         // Steps
         y += 10;
-        if (y > 260) { doc.addPage(); y = 20; }
-        doc.setFont("helvetica", "bold");
+        if (y > 250) { doc.addPage(); y = 20; }
         doc.setFontSize(14);
-        doc.text("Instructions", 20, y);
+        doc.setTextColor(255, 107, 107);
+        doc.text("Method", 20, y);
         y += 10;
-        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0);
         doc.setFontSize(11);
-        
         r.steps.forEach((step, i) => {
-            const stepText = `${i+1}. ${step}`;
-            const splitStep = doc.splitTextToSize(stepText, 170);
-            if (y + (splitStep.length * 6) > 280) { doc.addPage(); y = 20; }
-            doc.text(splitStep, 25, y);
-            y += (splitStep.length * 6) + 4;
+            const txt = `${i+1}. ${step}`;
+            const lines = doc.splitTextToSize(txt, 170);
+            if (y + (lines.length * 6) > 280) { doc.addPage(); y = 20; }
+            doc.text(lines, 25, y);
+            y += (lines.length * 6) + 4;
         });
 
-        // Chef Secrets
-        y += 10;
-        if (y > 260) { doc.addPage(); y = 20; }
-        doc.setDrawColor(255, 107, 107);
-        doc.setLineWidth(0.5);
-        doc.line(20, y, 190, y);
-        y += 10;
-        doc.setFont("helvetica", "bold");
-        doc.text("Chef's Secrets", 20, y);
-        y += 8;
-        doc.setFont("helvetica", "italic");
-        r.chefSecrets.forEach(tip => {
-            doc.text(`* ${tip}`, 25, y);
-            y += 6;
-        });
-
-        // Footer
-        doc.setFontSize(10);
-        doc.setTextColor(150);
-        doc.text("Generated by Celestique AI | soobantalhatech.xyz", 105, 290, null, null, "center");
-
-        // Save
-        doc.save(`${r.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+        doc.save(`Celestique_${r.title.substr(0, 10)}.pdf`);
+        this.showToast("PDF Downloaded successfully!");
     }
 
-    // --- HISTORY MANAGEMENT ---
-    addToHistory(recipe) {
-        // Add timestamp
-        recipe.timestamp = new Date().toLocaleString();
-        this.user.history.unshift(recipe);
-        if (this.user.history.length > 20) this.user.history.pop(); // Max 20
+    // --- DATA MANAGEMENT ---
+    addToHistory(item) {
+        this.user.history.unshift(item);
+        if (this.user.history.length > 20) this.user.history.pop();
         localStorage.setItem('celestique_history', JSON.stringify(this.user.history));
-        this.renderHistory();
+        this.renderLists();
     }
 
-    renderHistory() {
-        this.ui.historyList.innerHTML = '';
-        if (this.user.history.length === 0) {
-            this.ui.historyList.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center; color:var(--text-muted)">No recipes yet.</div>';
-            return;
-        }
+    addToFavorites() {
+        if (!this.currentRecipe) return;
+        this.user.favorites.unshift(this.currentRecipe);
+        localStorage.setItem('celestique_favorites', JSON.stringify(this.user.favorites));
+        this.renderLists();
+        this.showToast("Saved to Favorites", "success");
+    }
 
-        this.user.history.forEach(item => {
-            const el = document.createElement('div');
-            el.className = 'history-card';
-            el.innerHTML = `
-                <div style="font-weight:bold; color:var(--primary); margin-bottom:4px;">${item.title}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted)">${item.cuisine} • ${item.cookingTime}</div>
-                <div style="font-size:0.65rem; color:var(--text-muted); opacity:0.7; margin-top:4px;">${item.timestamp}</div>
-            `;
-            el.onclick = () => {
-                this.renderRecipe(item);
-                this.closeDrawer();
-                this.ui.resultSection.classList.remove('hidden');
-                this.ui.resultSection.scrollIntoView();
-            };
-            this.ui.historyList.appendChild(el);
+    renderLists() {
+        const render = (list, container) => {
+            container.innerHTML = '';
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:2rem;">Nothing here yet.</div>';
+                return;
+            }
+            list.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'history-item';
+                el.innerHTML = `
+                    <div style="font-weight:bold; color:var(--primary)">${item.title}</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted)">${item.cuisine}</div>
+                `;
+                el.onclick = () => {
+                    this.renderRecipePremium(item);
+                    this.closeDrawers();
+                    this.dom.resultView.classList.remove('hidden');
+                    this.dom.processingView.classList.add('hidden');
+                    this.dom.resultView.scrollIntoView();
+                };
+                container.appendChild(el);
+            });
+        };
+        render(this.user.history, this.dom.lists.history);
+        render(this.user.favorites, this.dom.lists.favorites);
+    }
+
+    // --- UTILS ---
+    showToast(msg, type='info') {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fa-solid fa-bell"></i> ${msg}`;
+        this.dom.toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    applyTheme() {
+        if (this.isDark) document.body.removeAttribute('data-theme');
+        else document.body.setAttribute('data-theme', 'light');
+    }
+
+    typewriter(text, el, cb) {
+        let i = 0; el.innerText = '';
+        const t = setInterval(() => {
+            el.innerText += text.charAt(i); i++;
+            if (i >= text.length) { clearInterval(t); if(cb) cb(); }
+        }, 35);
+    }
+
+    closeDrawers() {
+        Object.values(this.dom.drawers).forEach(d => d.classList.remove('open'));
+        this.dom.backdrop.classList.remove('active');
+    }
+
+    setupListeners() {
+        this.dom.confirmNameBtn.addEventListener('click', () => this.saveName());
+        this.dom.nameInput.addEventListener('keypress', e => { if(e.key === 'Enter') this.saveName(); });
+        this.dom.generateBtn.addEventListener('click', () => this.handleGenerate());
+        document.getElementById('btn-back').addEventListener('click', () => {
+            this.dom.resultView.classList.add('hidden');
+            window.scrollTo({top:0, behavior:'smooth'});
         });
-    }
-
-    // --- UTILS & EVENT BINDING ---
-    setupEventListeners() {
-        // Start Journey
-        document.getElementById('btn-start-journey').addEventListener('click', () => this.saveUserName());
+        document.getElementById('btn-download-pdf').addEventListener('click', () => this.generatePDF());
+        document.getElementById('btn-save-fav').addEventListener('click', () => this.addToFavorites());
         
-        // Enter key on input
-        document.getElementById('user-name').addEventListener('keydown', (e) => {
-            if(e.key === 'Enter') this.saveUserName();
-        });
-
-        // Generate
-        this.ui.generateBtn.addEventListener('click', () => this.handleGenerate());
-
-        // Quick Chips
-        document.querySelectorAll('.chip').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.ui.prompt.value = e.target.dataset.prompt;
+        // Chips
+        document.querySelectorAll('.chip').forEach(c => {
+            c.addEventListener('click', () => {
+                this.dom.promptInput.value = c.dataset.val;
                 this.handleGenerate();
             });
         });
 
-        // PDF & Reset
-        document.getElementById('btn-download-pdf').addEventListener('click', () => this.generatePDF());
-        document.getElementById('btn-reset').addEventListener('click', () => {
-            this.ui.resultSection.classList.add('hidden');
-            this.ui.prompt.value = '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Drawer Logic
-        const toggleDrawer = () => {
-            this.ui.drawer.classList.add('open');
-            this.ui.backdrop.classList.add('active');
+        // Drawers
+        const toggle = (id) => {
+            this.dom.drawers[id].classList.add('open');
+            this.dom.backdrop.classList.add('active');
         };
-        document.getElementById('btn-history-toggle').addEventListener('click', toggleDrawer);
-        document.getElementById('btn-close-drawer').addEventListener('click', () => this.closeDrawer());
-        this.ui.backdrop.addEventListener('click', () => this.closeDrawer());
-
-        // Theme Toggle
-        document.getElementById('btn-theme-toggle').addEventListener('click', () => {
-            const body = document.body;
-            if (body.hasAttribute('data-theme')) {
-                body.removeAttribute('data-theme');
-                localStorage.setItem('celestique_theme', 'dark');
-            } else {
-                body.setAttribute('data-theme', 'light');
-                localStorage.setItem('celestique_theme', 'light');
-            }
-        });
-    }
-
-    closeDrawer() {
-        this.ui.drawer.classList.remove('open');
-        this.ui.backdrop.classList.remove('active');
-    }
-
-    typewriter(text, element, callback) {
-        let i = 0;
-        element.innerHTML = '';
-        const speed = 40; 
+        document.getElementById('btn-history').addEventListener('click', () => toggle('history'));
+        document.getElementById('btn-favorites').addEventListener('click', () => toggle('favorites'));
+        document.querySelectorAll('.close-drawer-btn').forEach(b => b.addEventListener('click', () => this.closeDrawers()));
+        this.dom.backdrop.addEventListener('click', () => this.closeDrawers());
         
-        const type = () => {
-            if (i < text.length) {
-                element.innerHTML += text.charAt(i);
-                i++;
-                setTimeout(type, speed);
-            } else {
-                if (callback) callback();
-            }
-        };
-        type();
+        // Theme
+        document.getElementById('btn-theme').addEventListener('click', () => {
+            this.isDark = !this.isDark;
+            localStorage.setItem('celestique_theme', this.isDark ? 'dark' : 'light');
+            this.applyTheme();
+        });
     }
 }
 
-// Initialize Application
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new CelestiqueApp();
-});
+document.addEventListener('DOMContentLoaded', () => { window.app = new CelestiqueApp(); });

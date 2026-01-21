@@ -3,138 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Celestique AI | World's Most Advanced Recipe Generator</title>
+    <title>Celestique AI | The Future of Culinary Intelligence</title>
     
     <meta name="author" content="Sooban Talha Technologies">
     <meta name="description" content="Celestique AI: The world's most beautiful and intelligent personal chef. Created by Sooban Talha Technologies.">
-    <meta name="keywords" content="AI, Recipe, Cooking, Personal Chef, Sooban Talha, Food Tech">
-    <meta property="og:title" content="Celestique AI - Personal Culinary Intelligence">
-    <meta property="og:description" content="Experience the future of cooking with Sooban Talha Technologies.">
     <meta name="theme-color" content="#FF6B6B">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
 
+    <div id="toast-container" class="toast-container"></div>
+
     <div id="welcome-overlay" class="welcome-overlay">
-        <div class="welcome-container">
-            <div class="logo-animation">
-                <i class="fa-solid fa-sparkles"></i>
+        <div class="welcome-content">
+            <div class="brand-mark-large">
+                <i class="fa-solid fa-sparkles fa-beat-fade"></i>
             </div>
             <h1 class="welcome-title">Celestique AI</h1>
-            <p class="welcome-subtitle">A culinary masterpiece by Sooban Talha Technologies</p>
+            <p class="welcome-subtitle">Culinary Intelligence by Sooban Talha Technologies</p>
             
-            <div class="welcome-interaction">
-                <p class="typing-text" id="welcome-message">Hello. Before we cook memories together...</p>
-                <div class="input-group hidden" id="name-input-group">
-                    <label for="user-name">What should I call you?</label>
-                    <input type="text" id="user-name" placeholder="Enter your name..." autocomplete="off">
-                    <button id="btn-start-journey" class="btn-primary">
-                        <span>Begin Journey</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
+            <div class="interaction-zone">
+                <div class="typing-container">
+                    <p id="welcome-message" class="typing-text"></p>
+                    <span class="cursor">|</span>
+                </div>
+
+                <div class="input-wrapper" id="name-input-wrapper">
+                    <div class="glass-input-box">
+                        <input type="text" id="user-name-input" placeholder="Type your name..." autocomplete="off">
+                        <button id="btn-confirm-name" class="btn-icon-circle">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="welcome-background"></div>
+        <div class="ambient-background">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
     </div>
 
-    <div id="app-root" class="app-root blur-bg">
+    <div id="app-root" class="app-root blur-state">
         
-        <header class="app-header">
-            <div class="brand-identity">
-                <div class="brand-logo">
+        <nav class="glass-nav">
+            <div class="nav-brand">
+                <div class="nav-logo">
                     <i class="fa-solid fa-fire-burner"></i>
                 </div>
-                <div class="brand-details">
-                    <span class="brand-name">Celestique AI</span>
-                    <span class="brand-credit">by Sooban Talha Technologies</span>
+                <div class="nav-info">
+                    <span class="nav-title">Celestique</span>
+                    <span class="nav-credit">Sooban Talha Tech</span>
                 </div>
             </div>
-            
-            <div class="header-actions">
-                <button id="btn-history-toggle" class="btn-icon" title="Recipe History">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
+            <div class="nav-controls">
+                <button class="nav-btn" id="btn-history" aria-label="History">
+                    <i class="fa-solid fa-book-open"></i>
                 </button>
-                <button id="btn-theme-toggle" class="btn-icon" title="Toggle Theme">
-                    <i class="fa-solid fa-moon"></i>
+                <button class="nav-btn" id="btn-favorites" aria-label="Favorites">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+                <button class="nav-btn theme-toggle" id="btn-theme" aria-label="Toggle Theme">
+                    <div class="theme-icon-sun"><i class="fa-solid fa-sun"></i></div>
+                    <div class="theme-icon-moon"><i class="fa-solid fa-moon"></i></div>
                 </button>
             </div>
-        </header>
+        </nav>
 
-        <main class="app-content">
+        <main class="main-content">
             
-            <section class="greeting-section">
-                <h2 id="dynamic-greeting">Welcome back, Chef.</h2>
-                <p class="greeting-sub">The kitchen is yours. What masterpiece shall we create today?</p>
+            <section class="hero-section">
+                <div class="greeting-wrapper">
+                    <h2 id="dynamic-greeting" class="hero-title">Welcome back, Chef.</h2>
+                    <p class="hero-subtitle">The kitchen is yours. Let's create something extraordinary.</p>
+                </div>
             </section>
 
-            <section class="input-section">
-                <div class="search-container glass-panel">
-                    <div class="search-icon">
+            <section class="search-section">
+                <div class="search-glass-card">
+                    <div class="search-icon-wrapper">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
-                    <textarea id="recipe-prompt" placeholder="Describe your craving (e.g., 'A spicy pasta for a rainy night' or 'High protein vegan breakfast')..." rows="1"></textarea>
-                    <button id="btn-generate" class="btn-generate">
-                        <i class="fa-solid fa-paper-plane"></i>
+                    <textarea 
+                        id="prompt-input" 
+                        class="smart-textarea" 
+                        placeholder="What are you craving? (e.g., 'A spicy, high-protein pasta for a rainy evening')"
+                        rows="1"
+                    ></textarea>
+                    <button id="btn-generate" class="generate-btn">
+                        <span class="btn-text">Create</span>
+                        <div class="btn-shine"></div>
                     </button>
                 </div>
-                
-                <div class="quick-chips">
-                    <button class="chip" data-prompt="Healthy 15-minute avocado breakfast">🥑 Healthy Breakfast</button>
-                    <button class="chip" data-prompt="Romantic Italian truffle pasta dinner">🍝 Date Night</button>
-                    <button class="chip" data-prompt="High protein grilled chicken salad post-workout">💪 High Protein</button>
-                    <button class="chip" data-prompt="Decadent molten chocolate lava cake">🍫 Dessert</button>
+
+                <div class="suggestion-chips">
+                    <button class="chip" data-val="Healthy 15-minute Avocado Toast">🥑 Healthy Breakfast</button>
+                    <button class="chip" data-val="Authentic Italian Truffle Carbonara">🍝 Date Night</button>
+                    <button class="chip" data-val="Spicy Grilled Chicken Salad">🥗 High Protein</button>
+                    <button class="chip" data-val="Decadent Molten Lava Cake">🍫 Dessert</button>
+                    <button class="chip" data-val="Vegan Buddha Bowl">🌱 Vegan</button>
                 </div>
             </section>
 
-            <div id="loader-state" class="loader-container hidden">
-                <div class="cooking-loader">
-                    <div class="pan"></div>
-                    <div class="food"></div>
+            <section id="processing-view" class="processing-view hidden">
+                <div class="culinary-loader">
+                    <div class="loader-circle"></div>
+                    <div class="loader-icon"><i class="fa-solid fa-utensils"></i></div>
                 </div>
-                <p id="loader-text">Consulting Michelin Chefs...</p>
-            </div>
+                <h3 id="loading-status" class="loading-text">Analyzing flavor profiles...</h3>
+                <div class="loading-progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </section>
 
-            <section id="recipe-result" class="recipe-result hidden">
-                <div id="recipe-content" class="recipe-card glass-panel">
+            <section id="result-view" class="result-view hidden">
+                <div class="result-controls">
+                    <button class="control-pill" id="btn-back"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <div class="right-controls">
+                        <button class="control-pill action" id="btn-save-fav"><i class="fa-regular fa-heart"></i> Save</button>
+                        <button class="control-pill action" id="btn-download-pdf"><i class="fa-solid fa-download"></i> PDF</button>
                     </div>
-
-                <div class="result-actions hidden" id="result-actions">
-                    <button id="btn-download-pdf" class="btn-secondary">
-                        <i class="fa-solid fa-file-pdf"></i> Download PDF
-                    </button>
-                    <button id="btn-reset" class="btn-secondary">
-                        <i class="fa-solid fa-rotate-right"></i> Create Another
-                    </button>
                 </div>
+
+                <div id="recipe-container" class="recipe-layout">
+                    </div>
             </section>
 
         </main>
 
-        <footer class="app-footer">
-            <p>&copy; 2026 Celestique AI. Engineered with ❤️ by <a href="https://soobantalhatech.xyz" target="_blank">Sooban Talha Technologies</a>.</p>
+        <footer class="glass-footer">
+            <div class="footer-content">
+                <p>Powered by <strong>Sooban Talha Technologies</strong></p>
+                <div class="footer-links">
+                    <a href="https://soobantalhatech.xyz" target="_blank">Official Website</a> • 
+                    <span>v4.0.0 World Edition</span>
+                </div>
+            </div>
         </footer>
 
     </div>
 
-    <div id="history-drawer" class="history-drawer">
+    <div id="drawer-history" class="side-drawer">
         <div class="drawer-header">
-            <h3>Your Cookbook</h3>
-            <button id="btn-close-drawer" class="btn-icon-small"><i class="fa-solid fa-xmark"></i></button>
+            <h3>Culinary History</h3>
+            <button class="close-drawer-btn"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="history-list" class="history-list">
-            <div class="empty-state">No recipes cooked yet.</div>
-        </div>
+        <div class="drawer-content" id="history-list">
+            </div>
     </div>
-    <div id="drawer-backdrop" class="drawer-backdrop"></div>
+
+    <div id="drawer-favorites" class="side-drawer">
+        <div class="drawer-header">
+            <h3>Your Favorites</h3>
+            <button class="close-drawer-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-content" id="favorites-list">
+            </div>
+    </div>
+
+    <div id="backdrop" class="backdrop"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
-    <script src="api/recipe.js"></script> <script src="scripts/app.js"></script>   </body>
+    <script src="api/recipe.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
 </html>
