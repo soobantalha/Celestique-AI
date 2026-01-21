@@ -3,97 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Celestique AI | World's Best Recipe Generator</title>
+    <title>Celestique AI | World's Most Advanced Recipe Generator</title>
     
     <meta name="author" content="Sooban Talha Technologies">
-    <meta name="description" content="AI Recipe Generator for the World. Created by Sooban Talha Technologies.">
-    <meta name="theme-color" content="#ff6b6b">
+    <meta name="description" content="Celestique AI: The world's most beautiful and intelligent personal chef. Created by Sooban Talha Technologies.">
+    <meta name="keywords" content="AI, Recipe, Cooking, Personal Chef, Sooban Talha, Food Tech">
+    <meta property="og:title" content="Celestique AI - Personal Culinary Intelligence">
+    <meta property="og:description" content="Experience the future of cooking with Sooban Talha Technologies.">
+    <meta name="theme-color" content="#FF6B6B">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
 
-    <div id="welcomeOverlay" class="welcome-overlay">
-        <div class="welcome-card">
-            <div class="logo-animate">
-                <i class="fa-solid fa-utensils"></i>
+    <div id="welcome-overlay" class="welcome-overlay">
+        <div class="welcome-container">
+            <div class="logo-animation">
+                <i class="fa-solid fa-sparkles"></i>
             </div>
-            <h1 class="script-font">Welcome to Celestique</h1>
-            <p>A culinary journey by Sooban Talha Technologies.</p>
-            <p class="sub-text">Before we begin, what should we call you?</p>
+            <h1 class="welcome-title">Celestique AI</h1>
+            <p class="welcome-subtitle">A culinary masterpiece by Sooban Talha Technologies</p>
             
-            <input type="text" id="nameInput" placeholder="Enter your name..." autocomplete="off">
-            <button id="startJourneyBtn" class="pulse-btn">Start Cooking <i class="fa-solid fa-arrow-right"></i></button>
-        </div>
-    </div>
-
-    <div id="appContainer" class="app-container blur-load">
-        
-        <header class="mobile-header">
-            <div class="brand">
-                <i class="fa-solid fa-fire-burner brand-icon"></i>
-                <div class="brand-text">
-                    <h2>Celestique AI</h2>
-                    <span>by Sooban Talha Technologies</span>
-                </div>
-            </div>
-            <button id="historyToggleBtn" class="icon-btn"><i class="fa-solid fa-clock-rotate-left"></i></button>
-        </header>
-
-        <main>
-            <div class="greeting-section">
-                <h3 id="userGreeting">Hello, Chef! 👋</h3>
-                <p>What are you craving today?</p>
-            </div>
-
-            <div class="search-box-wrapper">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <textarea id="recipePrompt" placeholder="e.g., Spicy Chicken Biryani or Vegan Pasta..." rows="1"></textarea>
-                    <button id="generateBtn" class="send-btn">
-                        <i class="fa-solid fa-paper-plane"></i>
+            <div class="welcome-interaction">
+                <p class="typing-text" id="welcome-message">Hello. Before we cook memories together...</p>
+                <div class="input-group hidden" id="name-input-group">
+                    <label for="user-name">What should I call you?</label>
+                    <input type="text" id="user-name" placeholder="Enter your name..." autocomplete="off">
+                    <button id="btn-start-journey" class="btn-primary">
+                        <span>Begin Journey</span>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
+        </div>
+        <div class="welcome-background"></div>
+    </div>
 
-            <div id="responseArea" class="response-area hidden">
-                <div class="loading-animation hidden" id="loader">
-                    <div class="skillet">
-                        <div class="food-jump">🥘</div>
-                    </div>
-                    <p>Cooking up your recipe...</p>
+    <div id="app-root" class="app-root blur-bg">
+        
+        <header class="app-header">
+            <div class="brand-identity">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-fire-burner"></i>
                 </div>
-
-                <div id="recipeCard" class="recipe-card hidden">
-                    <div id="typewriterTarget"></div>
-                    
-                    <div class="action-buttons">
-                        <button onclick="downloadPDF()" class="action-btn pdf-btn">
-                            <i class="fa-solid fa-file-pdf"></i> Download PDF
-                        </button>
-                        <button onclick="resetApp()" class="action-btn new-btn">
-                            <i class="fa-solid fa-rotate-right"></i> New Recipe
-                        </button>
-                    </div>
+                <div class="brand-details">
+                    <span class="brand-name">Celestique AI</span>
+                    <span class="brand-credit">by Sooban Talha Technologies</span>
                 </div>
             </div>
+            
+            <div class="header-actions">
+                <button id="btn-history-toggle" class="btn-icon" title="Recipe History">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
+                <button id="btn-theme-toggle" class="btn-icon" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="app-content">
+            
+            <section class="greeting-section">
+                <h2 id="dynamic-greeting">Welcome back, Chef.</h2>
+                <p class="greeting-sub">The kitchen is yours. What masterpiece shall we create today?</p>
+            </section>
+
+            <section class="input-section">
+                <div class="search-container glass-panel">
+                    <div class="search-icon">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <textarea id="recipe-prompt" placeholder="Describe your craving (e.g., 'A spicy pasta for a rainy night' or 'High protein vegan breakfast')..." rows="1"></textarea>
+                    <button id="btn-generate" class="btn-generate">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="quick-chips">
+                    <button class="chip" data-prompt="Healthy 15-minute avocado breakfast">🥑 Healthy Breakfast</button>
+                    <button class="chip" data-prompt="Romantic Italian truffle pasta dinner">🍝 Date Night</button>
+                    <button class="chip" data-prompt="High protein grilled chicken salad post-workout">💪 High Protein</button>
+                    <button class="chip" data-prompt="Decadent molten chocolate lava cake">🍫 Dessert</button>
+                </div>
+            </section>
+
+            <div id="loader-state" class="loader-container hidden">
+                <div class="cooking-loader">
+                    <div class="pan"></div>
+                    <div class="food"></div>
+                </div>
+                <p id="loader-text">Consulting Michelin Chefs...</p>
+            </div>
+
+            <section id="recipe-result" class="recipe-result hidden">
+                <div id="recipe-content" class="recipe-card glass-panel">
+                    </div>
+
+                <div class="result-actions hidden" id="result-actions">
+                    <button id="btn-download-pdf" class="btn-secondary">
+                        <i class="fa-solid fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button id="btn-reset" class="btn-secondary">
+                        <i class="fa-solid fa-rotate-right"></i> Create Another
+                    </button>
+                </div>
+            </section>
+
         </main>
 
-        <div id="historyDrawer" class="history-drawer">
-            <div class="drawer-header">
-                <h3>Your Cookbook</h3>
-                <button id="closeDrawer" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div id="historyList" class="history-list">
-                </div>
-        </div>
+        <footer class="app-footer">
+            <p>&copy; 2026 Celestique AI. Engineered with ❤️ by <a href="https://soobantalhatech.xyz" target="_blank">Sooban Talha Technologies</a>.</p>
+        </footer>
 
     </div>
 
+    <div id="history-drawer" class="history-drawer">
+        <div class="drawer-header">
+            <h3>Your Cookbook</h3>
+            <button id="btn-close-drawer" class="btn-icon-small"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="history-list" class="history-list">
+            <div class="empty-state">No recipes cooked yet.</div>
+        </div>
+    </div>
+    <div id="drawer-backdrop" class="drawer-backdrop"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="scripts/app.js"></script>
-</body>
+    
+    <script src="api/recipe.js"></script> <script src="scripts/app.js"></script>   </body>
 </html>
