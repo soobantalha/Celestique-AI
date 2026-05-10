@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celestique AI v2.0 — The World's Most Advanced Recipe Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-light:#E8C97A;--gold-dark:#8B6914;
+  --cream:#FBF7F0;--cream-dark:#F0E8D8;
+  --ink:#0D0A06;--ink-mid:#2A2015;--ink-soft:#4A3D28;
+  --ember:#D4541A;--ember-light:#F07040;
+  --sage:#4A6741;--sage-light:#7A9B6E;
+  --font-display:'Cormorant Garamond',serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-impact:'Bebas Neue',sans-serif;
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:var(--font-body);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* CUSTOM CURSOR */
+.cursor{
+  position:fixed;width:8px;height:8px;
+  background:var(--gold);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform 0.1s,background 0.2s;
+  mix-blend-mode:difference;
+}
+.cursor-ring{
+  position:fixed;width:36px;height:36px;
+  border:1px solid rgba(201,168,76,0.5);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:all 0.15s ease;
+}
+
+/* NOISE OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:1;opacity:0.4;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:1.5rem 3rem;
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(to bottom,rgba(13,10,6,0.9),transparent);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:0.8rem;
+  font-family:var(--font-display);font-size:1.5rem;font-weight:600;
+  color:var(--gold-light);letter-spacing:0.02em;
+}
+.nav-logo-icon{font-size:1.8rem}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{
+  font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(251,247,240,0.65);text-decoration:none;
+  transition:color 0.3s;
+}
+.nav-links a:hover{color:var(--gold-light)}
+.nav-cta{
+  padding:0.6rem 1.6rem;
+  border:1px solid var(--gold);border-radius:2px;
+  background:transparent;color:var(--gold);
+  font-family:var(--font-body);font-size:0.82rem;font-weight:500;
+  letter-spacing:0.1em;text-transform:uppercase;
+  cursor:none;text-decoration:none;
+  transition:all 0.3s;
+}
+.nav-cta:hover{background:var(--gold);color:var(--ink)}
+
+/* HERO */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 120% 80% at 50% 60%,#1A1208 0%,var(--ink) 70%);
+}
+.hero-particles{position:absolute;inset:0;overflow:hidden}
+.particle{
+  position:absolute;border-radius:50%;
+  animation:drift linear infinite;opacity:0;
+}
+.hero-content{
+  position:relative;z-index:10;
+  text-align:center;max-width:1100px;padding:0 2rem;
+  padding-top:6rem;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.4rem 1.2rem;
+  border:1px solid rgba(201,168,76,0.35);
+  border-radius:100px;background:rgba(201,168,76,0.07);
+  font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--gold-light);margin-bottom:2.5rem;
+  animation:fadeInDown 1s ease 0.3s both;
+}
+.hero-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold);
+  animation:pulse 2s ease infinite;
+}
+.hero-title{
+  font-family:var(--font-display);
+  font-size:clamp(3.5rem,8vw,9rem);
+  font-weight:300;line-height:0.92;
+  letter-spacing:-0.01em;
+  color:var(--cream);
+  margin-bottom:1rem;
+  animation:fadeInUp 1.2s ease 0.5s both;
+}
+.hero-title span{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-version{
+  font-family:var(--font-impact);
+  font-size:clamp(1rem,2vw,1.5rem);
+  letter-spacing:0.5em;
+  color:var(--ember-light);
+  margin-bottom:2.5rem;
+  animation:fadeInUp 1.2s ease 0.7s both;
+}
+.hero-subtitle{
+  font-size:clamp(1rem,1.8vw,1.25rem);
+  font-weight:300;line-height:1.7;
+  color:rgba(251,247,240,0.65);
+  max-width:680px;margin:0 auto 3.5rem;
+  animation:fadeInUp 1.2s ease 0.9s both;
+}
+.hero-actions{
+  display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;
+  animation:fadeInUp 1.2s ease 1.1s both;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:0.7rem;
+  padding:1rem 2.5rem;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold-dark) 100%);
+  color:var(--ink);font-weight:600;font-size:0.95rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  border-radius:3px;text-decoration:none;
+  transition:all 0.35s;cursor:none;
+  box-shadow:0 8px 32px rgba(201,168,76,0.25);
+}
+.btn-primary:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 40px rgba(201,168,76,0.35);
+}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:0.7rem;
+  padding:1rem 2.5rem;
+  background:transparent;
+  color:var(--cream);font-weight:400;font-size:0.95rem;
+  letter-spacing:0.06em;
+  border:1px solid rgba(251,247,240,0.2);border-radius:3px;
+  text-decoration:none;transition:all 0.35s;cursor:none;
+}
+.btn-secondary:hover{
+  border-color:rgba(251,247,240,0.5);
+  background:rgba(251,247,240,0.05);
+}
+.hero-scroll{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  animation:fadeIn 2s ease 2s both;
+}
+.hero-scroll span{
+  font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(251,247,240,0.4);
+}
+.scroll-line{
+  width:1px;height:50px;
+  background:linear-gradient(to bottom,var(--gold),transparent);
+  animation:scrollDrop 2s ease infinite;
+}
+
+/* FLOATING FOOD ELEMENTS */
+.food-float{
+  position:absolute;font-size:2.5rem;
+  animation:floatFood linear infinite;
+  opacity:0;pointer-events:none;
+}
+
+/* STATS BAR */
+.stats-bar{
+  position:relative;z-index:10;
+  background:rgba(201,168,76,0.06);
+  border-top:1px solid rgba(201,168,76,0.12);
+  border-bottom:1px solid rgba(201,168,76,0.12);
+  padding:2rem 3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+}
+.stat-item{
+  text-align:center;padding:0 1rem;
+  border-right:1px solid rgba(201,168,76,0.12);
+}
+.stat-item:last-child{border-right:none}
+.stat-number{
+  font-family:var(--font-display);font-size:2.8rem;font-weight:700;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1;margin-bottom:0.4rem;
+}
+.stat-label{
+  font-size:0.78rem;letter-spacing:0.12em;
+  text-transform:uppercase;color:rgba(251,247,240,0.45);
+}
+
+/* SECTIONS */
+section{position:relative;padding:8rem 3rem}
+.section-label{
+  font-size:0.72rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:1rem;
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(2.5rem,5vw,5rem);
+  font-weight:300;line-height:1.05;
+  color:var(--cream);margin-bottom:1.5rem;
+}
+.section-title em{font-style:italic;color:var(--gold-light)}
+.section-body{
+  font-size:1.05rem;font-weight:300;line-height:1.8;
+  color:rgba(251,247,240,0.6);max-width:560px;
+}
+
+/* PHILOSOPHY SECTION */
+.philosophy{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:6rem;align-items:center;
+  max-width:1300px;margin:0 auto;
+}
+.philosophy-visual{
+  position:relative;height:600px;
+}
+.philosophy-orb{
+  position:absolute;border-radius:50%;
+  filter:blur(60px);animation:orbFloat ease-in-out infinite alternate;
+}
+.orb-1{
+  width:300px;height:300px;top:0;left:0;
+  background:radial-gradient(circle,rgba(201,168,76,0.2),transparent 70%);
+  animation-duration:6s;
+}
+.orb-2{
+  width:250px;height:250px;bottom:50px;right:50px;
+  background:radial-gradient(circle,rgba(212,84,26,0.15),transparent 70%);
+  animation-duration:8s;animation-delay:-3s;
+}
+.orb-3{
+  width:200px;height:200px;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(74,103,65,0.18),transparent 70%);
+  animation-duration:10s;animation-delay:-5s;
+}
+.philosophy-card{
+  position:absolute;
+  background:rgba(251,247,240,0.04);
+  border:1px solid rgba(201,168,76,0.15);
+  border-radius:12px;padding:1.5rem;
+  backdrop-filter:blur(20px);
+  transition:transform 0.3s;
+}
+.philosophy-card:hover{transform:scale(1.03)}
+.p-card-1{top:10%;left:0;width:260px}
+.p-card-2{bottom:15%;right:0;width:240px}
+.p-card-3{top:50%;left:50%;transform:translate(-40%,-50%);width:220px}
+.p-card-emoji{font-size:2rem;margin-bottom:0.5rem}
+.p-card-title{
+  font-family:var(--font-display);font-size:1.1rem;font-weight:600;
+  color:var(--gold-light);margin-bottom:0.3rem;
+}
+.p-card-text{font-size:0.82rem;line-height:1.5;color:rgba(251,247,240,0.5)}
+
+/* FEATURES GRID */
+.features{background:#0A0804}
+.features-inner{max-width:1300px;margin:0 auto}
+.features-header{text-align:center;margin-bottom:5rem}
+.features-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;
+}
+.feature-card{
+  padding:2.5rem;
+  border:1px solid rgba(201,168,76,0.1);
+  border-radius:8px;
+  background:linear-gradient(135deg,rgba(201,168,76,0.04),transparent);
+  position:relative;overflow:hidden;
+  transition:all 0.4s;
+  cursor:none;
+}
+.feature-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(201,168,76,0.06),transparent);
+  opacity:0;transition:opacity 0.4s;
+}
+.feature-card:hover{
+  border-color:rgba(201,168,76,0.3);
+  transform:translateY(-4px);
+}
+.feature-card:hover::before{opacity:1}
+.feature-card.large{grid-column:span 2}
+.feature-icon{font-size:2.5rem;margin-bottom:1.5rem}
+.feature-title{
+  font-family:var(--font-display);font-size:1.4rem;font-weight:600;
+  color:var(--cream);margin-bottom:0.8rem;
+}
+.feature-desc{
+  font-size:0.9rem;line-height:1.7;
+  color:rgba(251,247,240,0.5);
+}
+.feature-tag{
+  display:inline-block;margin-top:1rem;padding:0.3rem 0.8rem;
+  border:1px solid rgba(201,168,76,0.3);border-radius:100px;
+  font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);
+}
+
+/* HOW IT WORKS */
+.how-it-works{max-width:1100px;margin:0 auto}
+.steps{display:grid;grid-template-columns:1fr;gap:0;margin-top:4rem}
+.step{
+  display:grid;grid-template-columns:80px 1fr;
+  gap:2rem;padding:2.5rem 0;
+  border-bottom:1px solid rgba(201,168,76,0.08);
+  position:relative;
+}
+.step:last-child{border-bottom:none}
+.step-number{
+  font-family:var(--font-impact);
+  font-size:4rem;line-height:1;
+  color:rgba(201,168,76,0.15);
+  transition:color 0.3s;
+  align-self:start;
+  padding-top:0.2rem;
+}
+.step:hover .step-number{color:var(--gold)}
+.step-content h3{
+  font-family:var(--font-display);font-size:1.8rem;font-weight:600;
+  color:var(--cream);margin-bottom:0.6rem;
+}
+.step-content p{
+  font-size:0.95rem;line-height:1.7;
+  color:rgba(251,247,240,0.5);
+  max-width:480px;
+}
+
+/* FOUNDER SECTION */
+.founder{
+  background:linear-gradient(135deg,#0F0C07 0%,#1A1208 50%,#0F0C07 100%);
+  border-top:1px solid rgba(201,168,76,0.1);
+  border-bottom:1px solid rgba(201,168,76,0.1);
+}
+.founder-inner{
+  max-width:1000px;margin:0 auto;
+  display:grid;grid-template-columns:300px 1fr;
+  gap:5rem;align-items:start;
+}
+.founder-portrait{
+  text-align:center;
+}
+.founder-avatar{
+  width:180px;height:180px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-size:5rem;margin:0 auto 1.5rem;
+  box-shadow:0 0 60px rgba(201,168,76,0.2);
+  border:3px solid rgba(201,168,76,0.3);
+  animation:founderGlow 4s ease infinite alternate;
+}
+.founder-name{
+  font-family:var(--font-display);font-size:1.5rem;font-weight:600;
+  color:var(--gold-light);margin-bottom:0.3rem;
+}
+.founder-role{
+  font-size:0.78rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(251,247,240,0.4);
+}
+.founder-social{
+  display:flex;gap:0.8rem;justify-content:center;margin-top:1.2rem;
+}
+.founder-social a{
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(201,168,76,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;color:rgba(251,247,240,0.5);
+  text-decoration:none;transition:all 0.3s;cursor:none;
+}
+.founder-social a:hover{
+  border-color:var(--gold);color:var(--gold);
+}
+.founder-message h2{
+  font-family:var(--font-display);font-size:2.5rem;font-weight:300;
+  color:var(--cream);line-height:1.15;margin-bottom:2rem;
+  font-style:italic;
+}
+.founder-message p{
+  font-size:1rem;line-height:1.85;
+  color:rgba(251,247,240,0.6);margin-bottom:1.2rem;
+}
+.founder-signature{
+  font-family:var(--font-display);font-size:1.8rem;font-style:italic;
+  color:var(--gold-light);margin-top:1.5rem;
+}
+.founder-quote{
+  margin:2rem 0;padding:1.5rem 2rem;
+  border-left:3px solid var(--gold);
+  background:rgba(201,168,76,0.06);
+  border-radius:0 8px 8px 0;
+}
+.founder-quote p{
+  font-family:var(--font-display);font-size:1.2rem;font-style:italic;
+  color:var(--gold-light);margin-bottom:0;
+}
+
+/* TESTIMONIALS */
+.testimonials{background:#0A0804}
+.testimonials-inner{max-width:1200px;margin:0 auto}
+.testimonials-header{text-align:center;margin-bottom:4rem}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.testimonial-card{
+  padding:2rem;border:1px solid rgba(201,168,76,0.1);
+  border-radius:8px;background:rgba(201,168,76,0.03);
+  transition:all 0.3s;cursor:none;
+}
+.testimonial-card:hover{
+  border-color:rgba(201,168,76,0.25);
+  transform:translateY(-3px);
+}
+.testimonial-stars{color:var(--gold);font-size:0.9rem;margin-bottom:1rem}
+.testimonial-text{
+  font-family:var(--font-display);font-size:1rem;font-style:italic;
+  line-height:1.7;color:rgba(251,247,240,0.7);margin-bottom:1.5rem;
+}
+.testimonial-author{display:flex;align-items:center;gap:0.8rem}
+.testimonial-avatar{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;
+  background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);
+}
+.testimonial-name{
+  font-size:0.85rem;font-weight:600;color:var(--cream);
+}
+.testimonial-location{
+  font-size:0.75rem;color:rgba(251,247,240,0.4);
+}
+
+/* CTA SECTION */
+.cta-section{
+  text-align:center;
+  background:linear-gradient(135deg,var(--ink) 0%,#1A1208 50%,var(--ink) 100%);
+  position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(201,168,76,0.07),transparent);
+}
+.cta-inner{position:relative;z-index:10;max-width:800px;margin:0 auto}
+.cta-title{
+  font-family:var(--font-display);
+  font-size:clamp(2.5rem,5vw,5.5rem);
+  font-weight:300;line-height:1;
+  color:var(--cream);margin-bottom:1.5rem;
+}
+.cta-title em{font-style:italic;color:var(--gold-light)}
+.cta-subtitle{
+  font-size:1.05rem;line-height:1.7;
+  color:rgba(251,247,240,0.55);margin-bottom:3rem;
+}
+.cta-note{
+  margin-top:1.5rem;font-size:0.8rem;
+  color:rgba(251,247,240,0.3);letter-spacing:0.05em;
+}
+
+/* FOOTER */
+footer{
+  padding:3rem;
+  border-top:1px solid rgba(201,168,76,0.1);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.footer-brand{
+  font-family:var(--font-display);font-size:1.3rem;font-weight:600;
+  color:var(--gold-light);
+}
+.footer-copy{
+  font-size:0.78rem;color:rgba(251,247,240,0.3);
+}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{
+  font-size:0.78rem;color:rgba(251,247,240,0.35);
+  text-decoration:none;transition:color 0.3s;
+}
+.footer-links a:hover{color:var(--gold-light)}
+
+/* ANIMATIONS */
+@keyframes fadeInDown{
+  from{opacity:0;transform:translateY(-15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(25px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  to{opacity:1}
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.85)}
+}
+@keyframes scrollDrop{
+  0%{transform:scaleY(0);transform-origin:top}
+  50%{transform:scaleY(1);transform-origin:top}
+  51%{transform:scaleY(1);transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}
+}
+@keyframes drift{
+  0%{transform:translateY(100vh) rotate(0deg);opacity:0}
+  10%{opacity:0.6}
+  90%{opacity:0.6}
+  100%{transform:translateY(-100px) rotate(720deg);opacity:0}
+}
+@keyframes floatFood{
+  0%{transform:translateY(0) rotate(0deg);opacity:0}
+  10%{opacity:0.15}
+  90%{opacity:0.08}
+  100%{transform:translateY(-110vh) rotate(180deg);opacity:0}
+}
+@keyframes orbFloat{
+  0%{transform:translate(0,0) scale(1)}
+  100%{transform:translate(20px,30px) scale(1.1)}
+}
+@keyframes founderGlow{
+  0%{box-shadow:0 0 40px rgba(201,168,76,0.15)}
+  100%{box-shadow:0 0 80px rgba(201,168,76,0.35)}
+}
+
+/* REVEAL ANIMATIONS */
+.reveal{
+  opacity:0;transform:translateY(30px);
+  transition:opacity 0.8s ease,transform 0.8s ease;
+}
+.reveal.visible{opacity:1;transform:none}
+.reveal-left{
+  opacity:0;transform:translateX(-30px);
+  transition:opacity 0.8s ease,transform 0.8s ease;
+}
+.reveal-left.visible{opacity:1;transform:none}
+.reveal-right{
+  opacity:0;transform:translateX(30px);
+  transition:opacity 0.8s ease,transform 0.8s ease;
+}
+.reveal-right.visible{opacity:1;transform:none}
+
+/* GLOW LINE */
+.glow-line{
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--gold),transparent);
+  margin:0;opacity:0.3;
+}
+
+@media(max-width:900px){
+  nav{padding:1.2rem 1.5rem}
+  .nav-links{display:none}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .stat-item{border-right:none;border-bottom:1px solid rgba(201,168,76,0.12)}
+  .philosophy{grid-template-columns:1fr;gap:3rem}
+  .philosophy-visual{height:400px}
+  .features-grid{grid-template-columns:1fr}
+  .feature-card.large{grid-column:span 1}
+  .founder-inner{grid-template-columns:1fr;gap:2rem}
+  .founder-portrait{display:flex;flex-direction:column;align-items:center}
+  .testimonials-grid{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:1rem;text-align:center}
+  .footer-links{justify-content:center}
+  section{padding:5rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-logo">
+    <span class="nav-logo-icon">🍳</span>
+    Celestique AI
+  </div>
+  <ul class="nav-links">
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#founder">Founder</a></li>
+  </ul>
+  <a href="index.html" class="nav-cta">Enter Kitchen →</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Now Live — v2.0 with Live AI Streaming
+    </div>
+    <h1 class="hero-title">
+      Where Food<br>Meets <span>Intelligence</span>
+    </h1>
+    <div class="hero-version">Celestique AI · Version 2.0</div>
+    <p class="hero-subtitle">
+      Not just a recipe generator. A culinary intelligence engine that learns your soul, 
+      streams recipes live as they're written, and transforms every meal into a memory.
+    </p>
+    <div class="hero-actions">
+      <a href="index.html" class="btn-primary">
+        ✦ Enter the Kitchen
+      </a>
+      <a href="#philosophy" class="btn-secondary">
+        ↓ Discover the Vision
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat-item reveal">
+    <div class="stat-number" data-count="50000">0</div>
+    <div class="stat-label">Recipes Generated</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-number" data-count="127">0</div>
+    <div class="stat-label">Cuisines Mastered</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-number" data-count="98">0</div>
+    <div class="stat-label">% Chef Satisfaction</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-number" data-count="7">0</div>
+    <div class="stat-label">Dimensional Intelligence</div>
+  </div>
+</div>
+
+<div class="glow-line"></div>
+
+<!-- Philosophy -->
+<section id="philosophy">
+  <div class="philosophy">
+    <div class="philosophy-visual reveal-left">
+      <div class="philosophy-orb orb-1"></div>
+      <div class="philosophy-orb orb-2"></div>
+      <div class="philosophy-orb orb-3"></div>
+      <div class="philosophy-card p-card-1">
+        <div class="p-card-emoji">🌿</div>
+        <div class="p-card-title">Emotional Cuisine</div>
+        <div class="p-card-text">Every recipe carries a story, a feeling, a moment in time</div>
+      </div>
+      <div class="philosophy-card p-card-2">
+        <div class="p-card-emoji">⚡</div>
+        <div class="p-card-title">Live Intelligence</div>
+        <div class="p-card-text">Watch your recipe materialize word by word, in real time</div>
+      </div>
+      <div class="philosophy-card p-card-3" style="transform:translate(-40%,-50%)">
+        <div class="p-card-emoji">🔮</div>
+        <div class="p-card-title">Personalized Soul</div>
+        <div class="p-card-text">Knows your name, your taste, your moment</div>
+      </div>
+    </div>
+    <div class="reveal-right">
+      <div class="section-label">Our Philosophy</div>
+      <h2 class="section-title">Food is more than<br><em>sustenance</em></h2>
+      <p class="section-body">
+        We built Celestique AI v2.0 on the belief that the act of cooking is sacred. 
+        It's memory. It's love. It's culture. It's the smell of your grandmother's kitchen 
+        and the sound of oil hitting a hot pan.
+      </p>
+      <br>
+      <p class="section-body">
+        That's why we don't just generate recipes — we stream them live, word by word, 
+        as if a world-class chef is personally dictating to you. Emotional introductions. 
+        Pro chef tips. Sensory cues. Nutritional depth. All flowing in real time.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- Features -->
+<section id="features" class="features">
+  <div class="features-inner">
+    <div class="features-header reveal">
+      <div class="section-label">What Sets Us Apart</div>
+      <h2 class="section-title">7-Dimensional<br><em>Culinary Intelligence</em></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card large reveal">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Live Streaming Output</div>
+        <div class="feature-desc">
+          Press Enter. Watch your recipe appear live — character by character, 
+          styled beautifully as it streams. No waiting. No loading screens. 
+          Pure, instant culinary intelligence powered by cutting-edge AI models via OpenRouter.
+        </div>
+        <span class="feature-tag">Real-time Stream</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Deep AI Intelligence</div>
+        <div class="feature-desc">
+          Emotional introductions, cultural backstories, sensory cues, 
+          pro chef secrets — all generated by state-of-the-art language models.
+        </div>
+        <span class="feature-tag">OpenRouter Powered</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Hyper-Personalized</div>
+        <div class="feature-desc">
+          Your name, your preferences, your moment. Every recipe is crafted 
+          as if a personal chef knows you intimately.
+        </div>
+        <span class="feature-tag">Personal Chef AI</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🌍</div>
+        <div class="feature-title">127 Cuisines</div>
+        <div class="feature-desc">
+          From Neapolitan pizza to Sichuan hot pot, from Moroccan tagine 
+          to Nordic smørrebrød — the world's kitchen, unlocked.
+        </div>
+        <span class="feature-tag">World Cuisine</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Full Nutrition Analysis</div>
+        <div class="feature-desc">
+          Complete macro/micro breakdown, seasonal adaptations, 
+          dietary modifications, and wellness insights for every recipe.
+        </div>
+        <span class="feature-tag">Health Intelligence</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📜</div>
+        <div class="feature-title">PDF Export</div>
+        <div class="feature-desc">
+          Export any recipe as a beautifully formatted PDF. 
+          Save, print, and share your culinary creations forever.
+        </div>
+        <span class="feature-tag">Print Ready</span>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🌙</div>
+        <div class="feature-title">Dark & Light Modes</div>
+        <div class="feature-desc">
+          Cook in comfort at any hour. Stunning dark and light themes 
+          designed with obsessive attention to typography and color.
+        </div>
+        <span class="feature-tag">Adaptive Design</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- How It Works -->
+<section id="how">
+  <div class="how-it-works">
+    <div class="reveal">
+      <div class="section-label">The Process</div>
+      <h2 class="section-title">From thought to<br><em>table</em></h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-number">01</div>
+        <div class="step-content">
+          <h3>Tell Me What You're Craving</h3>
+          <p>Type anything — "a comforting pasta for a rainy night" or 
+          "impressive Thai curry with what's in my fridge." The more you share, 
+          the more personal the recipe.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-number">02</div>
+        <div class="step-content">
+          <h3>Watch It Come Alive</h3>
+          <p>Press Enter (or click Generate). The recipe streams to you live — 
+          title, emotional intro, ingredients, steps — all styled and appearing 
+          in real time as the AI crafts it.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-number">03</div>
+        <div class="step-content">
+          <h3>Cook with Confidence</h3>
+          <p>Follow along with sensory cues, chef notes, and pro tips 
+          embedded in every step. Know exactly what to look, smell, 
+          and taste for.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-number">04</div>
+        <div class="step-content">
+          <h3>Save & Share Your Creation</h3>
+          <p>Export to PDF, revisit from your history, 
+          or simply cook again. Your culinary journey lives on in Celestique AI.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- Founder Message -->
+<section id="founder" class="founder">
+  <div class="founder-inner">
+    <div class="founder-portrait reveal-left">
+      <div class="founder-avatar">👨‍🍳</div>
+      <div class="founder-name">Sooban Talha</div>
+      <div class="founder-role">Founder & Chief Visionary</div>
+      <div class="founder-role" style="margin-top:0.2rem">Sooban Talha Technologies</div>
+      <div class="founder-social">
+        <a href="#" title="Twitter">𝕏</a>
+        <a href="#" title="LinkedIn">in</a>
+        <a href="#" title="Instagram">◎</a>
+      </div>
+    </div>
+    <div class="founder-message reveal-right">
+      <h2>"I built Celestique not as a tool, but as a companion for the kitchen table."</h2>
+      <p>
+        Growing up, food was never just food in my home. It was how my mother said 
+        she loved us. It was how my grandfather told stories of a land far away. 
+        Every dish carried weight — history, emotion, identity.
+      </p>
+      <p>
+        When I began building AI systems, I kept returning to a single question: 
+        <em>what if AI could capture that magic?</em> What if technology could understand 
+        not just what you want to eat, but why — and then serve it to you with the 
+        warmth of a person who truly cares?
+      </p>
+      <div class="founder-quote">
+        <p>"Celestique v2.0 is the answer. A system that streams recipes live, 
+        feels personal, and honors the ancient art of cooking in the age of intelligence."</p>
+      </div>
+      <p>
+        We've built it with obsessive care — the typography, the animations, 
+        the emotional language, the nutritional depth. Every detail was deliberate. 
+        Because food deserves nothing less.
+      </p>
+      <p>
+        Welcome to the future of cooking. Welcome to <strong style="color:var(--gold-light)">Celestique AI v2.0</strong>.
+      </p>
+      <div class="founder-signature">— Sooban Talha</div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- Testimonials -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <div class="testimonials-header reveal">
+      <div class="section-label">From Our Community</div>
+      <h2 class="section-title">Chefs love<br><em>Celestique</em></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"The live streaming output is mind-blowing. 
+        Watching a full recipe appear in real time — styled beautifully — is like watching 
+        a chef cook right in front of you."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">🇮🇹</div>
+          <div>
+            <div class="testimonial-name">Marco V.</div>
+            <div class="testimonial-location">Milan, Italy · Home Chef</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"I've used many recipe apps. None come close to this. 
+        The emotional introductions actually made me tear up. It knew exactly what I needed."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">🇯🇵</div>
+          <div>
+            <div class="testimonial-name">Yuki H.</div>
+            <div class="testimonial-location">Tokyo, Japan · Food Blogger</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text">"This isn't just AI. This is art. 
+        The design, the animations, the intelligence — Celestique v2.0 
+        is years ahead of everything else."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">🇺🇸</div>
+          <div>
+            <div class="testimonial-name">Jordan M.</div>
+            <div class="testimonial-location">New York, USA · Professional Chef</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner reveal">
+    <h2 class="cta-title">Ready to <em>cook</em><br>like never before?</h2>
+    <p class="cta-subtitle">
+      Join thousands of home cooks and professional chefs experiencing 
+      the world's most advanced recipe intelligence. Live. Personal. Beautiful.
+    </p>
+    <a href="index.html" class="btn-primary" style="display:inline-flex;font-size:1rem;padding:1.1rem 3rem">
+      ✦ Enter Your Kitchen
+    </a>
+    <p class="cta-note">Free to use · No account required · Live AI streaming</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-brand">🍳 Celestique AI v2.0</div>
+  <div class="footer-copy">© 2025 Sooban Talha Technologies. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="index.html">Launch App</a>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor=document.getElementById('cursor');
+const ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+setInterval(()=>{rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px'},16);
+
+// Floating particles
+const pCont=document.getElementById('particles');
+for(let i=0;i<20;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  const size=Math.random()*3+1;
+  p.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;background:rgba(201,168,76,${Math.random()*0.3+0.1});animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s`;
+  pCont.appendChild(p);
+}
+
+// Floating food emojis in hero
+const foods=['🍕','🍜','🥗','🍣','🥘','🍰','🫕','🥩','🫔','🍱'];
+const hero=document.querySelector('.hero');
+foods.forEach((f,i)=>{
+  const el=document.createElement('div');
+  el.className='food-float';
+  el.textContent=f;
+  el.style.cssText=`left:${Math.random()*100}%;animation-duration:${Math.random()*12+8}s;animation-delay:${Math.random()*8}s`;
+  hero.appendChild(el);
+});
+
+// Scroll reveal
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible')}})
+},{threshold:0.15});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>io.observe(el));
+
+// Animate stats
+function animateCounter(el,target){
+  const suffix=target>=98?'%':target>1000?'+':'';
+  let count=0;
+  const step=target/60;
+  const interval=setInterval(()=>{
+    count=Math.min(count+step,target);
+    el.textContent=Math.floor(count).toLocaleString()+suffix;
+    if(count>=target)clearInterval(interval);
+  },25);
+}
+const statsIO=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('[data-count]').forEach(el=>{
+        animateCounter(el,parseInt(el.dataset.count));
+      });
+      statsIO.disconnect();
+    }
+  });
+},{threshold:0.5});
+const statsBar=document.querySelector('.stats-bar');
+if(statsBar)statsIO.observe(statsBar);
+</script>
+</body>
+</html>

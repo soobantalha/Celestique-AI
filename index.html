@@ -1,162 +1,1211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Celestique AI – World's Most Advanced Recipe Generator</title>
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celestique AI v2.0 — Your Personal Kitchen Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-light:#E8C97A;--gold-dark:#8B6914;
+  --cream:#FBF7F0;--cream-dark:#F0E8D8;--cream-mid:#E8DCC8;
+  --ink:#0D0A06;--ink-mid:#1A1208;--ink-soft:#2E2416;
+  --ember:#D4541A;--ember-light:#F07040;
+  --sage:#4A6741;--sage-light:#7A9B6E;
+  --bg:var(--cream);--bg2:var(--cream-dark);--bgCard:#FFFFFF;
+  --text:var(--ink);--text2:var(--ink-soft);--textMid:#6B5740;
+  --border:rgba(201,168,76,0.18);
+  --shadow:0 4px 24px rgba(42,32,21,0.08);
+  --shadowHeavy:0 12px 48px rgba(42,32,21,0.14);
+  --font-display:'Cormorant Garamond',serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-impact:'Bebas Neue',sans-serif;
+  --r:0.5s ease;
+}
+[data-theme="dark"]{
+  --bg:#0D0A06;--bg2:#1A1208;--bgCard:#201810;
+  --text:#FBF7F0;--text2:#C4B49A;--textMid:#9A856A;
+  --border:rgba(201,168,76,0.15);
+  --shadow:0 4px 24px rgba(0,0,0,0.3);
+  --shadowHeavy:0 12px 48px rgba(0,0,0,0.45);
+}
+
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  transition:background var(--r),color var(--r);
+}
+
+/* WELCOME OVERLAY */
+.welcome{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink);
+  transition:opacity 0.6s,visibility 0.6s;
+}
+.welcome.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.welcome-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%,rgba(201,168,76,0.12),transparent),
+    radial-gradient(ellipse 60% 50% at 80% 20%,rgba(212,84,26,0.08),transparent),
+    radial-gradient(ellipse 70% 40% at 50% 50%,rgba(74,103,65,0.07),transparent);
+  animation:bgShift 12s ease infinite alternate;
+}
+@keyframes bgShift{
+  0%{opacity:1;transform:scale(1)}100%{opacity:0.7;transform:scale(1.05)}
+}
+.welcome-card{
+  position:relative;z-index:10;
+  width:min(580px,92vw);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(201,168,76,0.18);
+  border-radius:20px;padding:3rem 3.5rem;
+  backdrop-filter:blur(30px);
+  text-align:center;
+  animation:welcomeIn 1s cubic-bezier(.16,1,.3,1) 0.2s both;
+}
+@keyframes welcomeIn{
+  from{opacity:0;transform:translateY(30px) scale(0.96)}
+  to{opacity:1;transform:none}
+}
+.welcome-emoji{
+  font-size:4rem;margin-bottom:1rem;
+  animation:emojiFloat 3s ease infinite alternate;
+  display:block;
+}
+@keyframes emojiFloat{
+  0%{transform:translateY(0)}100%{transform:translateY(-8px)}
+}
+.welcome-brand{
+  font-family:var(--font-display);font-size:2.8rem;font-weight:600;
+  color:var(--gold-light);margin-bottom:0.3rem;
+  animation:fadeInUp 0.8s ease 0.4s both;
+}
+.welcome-version{
+  font-size:0.72rem;letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(255,255,255,0.35);margin-bottom:2rem;
+  animation:fadeInUp 0.8s ease 0.5s both;
+}
+.welcome-headline{
+  font-family:var(--font-display);font-size:1.5rem;font-weight:300;
+  font-style:italic;color:rgba(255,255,255,0.85);
+  line-height:1.4;margin-bottom:1rem;
+  animation:fadeInUp 0.8s ease 0.6s both;
+}
+.welcome-sub{
+  font-size:0.88rem;line-height:1.7;
+  color:rgba(255,255,255,0.45);margin-bottom:2rem;
+  animation:fadeInUp 0.8s ease 0.7s both;
+}
+.welcome-quote{
+  font-family:var(--font-display);font-size:1rem;font-style:italic;
+  color:var(--gold-light);padding:1rem 1.5rem;
+  border-left:2px solid var(--gold);
+  background:rgba(201,168,76,0.08);border-radius:0 8px 8px 0;
+  margin-bottom:2rem;text-align:left;
+  animation:fadeInUp 0.8s ease 0.8s both;
+}
+.name-wrap{
+  display:flex;flex-direction:column;gap:0.8rem;
+  animation:fadeInUp 0.8s ease 0.9s both;
+}
+.name-input{
+  padding:1rem 1.3rem;font-size:1rem;
+  font-family:var(--font-body);
+  background:rgba(255,255,255,0.08);
+  border:1.5px solid rgba(201,168,76,0.25);
+  border-radius:10px;color:#fff;
+  text-align:center;transition:all 0.3s;
+}
+.name-input::placeholder{color:rgba(255,255,255,0.3)}
+.name-input:focus{
+  outline:none;
+  border-color:var(--gold);
+  background:rgba(255,255,255,0.12);
+  box-shadow:0 0 0 4px rgba(201,168,76,0.1);
+}
+.name-input.error{border-color:#E05A4A;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.enter-btn{
+  padding:1rem 2rem;
+  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+  color:var(--ink);font-weight:600;font-size:0.95rem;
+  letter-spacing:0.06em;border:none;border-radius:10px;
+  cursor:pointer;transition:all 0.3s;
+  display:flex;align-items:center;justify-content:center;gap:0.5rem;
+}
+.enter-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,0.3)}
+.welcome-note{
+  font-size:0.75rem;color:rgba(255,255,255,0.25);margin-top:0.8rem;
+}
+
+/* HEADER */
+.app-header{
+  position:sticky;top:0;z-index:200;
+  background:var(--bgCard);
+  border-bottom:1px solid var(--border);
+  padding:0.85rem 1.8rem;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:var(--shadow);
+  transition:background var(--r),border-color var(--r);
+}
+.header-logo{display:flex;align-items:center;gap:0.6rem}
+.header-logo-icon{font-size:1.6rem}
+.header-logo-text h1{
+  font-family:var(--font-display);font-size:1.4rem;font-weight:600;
+  color:var(--gold);line-height:1;margin-bottom:0;
+}
+.header-logo-text p{
+  font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--textMid);margin-bottom:0;
+}
+.header-greeting{
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.85rem;color:var(--textMid);
+}
+.header-greeting i{color:var(--gold)}
+.header-actions{display:flex;align-items:center;gap:0.5rem}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;
+  background:transparent;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text2);font-size:0.9rem;cursor:pointer;
+  transition:all 0.25s;
+}
+.icon-btn:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.icon-btn.active-btn{background:var(--gold);color:var(--ink);border-color:var(--gold);display:flex!important}
+
+/* LAYOUT */
+.app-layout{
+  display:grid;
+  grid-template-rows:1fr auto;
+  min-height:calc(100vh - 62px);
+}
+.main-area{
+  padding:1.5rem 2rem;
+  max-width:960px;margin:0 auto;width:100%;
+}
+
+/* EMPTY STATE */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:50vh;text-align:center;
+  padding:3rem 1rem;
+}
+.empty-icon{
+  font-size:4rem;margin-bottom:1.5rem;
+  animation:emojiFloat 3s ease infinite alternate;
+}
+.empty-title{
+  font-family:var(--font-display);font-size:2.2rem;font-weight:600;
+  color:var(--text);margin-bottom:0.8rem;
+}
+.empty-sub{
+  font-size:0.95rem;line-height:1.7;color:var(--textMid);
+  max-width:460px;margin-bottom:2rem;
+}
+.empty-tags{
+  display:flex;flex-wrap:wrap;gap:0.6rem;justify-content:center;
+}
+.empty-tag{
+  padding:0.5rem 1rem;border:1px solid var(--border);
+  border-radius:100px;font-size:0.82rem;color:var(--textMid);
+  cursor:pointer;transition:all 0.25s;background:transparent;
+}
+.empty-tag:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+
+/* RECIPE OUTPUT */
+.recipe-output{
+  display:none;padding-bottom:2rem;
+}
+.recipe-output.visible{display:block;animation:fadeInUp 0.5s ease}
+
+/* STREAMING CONTAINER */
+#streamContainer{
+  background:var(--bgCard);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:2.5rem;
+  box-shadow:var(--shadow);
+  transition:background var(--r),border-color var(--r);
+  line-height:1.7;
+  color:var(--text);
+  font-size:0.95rem;
+  min-height:200px;
+}
+
+/* Live streaming text styles */
+#streamContainer h1,#streamContainer h2{
+  font-family:var(--font-display);
+  color:var(--text);margin:1.5rem 0 0.8rem;line-height:1.15;
+}
+#streamContainer h1{font-size:2.2rem;font-weight:600;color:var(--gold)}
+#streamContainer h2{
+  font-size:1.4rem;font-weight:600;
+  border-bottom:1px solid var(--border);padding-bottom:0.4rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+#streamContainer h3{
+  font-family:var(--font-display);font-size:1.1rem;font-weight:600;
+  color:var(--text);margin:1rem 0 0.4rem;
+}
+#streamContainer p{
+  margin-bottom:0.8rem;color:var(--text2);line-height:1.75;
+}
+#streamContainer ul,#streamContainer ol{
+  padding-left:1.5rem;margin-bottom:1rem;
+}
+#streamContainer li{
+  margin-bottom:0.4rem;color:var(--text2);line-height:1.6;
+}
+#streamContainer strong{
+  color:var(--text);font-weight:600;
+}
+#streamContainer em{
+  color:var(--gold-dark);font-style:italic;
+}
+#streamContainer blockquote{
+  border-left:3px solid var(--gold);
+  background:rgba(201,168,76,0.06);
+  padding:0.8rem 1.2rem;margin:1rem 0;
+  border-radius:0 8px 8px 0;
+  font-family:var(--font-display);font-style:italic;
+  color:var(--gold-dark);
+}
+#streamContainer table{
+  width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.88rem;
+}
+#streamContainer th{
+  background:rgba(201,168,76,0.1);padding:0.6rem 0.8rem;
+  text-align:left;font-weight:600;color:var(--text);
+  border-bottom:2px solid var(--border);
+}
+#streamContainer td{
+  padding:0.5rem 0.8rem;border-bottom:1px solid var(--border);
+  color:var(--text2);
+}
+#streamContainer tr:last-child td{border-bottom:none}
+#streamContainer hr{
+  border:none;border-top:1px solid var(--border);margin:1.5rem 0;
+}
+[data-theme="dark"] #streamContainer blockquote{background:rgba(201,168,76,0.08)}
+
+/* Streaming cursor blink */
+.stream-cursor{
+  display:inline-block;width:2px;height:1.1em;
+  background:var(--gold);vertical-align:text-bottom;
+  animation:blink 0.8s step-end infinite;margin-left:1px;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* RECIPE QUICK INFO */
+.recipe-meta-strip{
+  display:flex;flex-wrap:wrap;gap:0.6rem;
+  margin-bottom:1.5rem;
+}
+.meta-chip{
+  display:flex;align-items:center;gap:0.3rem;
+  padding:0.35rem 0.8rem;
+  background:rgba(201,168,76,0.1);
+  border:1px solid rgba(201,168,76,0.2);
+  border-radius:100px;
+  font-size:0.78rem;color:var(--gold-dark);
+}
+[data-theme="dark"] .meta-chip{color:var(--gold-light)}
+
+/* INPUT SECTION */
+.input-section{
+  position:sticky;bottom:0;z-index:100;
+  background:var(--bgCard);
+  border-top:1px solid var(--border);
+  padding:1.2rem 2rem;
+  box-shadow:0 -4px 20px rgba(42,32,21,0.06);
+  transition:background var(--r),border-color var(--r);
+}
+.input-inner{max-width:960px;margin:0 auto}
+.input-header{
+  display:flex;align-items:center;gap:0.5rem;
+  margin-bottom:0.7rem;
+  font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--textMid);
+}
+.input-header i{color:var(--gold);font-size:0.85rem}
+.input-row{
+  display:flex;gap:0.7rem;align-items:flex-end;
+}
+.recipe-textarea{
+  flex:1;padding:0.9rem 1.1rem;
+  font-family:var(--font-body);font-size:0.95rem;
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:12px;color:var(--text);resize:none;
+  transition:all 0.25s;line-height:1.5;min-height:52px;max-height:160px;
+}
+.recipe-textarea::placeholder{color:var(--textMid)}
+.recipe-textarea:focus{
+  outline:none;border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,168,76,0.12);
+}
+.recipe-textarea.error{border-color:#E05A4A;animation:shake 0.4s ease}
+.generate-btn{
+  padding:0.9rem 1.5rem;
+  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+  color:var(--ink);font-weight:600;font-size:0.88rem;
+  border:none;border-radius:12px;cursor:pointer;
+  display:flex;align-items:center;gap:0.4rem;
+  transition:all 0.3s;white-space:nowrap;
+  min-width:120px;justify-content:center;
+}
+.generate-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,0.3)}
+.generate-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.hint-tags{
+  display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.6rem;
+}
+.hint-tag{
+  padding:0.3rem 0.7rem;
+  border:1px solid var(--border);border-radius:100px;
+  font-size:0.77rem;color:var(--textMid);
+  cursor:pointer;background:transparent;
+  transition:all 0.2s;
+}
+.hint-tag:hover{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.input-tip{
+  font-size:0.72rem;color:var(--textMid);margin-top:0.4rem;
+  display:flex;align-items:center;gap:0.3rem;
+}
+.input-tip kbd{
+  padding:0.1rem 0.3rem;background:var(--bg2);
+  border:1px solid var(--border);border-radius:3px;font-size:0.7rem;
+}
+
+/* HISTORY DRAWER */
+.history-drawer{
+  position:fixed;top:0;right:0;width:min(380px,92vw);height:100vh;
+  background:var(--bgCard);border-left:1px solid var(--border);
+  z-index:500;transform:translateX(100%);
+  transition:transform 0.4s cubic-bezier(.16,1,.3,1),background var(--r),border-color var(--r);
+  display:flex;flex-direction:column;
+  box-shadow:var(--shadowHeavy);
+}
+.history-drawer.open{transform:none}
+.drawer-header{
+  padding:1.2rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.drawer-header h3{
+  font-family:var(--font-display);font-size:1.2rem;font-weight:600;
+  color:var(--text);display:flex;align-items:center;gap:0.5rem;margin-bottom:0;
+}
+.drawer-header i{color:var(--gold)}
+.drawer-close{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--bg2);border:none;cursor:pointer;
+  color:var(--text2);font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.drawer-close:hover{background:var(--gold);color:var(--ink)}
+.drawer-body{flex:1;overflow-y:auto;padding:1rem}
+.drawer-empty{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:100%;gap:0.8rem;
+  color:var(--textMid);text-align:center;font-size:0.88rem;
+}
+.drawer-empty i{font-size:2.5rem;opacity:0.3}
+.history-item{
+  padding:0.9rem;border:1px solid var(--border);border-radius:10px;
+  margin-bottom:0.6rem;cursor:pointer;
+  transition:all 0.2s;background:var(--bg2);
+}
+.history-item:hover{border-color:var(--gold);transform:translateX(-4px)}
+.hi-title{font-weight:600;font-size:0.88rem;color:var(--text);margin-bottom:0.3rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi-meta{font-size:0.75rem;color:var(--textMid);
+  display:flex;justify-content:space-between}
+.history-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.45);
+  z-index:499;opacity:0;visibility:hidden;
+  transition:opacity 0.3s,visibility 0.3s;
+  backdrop-filter:blur(3px);
+}
+.history-overlay.open{opacity:1;visibility:visible}
+
+/* LOADING */
+.stream-loading{
+  display:flex;align-items:center;gap:0.8rem;
+  padding:1.5rem;color:var(--textMid);font-size:0.88rem;
+}
+.stream-dots{display:flex;gap:5px}
+.stream-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--gold);
+  animation:dotBounce 1.4s ease infinite;
+}
+.stream-dot:nth-child(2){animation-delay:.2s}
+.stream-dot:nth-child(3){animation-delay:.4s}
+@keyframes dotBounce{
+  0%,80%,100%{transform:translateY(0);opacity:0.4}
+  40%{transform:translateY(-8px);opacity:1}
+}
+
+/* EXPORT BTN */
+#exportBtn{display:none}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:6rem;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink-soft);color:var(--cream);
+  padding:0.7rem 1.5rem;border-radius:100px;font-size:0.85rem;
+  z-index:1000;opacity:0;transition:all 0.3s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:none}
+}
+
+/* ERROR STATE */
+.error-box{
+  padding:1.5rem;background:rgba(212,84,26,0.08);
+  border:1px solid rgba(212,84,26,0.2);border-radius:12px;
+  color:var(--ember);font-size:0.9rem;line-height:1.6;
+  display:flex;gap:0.8rem;align-items:flex-start;
+}
+.error-box i{margin-top:0.1rem;flex-shrink:0}
+
+@media(max-width:640px){
+  .app-header{padding:0.7rem 1rem}
+  .main-area{padding:1rem}
+  .input-section{padding:0.8rem 1rem}
+  .input-row{flex-wrap:wrap}
+  .generate-btn{width:100%}
+  .header-greeting{display:none}
+  #streamContainer{padding:1.5rem}
+  .history-drawer{width:92vw}
+}
+</style>
 </head>
 <body>
-    <!-- Welcome Overlay -->
-    <div id="welcomeOverlay" class="welcome-overlay active">
-        <div class="welcome-background"></div>
-        <div class="welcome-content">
-            <div class="welcome-logo">
-                <span class="logo-icon">🍳</span>
-                <h1 class="logo-text">Celestique AI</h1>
-            </div>
-            <div class="welcome-message">
-                <h2 class="welcome-title">Welcome to your personal kitchen companion</h2>
-                <p class="welcome-subtitle">I'm not just a recipe generator. I'm your culinary partner, here to create meals that tell stories, evoke memories, and nourish both body and soul.</p>
-                <p class="welcome-quote">"Good food is the foundation of genuine happiness."</p>
-                <div class="name-input-container">
-                    <input type="text" id="userNameInput" class="name-input" placeholder="What's your name?" maxlength="30">
-                    <button id="enterKitchenBtn" class="enter-btn">
-                        <span>Enter the Kitchen</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-                <p class="welcome-note">Your name helps me personalize every recipe just for you.</p>
-            </div>
-        </div>
+
+<!-- WELCOME OVERLAY -->
+<div class="welcome" id="welcome">
+  <div class="welcome-bg"></div>
+  <div class="welcome-card">
+    <span class="welcome-emoji">🍳</span>
+    <div class="welcome-brand">Celestique AI</div>
+    <div class="welcome-version">Version 2.0 · Live Recipe Intelligence</div>
+    <div class="welcome-headline">Your personal kitchen companion<br>is ready for you</div>
+    <p class="welcome-sub">I'll create personalized recipes just for you — streamed live, word by word, with emotional depth and professional precision.</p>
+    <div class="welcome-quote">"Good food is the foundation of genuine happiness." — Auguste Escoffier</div>
+    <div class="name-wrap">
+      <input type="text" id="nameInput" class="name-input" placeholder="What's your name, Chef?" maxlength="30" autocomplete="off">
+      <button class="enter-btn" id="enterBtn">
+        <i class="fas fa-arrow-right"></i>
+        Enter the Kitchen
+      </button>
+    </div>
+    <div class="welcome-note">Your name personalizes every recipe created for you</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-logo">
+    <span class="header-logo-icon">🍳</span>
+    <div class="header-logo-text">
+      <h1>Celestique AI</h1>
+      <p>Personal Recipe Intelligence</p>
+    </div>
+  </div>
+  <div class="header-greeting" id="headerGreeting">
+    <i class="fas fa-user-circle"></i>
+    <span id="greetingText">Welcome back, Chef!</span>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="historyBtn" title="Recipe History"><i class="fas fa-history"></i></button>
+    <button class="icon-btn" id="exportBtn" title="Export PDF" style="display:none"><i class="fas fa-file-pdf"></i></button>
+    <button class="icon-btn" id="themeBtn" title="Toggle Theme"><i class="fas fa-moon"></i></button>
+    <a href="onboarding.html" class="icon-btn" title="About Celestique" style="text-decoration:none"><i class="fas fa-info-circle"></i></a>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="app-layout">
+  <!-- MAIN AREA -->
+  <div class="main-area" id="mainArea">
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">👨‍🍳</div>
+      <h2 class="empty-title">Ready to create something extraordinary?</h2>
+      <p class="empty-sub">Describe your culinary vision below and watch your personalized recipe appear live — streamed word by word by our AI chef.</p>
+      <div class="empty-tags">
+        <button class="empty-tag" onclick="fillPrompt('A cozy vegetarian lasagna for a rainy evening')">🥬 Vegetarian Lasagna</button>
+        <button class="empty-tag" onclick="fillPrompt('Quick healthy lunch for work, under 30 minutes')">⚡ Quick Healthy Lunch</button>
+        <button class="empty-tag" onclick="fillPrompt('Authentic Thai green curry with jasmine rice')">🌶️ Thai Green Curry</button>
+        <button class="empty-tag" onclick="fillPrompt('A decadent chocolate lava cake for dessert')">🍫 Chocolate Lava Cake</button>
+        <button class="empty-tag" onclick="fillPrompt('Classic French onion soup with gruyère')">🧅 French Onion Soup</button>
+        <button class="empty-tag" onclick="fillPrompt('Breakfast eggs benedict with hollandaise sauce')">🥚 Eggs Benedict</button>
+      </div>
     </div>
 
-    <!-- Main App Container -->
-    <div id="appContainer" class="app-container">
-        <!-- Header -->
-        <header class="app-header">
-            <div class="header-left">
-                <div class="app-logo">
-                    <span class="app-logo-icon">🍳</span>
-                    <div class="app-logo-text">
-                        <h1>Celestique AI</h1>
-                        <p class="app-tagline">Personal Recipe Generator</p>
-                    </div>
-                </div>
-            </div>
-            <div class="header-center">
-                <div class="user-greeting" id="userGreeting">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="greetingText">Welcome back, Chef!</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <button id="historyToggle" class="icon-btn" title="Recipe History">
-                    <i class="fas fa-history"></i>
-                </button>
-                <button id="exportPDFBtn" class="icon-btn" title="Export to PDF" style="display: none;">
-                    <i class="fas fa-file-pdf"></i>
-                </button>
-                <button id="themeToggle" class="icon-btn" title="Toggle Theme">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Recipe Display Area -->
-            <div class="recipe-display-section">
-                <div class="recipe-display-container">
-                    <div class="empty-state" id="emptyState">
-                        <div class="empty-state-icon">👨‍🍳</div>
-                        <h2 class="empty-state-title">Ready to create something delicious?</h2>
-                        <p class="empty-state-text">Describe what you'd like to cook, and I'll create a personalized recipe just for you.</p>
-                        <div class="empty-state-examples">
-                            <p>Try something like:</p>
-                            <ul>
-                                <li>"A hearty vegetarian lasagna for a cozy night in"</li>
-                                <li>"Quick and healthy lunch for work tomorrow"</li>
-                                <li>"Authentic Thai curry with ingredients I have on hand"</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="recipe-container" id="recipeContainer" style="display: none;">
-                        <!-- Recipe will be dynamically inserted here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Input Section -->
-            <div class="input-section">
-                <div class="input-container">
-                    <div class="input-header">
-                        <h3><i class="fas fa-magic"></i> Describe your culinary vision</h3>
-                        <p>Be as specific or as creative as you like</p>
-                    </div>
-                    <div class="input-wrapper">
-                        <textarea id="recipePrompt" class="recipe-input" placeholder="e.g., A comforting chicken soup for a rainy day, or an impressive chocolate dessert for a dinner party..." rows="3"></textarea>
-                        <div class="input-actions">
-                            <div class="input-hints">
-                                <span class="hint-tag" data-hint="Quick breakfast">Quick breakfast</span>
-                                <span class="hint-tag" data-hint="Healthy dinner">Healthy dinner</span>
-                                <span class="hint-tag" data-hint="Comfort food">Comfort food</span>
-                                <span class="hint-tag" data-hint="Dessert">Dessert</span>
-                            </div>
-                            <button id="generateRecipeBtn" class="generate-btn">
-                                <i class="fas fa-sparkles"></i>
-                                <span>Generate Recipe</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- History Drawer -->
-        <aside class="history-drawer" id="historyDrawer">
-            <div class="history-header">
-                <h3><i class="fas fa-history"></i> Your Recipe History</h3>
-                <button id="closeHistoryBtn" class="close-history-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="history-content" id="historyContent">
-                <!-- History items will be dynamically inserted here -->
-                <div class="empty-history">
-                    <i class="fas fa-utensils"></i>
-                    <p>Your recipe history will appear here</p>
-                </div>
-            </div>
-        </aside>
-        <div class="history-overlay" id="historyOverlay"></div>
+    <!-- Recipe Output -->
+    <div class="recipe-output" id="recipeOutput">
+      <div id="streamContainer"></div>
     </div>
+  </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner">
-                <div class="spinner-circle"></div>
-                <div class="spinner-circle"></div>
-                <div class="spinner-circle"></div>
-            </div>
-            <p class="loading-text">Crafting your personalized recipe...</p>
-            <div class="loading-hints">
-                <p><i class="fas fa-lightbulb"></i> Adding secret ingredients...</p>
-                <p><i class="fas fa-lightbulb"></i> Perfecting cooking times...</p>
-                <p><i class="fas fa-lightbulb"></i> Writing personalized notes...</p>
-            </div>
-        </div>
+  <!-- INPUT SECTION -->
+  <div class="input-section">
+    <div class="input-inner">
+      <div class="input-header">
+        <i class="fas fa-magic"></i>
+        Describe your culinary vision
+      </div>
+      <div class="input-row">
+        <textarea
+          class="recipe-textarea"
+          id="recipeInput"
+          placeholder="e.g., A comforting chicken soup for a rainy evening, or an impressive salmon for a dinner party..."
+          rows="2"
+        ></textarea>
+        <button class="generate-btn" id="generateBtn">
+          <i class="fas fa-sparkles"></i>
+          Generate
+        </button>
+      </div>
+      <div class="hint-tags">
+        <button class="hint-tag" onclick="fillPrompt('Quick breakfast')">Quick breakfast</button>
+        <button class="hint-tag" onclick="fillPrompt('Healthy dinner')">Healthy dinner</button>
+        <button class="hint-tag" onclick="fillPrompt('Comfort food')">Comfort food</button>
+        <button class="hint-tag" onclick="fillPrompt('Vegan meal')">Vegan meal</button>
+        <button class="hint-tag" onclick="fillPrompt('Dessert')">Dessert</button>
+        <button class="hint-tag" onclick="fillPrompt('Italian pasta')">Italian pasta</button>
+      </div>
+      <div class="input-tip">
+        <i class="fas fa-lightbulb" style="color:var(--gold);font-size:0.75rem"></i>
+        Press <kbd>Enter</kbd> to generate · <kbd>Shift+Enter</kbd> for new line
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="scripts/app.js"></script>
+<!-- HISTORY DRAWER -->
+<div class="history-overlay" id="historyOverlay"></div>
+<div class="history-drawer" id="historyDrawer">
+  <div class="drawer-header">
+    <h3><i class="fas fa-history"></i> Recipe History</h3>
+    <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="drawer-body" id="drawerBody">
+    <div class="drawer-empty">
+      <i class="fas fa-utensils"></i>
+      <p>Your generated recipes<br>will appear here</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let userName = localStorage.getItem('cel_name') || '';
+let theme = localStorage.getItem('cel_theme') || 'light';
+let history = JSON.parse(localStorage.getItem('cel_history') || '[]');
+let currentRecipeText = '';
+let isGenerating = false;
+
+// OpenRouter config — using free model
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+// Free tier model (no key needed for basic use, or user can supply key)
+const MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  // Apply theme
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeIcon();
+
+  // Welcome screen
+  if (userName) {
+    document.getElementById('welcome').classList.add('hidden');
+    setGreeting();
+  } else {
+    setTimeout(() => document.getElementById('nameInput').focus(), 600);
+  }
+
+  // Render history
+  renderHistory();
+
+  // Event listeners
+  document.getElementById('enterBtn').addEventListener('click', enterKitchen);
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') enterKitchen();
+  });
+  document.getElementById('generateBtn').addEventListener('click', generateRecipe);
+  document.getElementById('recipeInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      generateRecipe();
+    }
+  });
+  document.getElementById('historyBtn').addEventListener('click', openHistory);
+  document.getElementById('drawerClose').addEventListener('click', closeHistory);
+  document.getElementById('historyOverlay').addEventListener('click', closeHistory);
+  document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+  document.getElementById('exportBtn').addEventListener('click', exportPDF);
+
+  // Auto-resize textarea
+  const ta = document.getElementById('recipeInput');
+  ta.addEventListener('input', () => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
+  });
+}
+
+// ============================================================
+// WELCOME
+// ============================================================
+function enterKitchen() {
+  const input = document.getElementById('nameInput');
+  const name = input.value.trim();
+  if (!name) {
+    input.classList.add('error');
+    input.focus();
+    setTimeout(() => input.classList.remove('error'), 600);
+    return;
+  }
+  userName = name;
+  localStorage.setItem('cel_name', userName);
+  document.getElementById('welcome').classList.add('hidden');
+  setGreeting();
+  setTimeout(() => document.getElementById('recipeInput').focus(), 400);
+}
+
+function setGreeting() {
+  const greetings = [
+    `Welcome back, ${userName}!`,
+    `Good to see you, ${userName}!`,
+    `Ready to cook, Chef ${userName}?`,
+    `Hello, ${userName} — let's make magic!`,
+    `${userName}, your kitchen awaits!`
+  ];
+  const g = greetings[Math.floor(Math.random() * greetings.length)];
+  document.getElementById('greetingText').textContent = g;
+}
+
+// ============================================================
+// THEME
+// ============================================================
+function toggleTheme() {
+  theme = theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('cel_theme', theme);
+  updateThemeIcon();
+}
+function updateThemeIcon() {
+  const icon = document.querySelector('#themeBtn i');
+  icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+// ============================================================
+// PROMPT HELPERS
+// ============================================================
+function fillPrompt(text) {
+  const ta = document.getElementById('recipeInput');
+  ta.value = text;
+  ta.focus();
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
+}
+
+// ============================================================
+// GENERATE RECIPE — LIVE STREAMING
+// ============================================================
+async function generateRecipe() {
+  if (isGenerating) return;
+
+  const input = document.getElementById('recipeInput');
+  const prompt = input.value.trim();
+
+  if (!prompt) {
+    input.classList.add('error');
+    input.focus();
+    setTimeout(() => input.classList.remove('error'), 600);
+    return;
+  }
+
+  isGenerating = true;
+  currentRecipeText = '';
+
+  // UI: switch to output mode
+  document.getElementById('emptyState').style.display = 'none';
+  const output = document.getElementById('recipeOutput');
+  output.classList.add('visible');
+  const container = document.getElementById('streamContainer');
+  container.innerHTML = `
+    <div class="stream-loading">
+      <div class="stream-dots">
+        <div class="stream-dot"></div>
+        <div class="stream-dot"></div>
+        <div class="stream-dot"></div>
+      </div>
+      <span>Your personal chef is crafting your recipe...</span>
+    </div>
+  `;
+
+  // Disable generate button
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating...';
+  document.getElementById('exportBtn').style.display = 'none';
+
+  // Build system prompt
+  const systemPrompt = `You are Celestique AI — the world's most advanced recipe intelligence and personal culinary companion. You speak with warmth, expertise, and emotional depth.
+
+Always address the user as "${userName}". Your recipes are not just instructions — they are experiences, stories, and memories.
+
+FORMAT YOUR RESPONSE IN BEAUTIFUL MARKDOWN:
+
+# [Creative Recipe Title]
+
+## ✨ A Message for ${userName}
+[Emotional, personal 2-3 sentence introduction. Connect to feelings, memories, seasons.]
+
+---
+
+## 📋 At a Glance
+**Prep Time:** | **Cook Time:** | **Difficulty:** | **Servings:** | **Calories:**
+(format as a simple table or bold labels)
+
+---
+
+## 🛒 Ingredients
+[Organized ingredient list with amounts. Group if needed (e.g., For the sauce:)]
+
+---
+
+## 👨‍🍳 Instructions
+[Numbered steps. Each step is detailed, sensory, and encouraging. Include what to look for, smell for, feel for.]
+
+---
+
+## 💡 Chef's Secrets
+[3-4 pro tips that elevate the dish]
+
+---
+
+## ⚠️ Common Mistakes to Avoid
+[2-3 pitfalls and how to sidestep them]
+
+---
+
+## 🍷 Pairings
+[Wine/beverage + side dish suggestions]
+
+---
+
+## 📦 Storage & Reheating
+[Fridge/freezer guidance]
+
+---
+
+## 🌱 Nutritional Notes
+[Brief nutrition highlights]
+
+---
+
+> *"${userName}, the secret ingredient is always the love you bring to the kitchen."* — Celestique AI
+
+Be warm. Be specific. Be a chef who truly cares about ${userName}.`;
+
+  const userMessage = `Create a full, detailed, emotionally rich recipe for: "${prompt}"`;
+
+  try {
+    // Try OpenRouter streaming
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.href,
+        'X-Title': 'Celestique AI v2.0'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        stream: true,
+        max_tokens: 2000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    // Stream processing
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let rawText = '';
+    container.innerHTML = ''; // clear loading
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content || '';
+            if (delta) {
+              rawText += delta;
+              currentRecipeText = rawText;
+              // Render markdown live
+              container.innerHTML = parseMarkdown(rawText) + '<span class="stream-cursor"></span>';
+              container.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+          } catch (e) { /* ignore parse errors mid-stream */ }
+        }
+      }
+    }
+
+    // Final render without cursor
+    container.innerHTML = parseMarkdown(rawText);
+
+    // Save to history
+    const title = extractTitle(rawText) || prompt.substring(0, 60);
+    saveHistory(prompt, title, rawText);
+    renderHistory();
+
+    // Show export button
+    document.getElementById('exportBtn').style.display = 'flex';
+    document.getElementById('exportBtn').classList.add('active-btn');
+
+    showToast('✦ Recipe generated! Press Enter to create another.');
+
+  } catch (err) {
+    console.error('Streaming error:', err);
+    // Fallback to local generation
+    const localRecipe = generateLocalRecipe(prompt, userName);
+    currentRecipeText = localRecipe;
+    container.innerHTML = parseMarkdown(localRecipe);
+
+    const title = extractTitle(localRecipe) || prompt.substring(0, 60);
+    saveHistory(prompt, title, localRecipe);
+    renderHistory();
+    document.getElementById('exportBtn').style.display = 'flex';
+    document.getElementById('exportBtn').classList.add('active-btn');
+
+    showToast('⚠️ Using offline mode — AI API unavailable. Recipe still generated!');
+  }
+
+  // Re-enable
+  isGenerating = false;
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate';
+  input.value = '';
+  input.style.height = 'auto';
+}
+
+// ============================================================
+// MARKDOWN PARSER (lightweight)
+// ============================================================
+function parseMarkdown(md) {
+  let html = md;
+  // Escape HTML (basic)
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  // Bold
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Horizontal rule
+  html = html.replace(/^---$/gm, '<hr>');
+  // Blockquote
+  html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+  // Ordered list items
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  // Unordered list items
+  html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+  // Wrap consecutive li items
+  html = html.replace(/(<li>.*<\/li>\n?)+/gs, match => `<ul>${match}</ul>`);
+  // Tables (simple: | col | col |)
+  html = html.replace(/\|(.+)\|/g, (match, inner) => {
+    const cells = inner.split('|').map(c => c.trim());
+    const isHeader = cells.some(c => c.includes('---'));
+    if (isHeader) return '';
+    const tag = 'td';
+    return '<tr>' + cells.filter(c=>c).map(c=>`<${tag}>${c}</${tag}>`).join('') + '</tr>';
+  });
+  html = html.replace(/(<tr>.*<\/tr>\n?)+/gs, match => `<table>${match}</table>`);
+  // Paragraphs
+  html = html.replace(/\n\n+/g, '\n\n');
+  const lines = html.split('\n');
+  const result = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    if (/^<(h[1-6]|ul|ol|li|hr|blockquote|table|tr|td|th)/.test(line)) {
+      result.push(line);
+    } else {
+      result.push(`<p>${line}</p>`);
+    }
+  }
+  return result.join('\n');
+}
+
+function extractTitle(md) {
+  const match = md.match(/^# (.+)$/m);
+  return match ? match[1].replace(/[*_`]/g, '') : null;
+}
+
+// ============================================================
+// LOCAL FALLBACK RECIPE GENERATOR
+// ============================================================
+function generateLocalRecipe(prompt, name) {
+  const lower = prompt.toLowerCase();
+  const isVeg = /veg|vegetar|vegan|plant/i.test(lower);
+  const isQuick = /quick|fast|30 min|easy/i.test(lower);
+  const isDesert = /dessert|cake|chocolate|sweet|cookie/i.test(lower);
+  
+  const cookTime = isQuick ? '20 mins' : '45 mins';
+  const prepTime = isQuick ? '10 mins' : '20 mins';
+  const protein = isVeg ? 'chickpeas or tofu' : 'chicken breast';
+
+  return `# ${name}'s ${isDesert ? 'Decadent' : isVeg ? 'Garden-Fresh' : 'Signature'} ${prompt.split(' ').slice(0,4).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}
+
+## ✨ A Message for ${name}
+
+${name}, I crafted this recipe with you in mind. Every ingredient was chosen not just for flavor, but for the feeling it creates — warmth, comfort, and the quiet joy of a meal made with care. This is your dish. Own it.
+
+---
+
+## 📋 At a Glance
+
+**Prep Time:** ${prepTime} | **Cook Time:** ${cookTime} | **Difficulty:** Intermediate | **Servings:** 4 | **Calories:** ~450 per serving
+
+---
+
+## 🛒 Ingredients
+
+- 1.5 lbs ${protein}
+- 3 tbsp quality olive oil
+- 4 cloves garlic, minced
+- 1 large onion, finely diced
+- 2 cups seasonal vegetables of choice
+- 1 cup stock or broth
+- 1 tsp sea salt (or to taste)
+- ½ tsp freshly cracked black pepper
+- 1 tsp smoked paprika
+- 1 tbsp fresh herbs (thyme, rosemary, or parsley)
+- Juice of ½ lemon
+
+---
+
+## 👨‍🍳 Instructions
+
+1. **Mise en place** — Gather and prepare all your ingredients. Enjoy the ritual of it; this is where cooking begins.
+2. **Build your base** — Heat olive oil in a heavy-bottomed pan over medium heat until it shimmers. Add onions, cook 5-6 minutes until translucent and fragrant.
+3. **Add the aromatics** — Stir in garlic. Listen for that satisfying sizzle. Cook 90 seconds until golden — not brown.
+4. **The main event** — Add your protein. Sear without moving it for 3-4 minutes to develop a beautiful crust. Flip, repeat.
+5. **Layer the vegetables** — Add vegetables around the protein. Season with salt, pepper, and paprika. Stir gently.
+6. **Deglaze and simmer** — Pour in stock. Bring to a gentle simmer. Cover partially and cook 15-20 minutes until tender.
+7. **Finish with brightness** — Squeeze in lemon juice. Add fresh herbs. Taste and adjust seasoning — this is your moment.
+8. **Rest and serve** — Let it rest 5 minutes before serving. This is important. Patience makes it perfect.
+
+---
+
+## 💡 Chef's Secrets
+
+- **Don't rush the onions** — Properly caramelized onions are the soul of this dish. Take the extra 2 minutes.
+- **Hot pan, then fat** — Prevents sticking and ensures proper browning.
+- **Salt in layers** — Season at each stage, not just at the end. It builds depth.
+- **Acid at the end** — That squeeze of lemon lifts every flavor in the pan.
+
+---
+
+## ⚠️ Common Mistakes to Avoid
+
+- **Overcrowding the pan** — Causes steaming, not browning. Cook in batches if needed.
+- **Adding garlic too early** — It burns in 30 seconds on high heat. Always after onions.
+- **Skipping the rest** — The rest redistributes juices. Cut too early and they run out.
+
+---
+
+## 🍷 Pairings
+
+**Wine:** A medium-bodied Côtes du Rhône or crisp Sauvignon Blanc  
+**Non-alcoholic:** Sparkling water with cucumber and mint  
+**Sides:** Crusty sourdough, simple arugula salad, or roasted potatoes
+
+---
+
+## 📦 Storage & Reheating
+
+- **Fridge:** Airtight container, up to 4 days
+- **Freezer:** Up to 3 months — thaw overnight in fridge
+- **Reheat:** Gently on stovetop with a splash of water or stock
+
+---
+
+## 🌱 Nutritional Notes
+
+Rich in lean protein, fiber, and vitamins A and C. Naturally gluten-free. Easily adapted for dairy-free or vegan diets.
+
+---
+
+> *"${name}, the secret ingredient is always the love you bring to the kitchen."* — Celestique AI`;
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function saveHistory(prompt, title, text) {
+  const item = {
+    id: Date.now().toString(),
+    prompt,
+    title,
+    text,
+    date: new Date().toISOString()
+  };
+  history.unshift(item);
+  if (history.length > 20) history = history.slice(0, 20);
+  localStorage.setItem('cel_history', JSON.stringify(history));
+}
+
+function renderHistory() {
+  const body = document.getElementById('drawerBody');
+  if (!history.length) {
+    body.innerHTML = `<div class="drawer-empty"><i class="fas fa-utensils"></i><p>Your generated recipes<br>will appear here</p></div>`;
+    return;
+  }
+  body.innerHTML = history.map(item => `
+    <div class="history-item" onclick="loadHistory('${item.id}')">
+      <div class="hi-title">${item.title || item.prompt.substring(0,50)}</div>
+      <div class="hi-meta">
+        <span>${new Date(item.date).toLocaleDateString()}</span>
+        <span>${item.prompt.substring(0,28)}${item.prompt.length>28?'...':''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadHistory(id) {
+  const item = history.find(h => h.id === id);
+  if (!item) return;
+  currentRecipeText = item.text;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('recipeOutput').classList.add('visible');
+  document.getElementById('streamContainer').innerHTML = parseMarkdown(item.text);
+  document.getElementById('exportBtn').style.display = 'flex';
+  closeHistory();
+  document.getElementById('streamContainer').scrollIntoView({ behavior: 'smooth' });
+}
+
+function openHistory() {
+  document.getElementById('historyDrawer').classList.add('open');
+  document.getElementById('historyOverlay').classList.add('open');
+}
+function closeHistory() {
+  document.getElementById('historyDrawer').classList.remove('open');
+  document.getElementById('historyOverlay').classList.remove('open');
+}
+
+// ============================================================
+// PDF EXPORT
+// ============================================================
+function exportPDF() {
+  if (!currentRecipeText) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // Header
+  doc.setFillColor(139, 105, 20);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setTextColor(251, 247, 240);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Celestique AI v2.0', 105, 13, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Personal Recipe Intelligence · Powered by Sooban Talha Technologies', 105, 22, { align: 'center' });
+
+  doc.setTextColor(42, 32, 21);
+
+  // Strip markdown to plain text
+  const plain = currentRecipeText
+    .replace(/^#{1,3} /gm, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/^> /gm, '')
+    .replace(/^---$/gm, '')
+    .replace(/^\|.+\|$/gm, '');
+
+  const lines = plain.split('\n').filter(l => l.trim());
+  let y = 36;
+
+  for (const line of lines) {
+    if (y > 270) { doc.addPage(); y = 20; }
+    const wrapped = doc.splitTextToSize(line, 180);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(wrapped, 15, y);
+    y += wrapped.length * 5.5 + 2;
+  }
+
+  // Footer
+  const pages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(140, 120, 90);
+    doc.text(`Page ${i} of ${pages} · Celestique AI v2.0`, 105, 292, { align: 'center' });
+  }
+
+  const title = (extractTitle(currentRecipeText) || 'recipe').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  doc.save(`celestique_${title}.pdf`);
+  showToast('📄 PDF exported successfully!');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
 </body>
 </html>
